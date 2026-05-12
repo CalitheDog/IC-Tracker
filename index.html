@@ -910,12 +910,8 @@ body.light.theme-streakah{
 
 
 /* v22 collapsible Key / Tips / FAQ */
-.help-panel.collapsed .help-grid{
-  display:none;
-}
-.help-panel .panel-hd{
-  justify-content:space-between;
-}
+.help-panel.collapsed .help-grid{display:none;}
+.help-panel .panel-hd{justify-content:space-between;}
 .help-toggle{
   position:relative;
   z-index:2;
@@ -938,17 +934,9 @@ body.light.theme-streakah{
   border-color:rgba(255,208,96,0.45);
   box-shadow:0 10px 24px rgba(0,0,0,0.24),0 0 18px rgba(201,168,76,0.10);
 }
-.help-panel.collapsed{
-  padding-bottom:12px;
-}
-.help-panel.collapsed .panel-hd{
-  margin-bottom:0;
-  padding-bottom:0;
-  border-bottom:0;
-}
-.help-panel.collapsed .panel-hd::after{
-  display:none;
-}
+.help-panel.collapsed{padding-bottom:12px;}
+.help-panel.collapsed .panel-hd{margin-bottom:0;padding-bottom:0;border-bottom:0;}
+.help-panel.collapsed .panel-hd::after{display:none;}
 body.light .help-toggle{
   background:rgba(255,255,255,0.45);
   border-color:rgba(122,86,24,0.28);
@@ -957,6 +945,30 @@ body.light .help-toggle{
 body.light .help-toggle:hover{
   color:#704c12;
   border-color:rgba(122,86,24,0.45);
+}
+
+
+/* v23 keyboard shortcuts helper */
+.shortcut-hint{
+  position:fixed;
+  left:20px;
+  bottom:20px;
+  z-index:100;
+  font-family:'Cinzel',serif;
+  font-size:0.56rem;
+  letter-spacing:0.10em;
+  text-transform:uppercase;
+  color:#8a7040;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(201,168,76,0.20);
+  border-radius:999px;
+  padding:7px 12px;
+  pointer-events:none;
+}
+body.light .shortcut-hint{
+  background:rgba(255,255,255,0.45);
+  border-color:rgba(122,86,24,0.28);
+  color:#5c421d;
 }
 
 </style>
@@ -989,6 +1001,7 @@ body.light .help-toggle:hover{
 </div>
 
 <button id="themeBtn" onclick="toggleTheme()">☀️ Light</button>
+<div id="shortcutHint" class="shortcut-hint">Keys: 1–6 kill · Shift+1–6 body · S+1–6 seen · G+1–6 guess</div>
 <button id="muteBtn" onclick="toggleMute()">🔔 Sound On</button>
 
 <div class="header">
@@ -1715,6 +1728,10 @@ function applyPreset(mode){
   buildDCToggles();
   logEvent(`Preset selected: ${modeName()}.`);
   updateTV();
+
+  if (mode === "streakah" && typeof showStreakahSplashIfReady === "function") {
+    showStreakahSplashIfReady();
+  }
 }
 
 function toggleDC(i){
@@ -1896,21 +1913,12 @@ function seenAlive(i){
 function guessTimer(i) {
   const minutesAgo = Number(prompt("How many minutes ago do you think it died? Enter 1-14."));
   if (Number.isNaN(minutesAgo) || minutesAgo < 1 || minutesAgo > 14) {
-    showNotice("Invalid guess. Enter a number from 1 to 14.");
+    toast("Invalid guess. Enter a number from 1 to 14.", "error");
     return;
   }
 
-  const now = Date.now();
-  const guessedKillTime = now - (minutesAgo * 60 * 1000);
-  const previousState = JSON.parse(JSON.stringify(state));
-  pushUndo(previousState, "Manual timer guess");
-
-  state.timers[i] = guessedKillTime;
-  state.unknowns[i] = null;
-  state.seenAlive[i] = null;
-  addLog(`Guessed timer: ${DISTRICTS[i].name} died about ${minutesAgo} min ago`);
-  saveState();
-  renderAll();
+  setTimerGuess(i, minutesAgo);
+  toast(`${DISTRICTS[i].name} timer guessed from ${minutesAgo} min ago`, "info");
 }
 
 function setTimerGuess(i,minsAgo){
@@ -2104,10 +2112,8 @@ function showStreakahSplashIfReady() {
   void splash.offsetWidth;
   splash.classList.add("show");
 
-  if (typeof showNotice === "function") {
-    showNotice("Im the streakah baby", "info");
-  } else if (typeof showToast === "function") {
-    showToast("Im the streakah baby", "info");
+  if (typeof toast === "function") {
+    toast("Im the streakah baby", "info");
   }
 
   clearTimeout(streakahSplashTimer);
@@ -2117,34 +2123,122 @@ function showStreakahSplashIfReady() {
 }
 
 
-/* v22 collapsible Key / Tips / FAQ */
-let helpPanelCollapsed = localStorage.getItem("esoIcHelpCollapsed") === "true";
+/* v23 keyboard shortcuts */
+let shortcutPrefix = null;
+let shortcutPrefixTimer = null;
 
-function applyHelpPanelState() {
-  const panel = document.querySelector(".help-panel");
-  const btn = document.getElementById("helpToggleBtn");
+function districtFromNumberKey(key) {
+  const n = Number(key);
+  return Number.isInteger(n) && n >= 1 && n <= DISTRICTS.length ? n - 1 : null;
+}
 
-  if (!panel || !btn) {
+function clearShortcutPrefix() {
+  shortcutPrefix = null;
+  clearTimeout(shortcutPrefixTimer);
+}
+
+function setShortcutPrefix(prefix) {
+  shortcutPrefix = prefix;
+  clearTimeout(shortcutPrefixTimer);
+  shortcutPrefixTimer = setTimeout(clearShortcutPrefix, 1800);
+  if (typeof toast === "function") {
+    const labels = { seen: "Seen Alive", guess: "Guess Timer", reset: "Reset Timer" };
+    toast(`${labels[prefix] || prefix}: press 1-6`, "info");
+  }
+}
+
+function handleTrackerShortcut(event) {
+  const tag = (event.target && event.target.tagName || "").toLowerCase();
+  if (tag === "input" || tag === "textarea" || tag === "select" || event.target?.isContentEditable) {
     return;
   }
 
-  panel.classList.toggle("collapsed", helpPanelCollapsed);
-  btn.textContent = helpPanelCollapsed ? "Show Help" : "Hide Help";
-  btn.setAttribute("aria-expanded", String(!helpPanelCollapsed));
+  if (event.key === "Escape") {
+    clearShortcutPrefix();
+    return;
+  }
+
+  const key = event.key.toLowerCase();
+
+  if (key === "s") {
+    event.preventDefault();
+    setShortcutPrefix("seen");
+    return;
+  }
+
+  if (key === "g") {
+    event.preventDefault();
+    setShortcutPrefix("guess");
+    return;
+  }
+
+  if (key === "r") {
+    event.preventDefault();
+    setShortcutPrefix("reset");
+    return;
+  }
+
+  if (key === "b") {
+    event.preventDefault();
+    bankTelVar();
+    return;
+  }
+
+  if (key === "x") {
+    event.preventDefault();
+    gankedTelVar();
+    return;
+  }
+
+  if (key === "u") {
+    event.preventDefault();
+    undoLastAction();
+    return;
+  }
+
+  const districtIndex = districtFromNumberKey(event.key);
+  if (districtIndex === null) {
+    return;
+  }
+
+  event.preventDefault();
+
+  if (shortcutPrefix === "seen") {
+    seenAlive(districtIndex);
+    clearShortcutPrefix();
+    return;
+  }
+
+  if (shortcutPrefix === "guess") {
+    guessTimer(districtIndex);
+    clearShortcutPrefix();
+    return;
+  }
+
+  if (shortcutPrefix === "reset") {
+    rstBoss(districtIndex);
+    clearShortcutPrefix();
+    return;
+  }
+
+  if (event.shiftKey) {
+    bodyFound(districtIndex);
+    return;
+  }
+
+  killBoss(districtIndex);
 }
 
-function toggleHelpPanel() {
-  helpPanelCollapsed = !helpPanelCollapsed;
-  localStorage.setItem("esoIcHelpCollapsed", String(helpPanelCollapsed));
-  applyHelpPanelState();
-}
+document.addEventListener("keydown", handleTrackerShortcut);
 
-document.addEventListener("DOMContentLoaded", applyHelpPanelState);
 
-</script>
+/* v23 streakahStartupCheck */
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(() => {
+    if (typeof showStreakahSplashIfReady === "function") {
+      showStreakahSplashIfReady();
+    }
+  }, 250);
+});
 
-<script>
-if (localStorage.getItem("esoIcHelpCollapsed") === null) {
-  localStorage.setItem("esoIcHelpCollapsed", "true");
-}
 </script>
