@@ -553,12 +553,14 @@ function toggleDC(i){
 function startFarm(){
   pushUndo('Start farming');
   farmStart=Date.now();farmEnd=null;farmRunning=true;totalKills=0;currentTelVar=0;bankedTelVar=0;lostTelVar=0;eventLog=[];
+  killStreak=0;
   logEvent('Farming session started.');
+  saveSession();
   updateTV();
 }
 
 function endFarm(){
-  if(farmRunning){pushUndo('End farming');farmEnd=Date.now();farmRunning=false;logEvent('Farming session ended.');}
+  if(farmRunning){pushUndo('End farming');farmEnd=Date.now();farmRunning=false;logEvent('Farming session ended.');saveSession();}
   updateTV();
 }
 
@@ -569,6 +571,8 @@ function bankTelVar(){
   bankedTelVar+=currentTelVar;currentTelVar=0;totalKills=0;
   logEvent(`Banked ${amount.toLocaleString()} Tel Var.`);
   toast(`Banked ${amount.toLocaleString()} Tel Var`,'success');
+  launchConfetti();
+  saveSession();
   updateTV();
 }
 
@@ -577,8 +581,10 @@ function gankedTelVar(){
   pushUndo('Ganked');
   const lost=Math.floor(currentTelVar*0.5);
   lostTelVar+=lost;currentTelVar-=lost;
+  resetStreak();
   logEvent(`Ganked — lost ${lost.toLocaleString()} Tel Var.`);
   toast(`Ganked — lost ${lost.toLocaleString()} Tel Var`,'error');
+  saveSession();
   updateTV();
 }
 
@@ -757,7 +763,9 @@ function killBoss(i){
   const gain=perKill();
   timers[i].end=Date.now()+RESPAWN*1000;timers[i].running=true;timers[i].wasRunning=true;timers[i].warnFired=false;timers[i].unknown=false;timers[i].unknownAt=null;timers[i].seenAt=null;
   totalKills++;currentTelVar+=gain;
+  bumpStreak();
   logEvent(`Killed ${DISTRICTS[i].name} boss (${bossNamesForDistrict(i)}) — +${gain.toLocaleString()} Tel Var.`);
+  saveSession();
   updateTV();
 }
 
@@ -766,6 +774,7 @@ function bodyFound(i){
   timers[i].end=null;timers[i].running=false;timers[i].wasRunning=false;timers[i].warnFired=false;timers[i].unknown=true;timers[i].unknownAt=Date.now();timers[i].seenAt=null;
   logEvent(`Someone else killed ${DISTRICTS[i].name} (${bossNamesForDistrict(i)}) — respawn timer unknown.`);
   toast(`${DISTRICTS[i].name} body found — timer unknown`,'info');
+  saveSession();
   updateTV();
 }
 
@@ -773,6 +782,7 @@ function rstBoss(i){
   pushUndo('Reset boss timer');
   timers[i].end=null;timers[i].running=false;timers[i].wasRunning=false;timers[i].warnFired=false;timers[i].unknown=false;timers[i].unknownAt=null;timers[i].seenAt=null;
   logEvent(`Reset ${DISTRICTS[i].name} timer.`);
+  saveSession();
   updateTV();
 }
 
@@ -834,8 +844,8 @@ function tick(){
     if(unknown){up=false;}
     else if(t.running&&t.end){
       rem=Math.max(0,(t.end-now)/1000);up=rem<=0;wn=!up&&rem<=WARN_AT;
-      if(wn&&!t.warnFired){t.warnFired=true;windowAlert(d.name,'warning');logEvent(`${d.name} respawns in 1 minute.`);}
-      if(up&&t.wasRunning){t.running=false;t.end=null;t.wasRunning=false;t.warnFired=false;windowAlert(d.name,'spawn');logEvent(`${d.name} boss respawned.`);const row=document.getElementById(`dr${i}`);if(row){row.classList.add('just-up');setTimeout(()=>row.classList.remove('just-up'),3600);}}
+      if(wn&&!t.warnFired){t.warnFired=true;windowAlert(d.name,'warning');logEvent(`${d.name} respawns in 1 minute.`);const wsl=document.getElementById(`sl${i}`);if(wsl){wsl.classList.add('respawn-pulse');setTimeout(()=>wsl.classList.remove('respawn-pulse'),3500);}}
+      if(up&&t.wasRunning){t.running=false;t.end=null;t.wasRunning=false;t.warnFired=false;windowAlert(d.name,'spawn');logEvent(`${d.name} boss respawned.`);const row=document.getElementById(`dr${i}`);if(row){row.classList.add('just-up');setTimeout(()=>row.classList.remove('just-up'),3600);}const rsl=document.getElementById(`sl${i}`);if(rsl){rsl.classList.add('respawn-pulse');setTimeout(()=>rsl.classList.remove('respawn-pulse'),3500);}}
     }
     const state=districtState(i),urg=!up&&!unknown&&rem<15;
     let str=up?'ALIVE':fmt(rem),title='';
@@ -855,6 +865,8 @@ function init(){
   loadTheme();
   buildGear();buildMap();buildRows();buildDCToggles();buildSkulls();updateTV();
   tick();setInterval(tick,500);
+  setInterval(saveSession,15000);
+  checkSavedSession();
 }
 init();
 
@@ -971,3 +983,228 @@ document.addEventListener("DOMContentLoaded", applyHelpPanelState);
 if (localStorage.getItem("esoIcHelpCollapsed") === null) {
   localStorage.setItem("esoIcHelpCollapsed", "true");
 }
+
+
+/* ═══════════════════════════════════════════
+   FEATURE: Kill Streak
+   ═══════════════════════════════════════════ */
+let killStreak = 0;
+let bestStreak = parseInt(localStorage.getItem('esoIcBestStreak') || '0', 10);
+
+function bumpStreak() {
+  killStreak++;
+  if (killStreak > bestStreak) {
+    bestStreak = killStreak;
+    try { localStorage.setItem('esoIcBestStreak', String(bestStreak)); } catch(e) {}
+  }
+  updateStreakBadge();
+}
+
+function resetStreak() {
+  if (killStreak >= 3) {
+    toast(`Kill streak of ${killStreak} ended!`, 'error');
+  }
+  killStreak = 0;
+  updateStreakBadge();
+}
+
+function updateStreakBadge() {
+  const badge = document.getElementById('streakBadge');
+  const countEl = document.getElementById('streakCount');
+  if (!badge || !countEl) return;
+  if (killStreak >= 2) {
+    countEl.textContent = killStreak;
+    badge.classList.add('show');
+    badge.classList.remove('pop');
+    void badge.offsetWidth;
+    badge.classList.add('pop');
+  } else {
+    badge.classList.remove('show');
+  }
+}
+
+
+/* ═══════════════════════════════════════════
+   FEATURE: Confetti on Bank
+   ═══════════════════════════════════════════ */
+function launchConfetti() {
+  const canvas = document.getElementById('confettiCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const colors = ['#ffd060','#c9a84c','#58c070','#68b8e8','#ff6f32','#a98cff','#ff4a34','#8ed9ff'];
+  const particles = [];
+  const count = 80;
+
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: canvas.width * 0.5 + (Math.random() - 0.5) * 200,
+      y: canvas.height * 0.5,
+      vx: (Math.random() - 0.5) * 14,
+      vy: -Math.random() * 16 - 4,
+      w: Math.random() * 8 + 3,
+      h: Math.random() * 6 + 2,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rot: Math.random() * Math.PI * 2,
+      rv: (Math.random() - 0.5) * 0.3,
+      life: 1
+    });
+  }
+
+  let raf;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = false;
+    particles.forEach(p => {
+      if (p.life <= 0) return;
+      alive = true;
+      p.x += p.vx;
+      p.vy += 0.35;
+      p.y += p.vy;
+      p.rot += p.rv;
+      p.life -= 0.012;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    });
+    if (alive) raf = requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  draw();
+}
+
+
+/* ═══════════════════════════════════════════
+   FEATURE: Session Persistence
+   ═══════════════════════════════════════════ */
+const SESSION_KEY = 'esoIcSession';
+
+function saveSession() {
+  try {
+    const data = {
+      ts: Date.now(),
+      timers: timers.map(t => ({
+        end: t.end, running: t.running, wasRunning: t.wasRunning,
+        warnFired: t.warnFired, unknown: t.unknown,
+        unknownAt: t.unknownAt, seenAt: t.seenAt || null
+      })),
+      dcHeld: [...dcHeld],
+      stI, grSz, totalKills, currentTelVar, bankedTelVar, lostTelVar,
+      farmStart, farmEnd, farmRunning,
+      activePreset,
+      killStreak, bestStreak,
+      eventLog: eventLog.slice(0, 20)
+    };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(data));
+  } catch(e) {}
+}
+
+function loadSession(data) {
+  data.timers.forEach((t, i) => {
+    if (i < timers.length) Object.assign(timers[i], t);
+  });
+  dcHeld.clear();
+  (data.dcHeld || []).forEach(i => dcHeld.add(i));
+  stI = data.stI ?? 0;
+  grSz = data.grSz ?? 1;
+  totalKills = data.totalKills ?? 0;
+  currentTelVar = data.currentTelVar ?? 0;
+  bankedTelVar = data.bankedTelVar ?? 0;
+  lostTelVar = data.lostTelVar ?? 0;
+  farmStart = data.farmStart ?? null;
+  farmEnd = data.farmEnd ?? null;
+  farmRunning = data.farmRunning ?? false;
+  activePreset = data.activePreset ?? null;
+  killStreak = data.killStreak ?? 0;
+  bestStreak = data.bestStreak ?? bestStreak;
+  eventLog = data.eventLog || [];
+
+  document.querySelectorAll('#stonesEl .seg').forEach((b, j) => b.classList.toggle('sel', j === stI));
+  document.querySelectorAll('#groupEl .seg').forEach((b, j) => b.classList.toggle('sel', j + 1 === grSz));
+  buildDCToggles();
+  updateStreakBadge();
+  renderEventLog();
+  updateTV();
+}
+
+function checkSavedSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    const age = Date.now() - (data.ts || 0);
+    if (age > 4 * 60 * 60 * 1000) {
+      localStorage.removeItem(SESSION_KEY);
+      return;
+    }
+    const bar = document.getElementById('restoreBar');
+    if (bar) bar.classList.add('show');
+  } catch(e) {}
+}
+
+function restoreSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (raw) {
+      loadSession(JSON.parse(raw));
+      toast('Session restored', 'success');
+    }
+  } catch(e) {}
+  dismissRestore();
+}
+
+function dismissRestore() {
+  const bar = document.getElementById('restoreBar');
+  if (bar) bar.classList.remove('show');
+  localStorage.removeItem(SESSION_KEY);
+}
+
+
+/* ═══════════════════════════════════════════
+   FEATURE: Keyboard Shortcuts
+   ═══════════════════════════════════════════ */
+document.addEventListener('keydown', function(e) {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+  const key = e.key.toLowerCase();
+
+  if (key >= '1' && key <= '6') {
+    const idx = parseInt(key) - 1;
+    if (idx < DISTRICTS.length) {
+      killBoss(idx);
+      e.preventDefault();
+    }
+    return;
+  }
+
+  switch(key) {
+    case 'b':
+      bankTelVar();
+      e.preventDefault();
+      break;
+    case 'g':
+      gankedTelVar();
+      e.preventDefault();
+      break;
+    case 'u':
+      undoLastAction();
+      e.preventDefault();
+      break;
+    case 'n':
+      killNextTarget();
+      e.preventDefault();
+      break;
+    case 's':
+      if (farmRunning) endFarm();
+      else startFarm();
+      e.preventDefault();
+      break;
+  }
+});

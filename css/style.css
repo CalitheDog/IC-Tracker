@@ -956,3 +956,83 @@ body.light .help-toggle:hover{
   border-color:rgba(122,86,24,0.45);
 }
 
+
+/* ═══ KILL STREAK BADGE ═══ */
+.streak-badge{
+  position:fixed;top:14px;left:14px;z-index:200;
+  display:none;align-items:center;gap:8px;
+  padding:6px 14px 6px 10px;border-radius:999px;
+  background:linear-gradient(135deg,rgba(180,50,10,0.82),rgba(255,120,30,0.58));
+  border:1px solid rgba(255,160,60,0.65);
+  box-shadow:0 6px 28px rgba(255,80,20,0.35),0 0 18px rgba(255,120,40,0.18);
+  font-family:'Cinzel',serif;color:#ffd060;
+  animation:streakPulse 1.8s ease-in-out infinite;
+  transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s;
+}
+.streak-badge.show{display:flex;}
+.streak-badge.pop{animation:streakPop 0.4s cubic-bezier(0.34,1.56,0.64,1);}
+.streak-icon{font-size:1.1rem;filter:drop-shadow(0 0 4px rgba(255,120,30,0.8));}
+.streak-count{font-size:1rem;font-weight:700;letter-spacing:0.06em;text-shadow:0 0 12px rgba(255,180,60,0.5);}
+.streak-label{font-size:0.48rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,220,130,0.8);}
+@keyframes streakPulse{0%,100%{box-shadow:0 6px 28px rgba(255,80,20,0.35),0 0 18px rgba(255,120,40,0.18)}50%{box-shadow:0 6px 34px rgba(255,80,20,0.55),0 0 28px rgba(255,120,40,0.32)}}
+@keyframes streakPop{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+body.light .streak-badge{background:linear-gradient(135deg,rgba(200,80,20,0.88),rgba(255,140,50,0.72));border-color:rgba(180,90,30,0.7);color:#fff;box-shadow:0 6px 24px rgba(180,60,10,0.3);}
+
+/* ═══ KEYBOARD SHORTCUT HINT BAR ═══ */
+.kb-bar{
+  display:flex;justify-content:center;flex-wrap:wrap;gap:6px;
+  padding:6px 0;margin-top:4px;
+}
+.kb-hint{
+  display:inline-flex;align-items:center;gap:4px;
+  font-family:'Cinzel',serif;font-size:0.46rem;letter-spacing:0.08em;
+  text-transform:uppercase;color:#5a4a30;
+}
+.kb-key{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:18px;height:18px;padding:0 5px;
+  border-radius:4px;font-size:0.5rem;font-weight:700;
+  background:rgba(255,255,255,0.06);border:1px solid rgba(201,168,76,0.25);
+  color:#c9a84c;font-family:'Cinzel',serif;
+}
+body.light .kb-hint{color:#6e4a18;}
+body.light .kb-key{background:rgba(255,255,255,0.5);border-color:rgba(122,86,24,0.3);color:#704c12;}
+
+/* ═══ CONFETTI CANVAS ═══ */
+#confettiCanvas{
+  position:fixed;inset:0;z-index:2500;pointer-events:none;
+}
+
+/* ═══ MAP RESPAWN PULSE ═══ */
+@keyframes mapSlicePulse{
+  0%,100%{filter:brightness(1) drop-shadow(0 0 0 transparent)}
+  50%{filter:brightness(1.6) drop-shadow(0 0 14px rgba(88,192,112,0.7))}
+}
+.sc.respawn-pulse{animation:mapSlicePulse 0.8s ease-in-out 4;}
+
+/* ═══ SESSION RESTORE TOAST ═══ */
+.restore-bar{
+  position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:300;
+  display:none;align-items:center;gap:10px;
+  padding:8px 16px;border-radius:999px;
+  background:rgba(8,6,2,0.96);border:1px solid rgba(104,184,232,0.5);
+  box-shadow:0 8px 32px rgba(0,0,0,0.6);
+  font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.1em;
+  text-transform:uppercase;color:#68b8e8;
+  animation:restoreSlide 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+.restore-bar.show{display:flex;}
+.restore-bar button{
+  font-family:'Cinzel',serif;font-size:0.52rem;letter-spacing:0.08em;
+  text-transform:uppercase;padding:4px 10px;border-radius:4px;cursor:pointer;
+  transition:all 0.15s;
+}
+.restore-bar .rb-yes{background:rgba(88,192,112,0.22);border:1px solid rgba(88,192,112,0.5);color:#58c070;}
+.restore-bar .rb-yes:hover{background:rgba(88,192,112,0.38);}
+.restore-bar .rb-no{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#8a7040;}
+.restore-bar .rb-no:hover{background:rgba(255,255,255,0.1);color:#c9a84c;}
+@keyframes restoreSlide{from{transform:translateX(-50%) translateY(20px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
+body.light .restore-bar{background:rgba(245,238,222,0.96);border-color:rgba(50,90,160,0.4);color:#255c91;box-shadow:0 8px 24px rgba(60,35,8,0.2);}
+body.light .restore-bar .rb-yes{background:rgba(60,130,70,0.18);border-color:rgba(60,130,70,0.4);color:#286b34;}
+body.light .restore-bar .rb-no{background:rgba(255,255,255,0.5);border-color:rgba(122,86,24,0.25);color:#5c421d;}
+
