@@ -1250,7 +1250,7 @@ const C={
 const ALLIANCE_HELD={
   ep:{dA:{f:'#3d0e10',s:'#8a1f20'},dD:{f:'#2e0c0e',s:'#6a181a'},dW:{f:'#3a1812',s:'#8a3024'}},
   dc:{dA:{f:'#0c2644',s:'#174482'},dD:{f:'#0c1c34',s:'#1a3a6a'},dW:{f:'#182436',s:'#386088'}},
-  ad:{dA:{f:'#3d3a0a',s:'#8a8217'},dD:{f:'#2e2a0c',s:'#6a5c18'},dW:{f:'#3a3212',s:'#8a7a24'}},
+  ad:{dA:{f:'#3d3200',s:'#c4a800'},dD:{f:'#2a2200',s:'#907800'},dW:{f:'#363000',s:'#a89000'}},
 };
 const ALLIANCE_TX={
   ep:{dcA:'#ff6a58',dcD:'#c86868',dcW:'#e08878'},
@@ -1777,6 +1777,7 @@ function applyPreset(mode){
   else if(mode==='chad'){setSt(3,true);setGr(2,true);}
   else if(mode==='streakah'){
     setSt(3,true);setGr(1,true);dcHeld.clear();
+    try{localStorage.setItem('ic-dcHeld','[]');}catch(e){}
     DISTRICTS.forEach((_,i)=>{refreshSlice(i);refreshRow(i);});
   }
   buildDCToggles();
@@ -1793,6 +1794,7 @@ function toggleDC(i){
   pushUndo('District control toggle');
   dcHeld.has(i)?dcHeld.delete(i):dcHeld.add(i);
   logEvent(`${DISTRICTS[i].name} DC control ${dcHeld.has(i)?'enabled':'removed'}.`);
+  try{localStorage.setItem('ic-dcHeld',JSON.stringify([...dcHeld]));}catch(e){}
   refreshSlice(i);refreshRow(i);buildDCToggles();updateTV();
 }
 
@@ -2071,8 +2073,11 @@ function tick(){
 function init(){
   loadTheme();
   const savedAlliance=localStorage.getItem('ic-alliance');
+  buildGear();buildMap();buildRows();
+  try{JSON.parse(localStorage.getItem('ic-dcHeld')||'[]').forEach(i=>{if(i>=0&&i<DISTRICTS.length)dcHeld.add(i);});}catch(e){}
+  DISTRICTS.forEach((_,i)=>refreshRow(i));
   setAlliance(savedAlliance&&ALLIANCES[savedAlliance]?savedAlliance:'dc');
-  buildGear();buildMap();buildRows();buildDCToggles();buildSkulls();updateTV();
+  buildDCToggles();buildSkulls();updateTV();
   tick();setInterval(tick,500);
 }
 init();
