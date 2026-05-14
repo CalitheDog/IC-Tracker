@@ -106,10 +106,31 @@ body.alliance-ad .dc-toggle.held{background:rgba(160,140,20,0.22);border-color:r
 .dc-toggle.locked:hover{color:#7a3025;}
 .sc.locked{cursor:not-allowed;}
 
-.formula{background:rgba(0,0,0,0.3);border:1px solid rgba(201,168,76,0.09);border-radius:6px;padding:12px 14px;margin-bottom:14px;font-size:0.78rem;line-height:2;color:#5a4030;}
+.formula{background:rgba(0,0,0,0.3);border:1px solid rgba(201,168,76,0.09);border-radius:6px;padding:12px 14px;font-size:0.78rem;line-height:2;color:#5a4030;}
 .formula .hl{color:#c9a84c;font-weight:600;font-family:'Cinzel',serif;}
 .formula .hlb{color:#6ab0e0;font-weight:600;font-family:'Cinzel',serif;}
 .formula .res{color:#ffd060;font-size:1rem;font-weight:700;font-family:'Cinzel',serif;}
+.formula-details{margin-bottom:14px;}
+.formula-summary{font-size:0.54rem;letter-spacing:0.12em;text-transform:uppercase;color:#4a3820;cursor:pointer;user-select:none;padding:6px 0;list-style:none;display:flex;align-items:center;gap:6px;}
+.formula-summary::after{content:'▾';color:#c9a84c;font-size:0.7rem;transition:transform 0.2s;}
+.formula-details[open] .formula-summary::after{transform:rotate(180deg);}
+.formula-summary::-webkit-details-marker{display:none;}
+.formula-details .formula{margin-top:8px;margin-bottom:0;}
+body.light .formula-summary{color:#6e4a18;}
+
+.panel-sep{border:none;border-top:1px solid rgba(201,168,76,0.08);margin:14px 0;}
+
+.tv-adj-group{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-top:12px;border-top:1px solid rgba(201,168,76,0.08);}
+.tv-adj-item{display:flex;flex-direction:column;gap:4px;}
+.tv-adj-item-label{font-size:0.53rem;letter-spacing:0.11em;text-transform:uppercase;color:#4a3820;}
+body.light .tv-adj-item-label{color:#6e4a18;}
+.tv-adj-line{display:flex;gap:5px;}
+.tv-adj-line .tv-adj-input{flex:1;min-width:0;}
+.tv-adj-line .tv-adj-btn{padding:6px 10px;flex-shrink:0;}
+
+.district-section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding:0 2px;}
+.district-section-hd-title{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:#5a4018;}
+body.light .district-section-hd-title{color:#6e4a18;}
 
 .tv-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(95px,1fr));gap:8px;}
 .tv-stat{text-align:center;padding:10px 6px;background:rgba(0,0,0,0.25);border-radius:6px;border:1px solid rgba(201,168,76,0.07);}
@@ -1131,9 +1152,13 @@ body.light .tv-adj-input::placeholder{color:#a08040;}
         </div>
       </div>
     </div>
+    <hr class="panel-sep">
     <div class="tv-lbl" style="margin-bottom:8px" id="dcLabel">DC-held districts (tap to toggle)</div>
     <div class="dc-grid" id="dcToggles"></div>
-    <div class="formula" id="formula"></div>
+    <details class="formula-details">
+      <summary class="formula-summary">Per-kill formula</summary>
+      <div class="formula" id="formula"></div>
+    </details>
     <div class="tv-stats">
       <div class="tv-stat"><div class="tv-sv" id="tvK">0</div><div class="tv-sl">Boss Kills</div></div>
       <div class="tv-stat"><div class="tv-sv gold" id="tvT">0</div><div class="tv-sl">Tel Var Est.</div></div>
@@ -1153,11 +1178,21 @@ body.light .tv-adj-input::placeholder{color:#a08040;}
       <button class="tv-action bank" onclick="bankTelVar()">🏦 Banked Tel Var</button>
       <button class="tv-action gank" onclick="gankedTelVar()">☠ Ganked</button>
     </div>
-    <div class="tv-adj-row">
-      <input type="number" class="tv-adj-input" id="tvAdjustInput" placeholder="Add tel var" min="1" step="100" onkeydown="if(event.key==='Enter')addManualTelvar()">
-      <button class="tv-adj-btn add" onclick="addManualTelvar()">+Add</button>
-      <input type="number" class="tv-adj-input" id="tvTargetInput" placeholder="Set target" min="1" step="1000" onkeydown="if(event.key==='Enter')setTelvarTarget()">
-      <button class="tv-adj-btn tgt" onclick="setTelvarTarget()">🎯 Target</button>
+    <div class="tv-adj-group">
+      <div class="tv-adj-item">
+        <span class="tv-adj-item-label">Add Tel Var</span>
+        <div class="tv-adj-line">
+          <input type="number" class="tv-adj-input" id="tvAdjustInput" placeholder="Amount" min="1" step="100" onkeydown="if(event.key==='Enter')addManualTelvar()">
+          <button class="tv-adj-btn add" onclick="addManualTelvar()">+Add</button>
+        </div>
+      </div>
+      <div class="tv-adj-item">
+        <span class="tv-adj-item-label">Session Target</span>
+        <div class="tv-adj-line">
+          <input type="number" class="tv-adj-input" id="tvTargetInput" placeholder="Target" min="1" step="1000" onkeydown="if(event.key==='Enter')setTelvarTarget()">
+          <button class="tv-adj-btn tgt" onclick="setTelvarTarget()">Set</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1239,10 +1274,10 @@ body.light .tv-adj-input::placeholder{color:#a08040;}
   </div>
 
 
-  <div class="sort-bar">
+  <div class="district-section-hd">
+    <span class="district-section-hd-title">Boss Timers</span>
     <button class="sort-btn" id="sortBtn" onclick="toggleSortByRespawn()">⇅ Sort by Respawn</button>
   </div>
-  <!-- DISTRICT ROWS -->
   <div class="districts" id="districts"></div>
   <button class="reset-all" onclick="resetAll()">↺ Reset All Timers</button>
 
