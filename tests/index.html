@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IC Tracker — Tests</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0a0a0a; color: #ccc; min-height: 100vh; }
+  </style>
+</head>
+<body>
+
+<!-- Hidden app DOM elements that tests depend on -->
+<div id="flashOverlay" style="display:none"></div>
+<div id="alertBanner" style="display:none"></div>
+<div id="skullTooltip" style="display:none"></div>
+<canvas id="confettiCanvas" style="display:none"></canvas>
+<div class="streak-badge" id="streakBadge" style="display:none">
+  <span class="streak-icon"></span>
+  <div>
+    <div class="streak-count" id="streakCount">0</div>
+    <div class="streak-label">kill streak</div>
+  </div>
+</div>
+<div class="restore-bar" id="restoreBar"></div>
+<div id="map" style="display:none">
+  <svg viewBox="0 0 360 360" xmlns="http://www.w3.org/2000/svg">
+    <g id="slices"></g><g id="spokes"></g><g id="nodes"></g>
+    <g id="gear"></g><g id="labels"></g><g id="skulls"></g>
+  </svg>
+</div>
+<div id="stonesEl" style="display:none">
+  <button class="seg sel">0-99</button><button class="seg">100+</button>
+  <button class="seg">1k+</button><button class="seg">10k+</button>
+</div>
+<div id="groupEl" style="display:none">
+  <button class="seg sel">Solo</button><button class="seg">2</button>
+  <button class="seg">3</button><button class="seg">4</button>
+</div>
+<div id="dcToggles" style="display:none"></div>
+<div id="formula" style="display:none"></div>
+<div id="tvK" style="display:none">0</div>
+<div id="tvT" style="display:none">0</div>
+<div id="tvB" style="display:none">0</div>
+<div id="tvL" style="display:none">0</div>
+<div id="tvH" style="display:none">0</div>
+<div id="tvPK" style="display:none">0</div>
+<div id="tvTime" style="display:none">00:00:00</div>
+<div id="farmStartBtn" style="display:none"></div>
+<div id="farmEndBtn" style="display:none"></div>
+<div id="presetChud" class="preset-btn" style="display:none"></div>
+<div id="presetChad" class="preset-btn" style="display:none"></div>
+<div id="presetStreakah" class="preset-btn" style="display:none"></div>
+<div id="presetNote" style="display:none"></div>
+<div id="nextTargetTitle" style="display:none"></div>
+<div id="nextTargetReason" style="display:none"></div>
+<button id="killNextBtn" style="display:none"></button>
+<button id="bodyNextBtn" style="display:none"></button>
+<button id="undoBtn" style="display:none"></button>
+<div id="netSessionTv" style="display:none"></div>
+<div id="grossSessionTv" style="display:none"></div>
+<div id="effSessionTv" style="display:none"></div>
+<div id="districtStatusSummary" style="display:none"></div>
+<div id="districts" style="display:none"></div>
+<div id="sessionLog" style="display:none"></div>
+<div id="copyPill" style="display:none"></div>
+
+<!-- Test results rendered here -->
+<div id="results"></div>
+
+<!-- Load app code (it self-initializes) -->
+<script src="../js/app.js"></script>
+
+<!-- Load test runner + tests -->
+<script src="runner.js"></script>
+<script src="tests.js"></script>
+<script>
+  // Run tests after app initializes
+  TestRunner.render('results');
+</script>
+</body>
+</html>
