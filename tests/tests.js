@@ -18,6 +18,7 @@ function resetState() {
   farmEnd = null;
   farmRunning = false;
   activePreset = null;
+  alliance = 'dc';
   killStreak = 0;
   dcHeld.clear();
   actionStack = [];
@@ -230,14 +231,6 @@ describe('Timer & District State', () => {
     assert.lessThan(state.rem, 901);
   });
 
-  it('After bodyFound(), district is unknown', () => {
-    resetState();
-    bodyFound(0);
-    const state = districtState(0);
-    assert.notOk(state.up);
-    assert.ok(state.unknown);
-  });
-
   it('rstBoss() returns district to alive', () => {
     resetState();
     killBoss(0);
@@ -249,7 +242,7 @@ describe('Timer & District State', () => {
 
   it('resetAll() returns all districts to alive', () => {
     resetState();
-    killBoss(0); killBoss(1); bodyFound(2);
+    killBoss(0); killBoss(1); killBoss(2);
     resetAll();
     DISTRICTS.forEach((_, i) => {
       const state = districtState(i);
@@ -428,11 +421,11 @@ describe('Session Persistence', () => {
   it('Session data includes timer states', () => {
     resetState();
     killBoss(0);
-    bodyFound(2);
+    killBoss(2);
     saveSession();
     const data = JSON.parse(localStorage.getItem('esoIcSession'));
     assert.ok(data.timers[0].running, 'Timer 0 should be running');
-    assert.ok(data.timers[2].unknown, 'Timer 2 should be unknown');
+    assert.ok(data.timers[2].running, 'Timer 2 should be running');
     assert.notOk(data.timers[1].running, 'Timer 1 should not be running');
   });
 
@@ -687,6 +680,73 @@ describe('Farm Timer', () => {
 
 
 /* ═══════════════════════════════════════════
+   12. ALLIANCE SELECTION
+   ═══════════════════════════════════════════ */
+describe('Alliance Selection', () => {
+
+  it('Default alliance is DC', () => {
+    assert.equal(alliance, 'dc');
+  });
+
+  it('setAlliance() changes active alliance', () => {
+    setAlliance('ep');
+    assert.equal(alliance, 'ep');
+    setAlliance('ad');
+    assert.equal(alliance, 'ad');
+    setAlliance('dc');
+    assert.equal(alliance, 'dc');
+  });
+
+  it('setAlliance() ignores invalid values', () => {
+    setAlliance('dc');
+    setAlliance('invalid');
+    assert.equal(alliance, 'dc', 'Should remain DC after invalid input');
+    setAlliance(null);
+    assert.equal(alliance, 'dc', 'Should remain DC after null');
+  });
+
+  it('ALLIANCES constant has all three factions', () => {
+    assert.ok(ALLIANCES.ep, 'EP should exist');
+    assert.ok(ALLIANCES.dc, 'DC should exist');
+    assert.ok(ALLIANCES.ad, 'AD should exist');
+    assert.equal(ALLIANCES.ep.name, 'Ebonheart Pact');
+    assert.equal(ALLIANCES.dc.name, 'Daggerfall Covenant');
+    assert.equal(ALLIANCES.ad.name, 'Aldmeri Dominion');
+  });
+
+  it('setAlliance() updates DC label text', () => {
+    const lbl = document.getElementById('dcLabel');
+    setAlliance('ep');
+    assert.includes(lbl.textContent, 'EP');
+    setAlliance('ad');
+    assert.includes(lbl.textContent, 'AD');
+    setAlliance('dc');
+    assert.includes(lbl.textContent, 'DC');
+  });
+
+  it('Alliance is persisted to localStorage', () => {
+    setAlliance('ep');
+    assert.equal(localStorage.getItem('ic-alliance'), 'ep');
+    setAlliance('dc');
+    assert.equal(localStorage.getItem('ic-alliance'), 'dc');
+  });
+
+  it('Alliance UI buttons update sel class', () => {
+    setAlliance('ep');
+    const btns = document.querySelectorAll('#allianceEl .alliance-btn');
+    let epSel = false, dcSel = false;
+    btns.forEach(b => {
+      if (b.classList.contains('ep') && b.classList.contains('sel')) epSel = true;
+      if (b.classList.contains('dc') && b.classList.contains('sel')) dcSel = true;
+    });
+    assert.ok(epSel, 'EP button should have sel class');
+    assert.notOk(dcSel, 'DC button should not have sel class');
+    setAlliance('dc');
+  });
+});
+
+
+/* ═══════════════════════════════════════════
    CLEANUP
    ═══════════════════════════════════════════ */
 describe('Cleanup', () => {
@@ -694,6 +754,7 @@ describe('Cleanup', () => {
     resetState();
     localStorage.removeItem('esoIcSession');
     localStorage.removeItem('esoIcBestStreak');
+    localStorage.removeItem('ic-alliance');
     assert.ok(true);
   });
 });
