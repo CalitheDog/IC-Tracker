@@ -191,7 +191,7 @@ body.light .district-section-hd-title{color:#6e4a18;}
 body.alliance-ep .dc-pill{background:rgba(120,20,20,0.28);border-color:rgba(200,50,40,0.4);color:#e07060;}
 body.alliance-ad .dc-pill{background:rgba(100,80,0,0.28);border-color:rgba(200,170,0,0.4);color:#d4b830;}
 
-.dtimer{font-family:'Cinzel',serif;font-size:1.2rem;font-weight:700;min-width:70px;text-align:right;letter-spacing:0.04em;color:#3a2e0e;transition:color 0.3s;flex-shrink:0;}
+.dtimer{font-family:'Cinzel',serif;font-size:1.5rem;font-weight:700;min-width:80px;text-align:right;letter-spacing:0.04em;color:#3a2e0e;transition:color 0.3s;flex-shrink:0;}
 .dtimer.alive{color:#4c9960;}
 .dtimer.dead{color:#b09040;}
 .dtimer.warn{color:#d4b030;animation:fl 0.7s ease-in-out infinite;}
@@ -305,8 +305,42 @@ body.light .skull-tooltip-name{color:#5c421d;}
 }
 
 
+/* QUICK ACTION STRIP */
+.action-strip{display:flex;gap:8px;flex-wrap:wrap;}
+.qs-btn{flex:1;min-width:100px;font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.1em;padding:10px 12px;border-radius:9px;cursor:pointer;text-transform:uppercase;transition:transform 0.16s ease,box-shadow 0.16s ease,border-color 0.16s ease,background 0.16s ease,color 0.16s ease;border:1px solid rgba(201,168,76,0.22);background:linear-gradient(180deg,rgba(255,255,255,0.055),rgba(0,0,0,0.16));color:#9a7838;}
+.qs-btn:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(0,0,0,0.28);color:#ffd060;border-color:rgba(201,168,76,0.45);}
+.qs-btn.bank{background:linear-gradient(135deg,rgba(120,84,21,0.70),rgba(201,168,76,0.35));border-color:rgba(201,168,76,0.5);color:#ffd060;}
+.qs-btn.gank{background:linear-gradient(135deg,rgba(105,0,0,0.72),rgba(220,30,12,0.42));border-color:rgba(230,40,24,0.65);color:#ff4a34;}
+.qs-btn.undo{background:linear-gradient(135deg,rgba(42,42,42,0.62),rgba(255,255,255,0.08));border-color:rgba(120,90,210,0.38);color:#a98cff;}
+.qs-btn.sort.active{background:rgba(201,168,76,0.14);border-color:rgba(201,168,76,0.65);color:#c9a84c;}
+.qs-btn:disabled{opacity:0.38;cursor:not-allowed;transform:none;}
+body.light .qs-btn{background:rgba(255,255,255,0.45);border-color:rgba(122,86,24,0.28);color:#5c421d;}
+body.light .qs-btn.bank{background:rgba(201,168,76,0.2);border-color:rgba(122,86,24,0.35);color:#684610;}
+body.light .qs-btn.gank{background:rgba(220,40,20,0.16);border-color:rgba(180,30,20,0.45);color:#9a1f12;box-shadow:none;}
+body.light .qs-btn.undo{background:rgba(90,70,180,0.14);border-color:rgba(90,70,180,0.34);color:#513c9c;}
+
+/* NEXT RESPAWN HERO */
+.next-up{background:linear-gradient(180deg,rgba(28,20,9,0.82),rgba(9,7,4,0.72));border:1px solid rgba(201,168,76,0.22);border-radius:10px;padding:14px 20px;display:flex;align-items:center;gap:16px;box-shadow:0 10px 32px rgba(0,0,0,0.28),inset 0 1px 0 rgba(255,220,130,0.08);}
+.next-up-label{font-family:'Cinzel',serif;font-size:0.56rem;letter-spacing:0.22em;text-transform:uppercase;color:#5a4018;white-space:nowrap;}
+.next-up-body{flex:1;display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.next-up-name{font-family:'Cinzel',serif;font-size:1rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c9a84c;}
+.next-up-timer{font-family:'Cinzel',serif;font-size:1.6rem;font-weight:700;letter-spacing:0.06em;color:#ffd060;font-variant-numeric:tabular-nums;text-shadow:0 0 24px rgba(201,168,76,0.25);}
+.next-up-timer.alive{color:#4cb864;text-shadow:0 0 20px rgba(76,200,100,0.28);}
+body.light .next-up{background:linear-gradient(180deg,rgba(255,250,238,0.88),rgba(230,214,178,0.72));border-color:rgba(122,86,24,0.20);}
+body.light .next-up-name{color:#704c12;}
+body.light .next-up-timer{color:#704c12;text-shadow:none;}
+
+/* TELVAR DETAILS WRAPPER */
+.telvar-details{width:100%;}
+.telvar-summary{font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;color:#8b6a2c;cursor:pointer;user-select:none;padding:10px 4px;list-style:none;display:flex;align-items:center;gap:8px;}
+.telvar-summary::after{content:'▾';color:#c9a84c;font-size:0.75rem;transition:transform 0.2s;}
+.telvar-details[open] .telvar-summary::after{transform:rotate(180deg);}
+.telvar-summary::-webkit-details-marker{display:none;}
+.telvar-summary-hint{font-size:0.52rem;color:#4a3820;letter-spacing:0.08em;}
+body.light .telvar-summary{color:#6e4a18;}
+body.light .telvar-summary-hint{color:#8a6030;}
+
 /* COMMAND CENTER ADDITIONS */
-#muteBtn{display:none!important;}
 .command-grid{display:grid;grid-template-columns:1.1fr 0.9fr;gap:12px;}
 .command-card{background:rgba(0,0,0,0.24);border:1px solid rgba(201,168,76,0.12);border-radius:8px;padding:12px 14px;min-height:112px;}
 .command-kicker{font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.16em;text-transform:uppercase;color:#5a4018;margin-bottom:6px;}
@@ -383,20 +417,19 @@ body.light .ddot.unknown{background:#715bd2;box-shadow:none;}
     display:grid;
     grid-template-columns:380px minmax(0,1fr);
     grid-template-areas:
-      "map telvar"
-      "command command"
-      "status districts"
-      "history districts";
+      "map      actions"
+      "telvar   nextup"
+      "telvar   districts"
+      ".        reset";
     align-items:start;
     gap:14px;
   }
   .map-section{grid-area:map;}
-  .telvar-panel{grid-area:telvar;}
-  .command-panel{grid-area:command;}
-  .status-panel{grid-area:status;}
-  .history-panel{grid-area:history;}
+  .telvar-details{grid-area:telvar;align-self:start;}
+  .action-strip{grid-area:actions;align-self:end;}
+  .next-up{grid-area:nextup;}
   .districts{grid-area:districts;}
-  .reset-all{grid-column:2;}
+  .reset-all{grid-area:reset;}
 
   .map-wrap{width:360px;height:360px;}
   svg.map{width:360px;height:360px;}
@@ -413,29 +446,17 @@ body.light .ddot.unknown{background:#715bd2;box-shadow:none;}
   .tv-action{padding:8px 10px;}
   .formula{margin:8px 0 0;max-height:42px;overflow:hidden;}
 
-  .command-grid{grid-template-columns:1fr 1fr;gap:12px;}
-  .command-card{min-height:104px;padding:11px 13px;}
-  .command-actions{margin-top:10px;}
-
-  .status-grid{grid-template-columns:1fr;gap:7px;}
-  .status-card{min-height:auto;padding:8px 10px;}
-  .status-main{font-size:0.84rem;}
-  .status-sub{font-size:0.7rem;}
-
-  .history-panel .log-list{max-height:240px;overflow:auto;padding-right:4px;}
-  .log-row{padding:7px 8px;}
-
-  .districts{gap:8px;}
-  .drow{padding:10px 12px;gap:8px;flex-wrap:wrap;}
-  .dinfo{flex:1 1 260px;min-width:0;}
-  .dname{font-size:0.8rem;margin-bottom:3px;}
-  .dbosses{font-size:0.8rem;line-height:1.35;}
+  .districts{gap:10px;}
+  .drow{padding:14px 18px;gap:10px;}
+  .dinfo{flex:1;min-width:0;}
+  .dname{font-size:0.9rem;margin-bottom:4px;}
+  .dbosses{font-size:0.82rem;line-height:1.35;}
   .boss-chips{gap:6px;margin-top:4px;}
   .boss-chip{padding:4px 8px 4px 4px;gap:7px;}
   .boss-thumb{width:38px;height:38px;}
-  .dtimer{font-size:1.1rem;min-width:68px;}
-  .dtimer.unknown{font-size:0.82rem;}
-  .dbtn{font-size:0.56rem;padding:6px 9px;}
+  .dtimer{font-size:1.6rem;min-width:80px;}
+  .dtimer.unknown{font-size:1rem;}
+  .dbtn{font-size:0.58rem;padding:7px 11px;}
 }
 
 @media (min-width: 1180px){
@@ -624,12 +645,8 @@ svg.map{filter:drop-shadow(0 10px 26px rgba(0,0,0,0.55));}
   .layout{max-width:1220px;grid-template-columns:405px minmax(0,1fr);gap:16px;}
   .map-wrap,svg.map{width:382px;height:382px;}
   .panel{padding:16px 18px;}
-  .telvar-panel{align-self:stretch;}
   .tv-stats{grid-template-columns:repeat(4,minmax(0,1fr));}
-  .command-grid{grid-template-columns:1.05fr 0.95fr;}
-  .districts{gap:9px;}
-  .drow{padding:12px 14px;}
-  .history-panel .log-list{max-height:270px;}
+  .districts{gap:10px;}
 }
 
 @media (min-width:1180px){
@@ -677,15 +694,7 @@ body.light .help-card,body.light .key-item,body.light .help-details{background:r
 body.light .help-kicker,body.light .help-details summary{color:#704c12;}
 body.light .key-item,body.light .help-body{color:#5c421d;}
 body.light .key-icon{color:#704c12;}
-@media (min-width:980px){
-  .layout{grid-template-areas:
-    "map telvar"
-    "command command"
-    "help help"
-    "status districts"
-    "history districts";}
-}
-@media(max-width:760px){.help-grid{grid-template-columns:1fr}.icon-key{grid-template-columns:1fr}}
+@media(max-width:979px){.action-strip{flex-wrap:wrap;}.qs-btn{min-width:calc(50% - 4px);}}
 
 
 /* v20 alternate silly visual themes */
@@ -1121,7 +1130,9 @@ body.light .tv-adj-input::placeholder{color:#a08040;}
     </div>
   </div>
 
-  <!-- TEL VAR — balanced compact -->
+  <!-- TEL VAR — collapsible -->
+  <details class="telvar-details" id="telvarDetails">
+  <summary class="telvar-summary">🪙 Tel Var Estimator <span class="telvar-summary-hint">(tap to expand)</span></summary>
   <div class="panel telvar-panel">
     <div class="panel-hd">🪙 Tel Var Estimator</div>
     <div class="tv-lbl" style="margin-bottom:8px">Quick presets</div>
@@ -1180,8 +1191,6 @@ body.light .tv-adj-input::placeholder{color:#a08040;}
     <div class="tv-actions">
       <button class="tv-action start" id="farmStartBtn" onclick="startFarm()">▶ Start Farming</button>
       <button class="tv-action end" id="farmEndBtn" onclick="endFarm()" disabled>■ End Farming</button>
-      <button class="tv-action bank" onclick="bankTelVar()">🏦 Banked Tel Var</button>
-      <button class="tv-action gank" onclick="gankedTelVar()">☠ Ganked</button>
     </div>
     <div class="risk-warn" id="riskWarn">⚠ Bank Now — Carrying over your risk limit</div>
     <div class="tv-adj-group">
@@ -1208,74 +1217,41 @@ body.light .tv-adj-input::placeholder{color:#a08040;}
       </div>
     </div>
   </div>
+  </details>
 
 
-  <!-- SESSION SUMMARY -->
-  <div class="panel command-panel">
-    <div class="panel-hd">📊 Session Summary</div>
-    <div class="projected-grid">
-      <div class="projected-stat"><div class="projected-num" id="netSessionTv">0</div><div class="projected-lbl">Net</div></div>
-      <div class="projected-stat"><div class="projected-num" id="grossSessionTv">0</div><div class="projected-lbl">Gross</div></div>
-      <div class="projected-stat"><div class="projected-num" id="effSessionTv">—</div><div class="projected-lbl">Efficiency</div></div>
-    </div>
-    <div class="command-line" style="margin-top:10px" id="projectedNote">Net = banked + carrying. Gross includes Tel Var lost.</div>
-    <div class="command-actions">
-      <button class="command-btn undo" id="undoBtn" onclick="undoLastAction()">↶ Undo Last</button>
-      <button class="command-btn" onclick="copySessionSummary()">📋 Copy Summary</button>
-    </div>
-    <div class="copy-pill" id="copyPill">Copied session summary</div>
+  <!-- hidden sentinel elements for JS null-check compatibility -->
+  <div id="netSessionTv" style="display:none"></div>
+  <div id="grossSessionTv" style="display:none"></div>
+  <div id="effSessionTv" style="display:none"></div>
+  <div id="projectedNote" style="display:none"></div>
+  <div id="copyPill" style="display:none"></div>
+  <div id="sessionLog" style="display:none"></div>
+  <div id="districtStatusSummary" style="display:none"></div>
+  <div id="nextTargetTitle" style="display:none"></div>
+  <div id="nextTargetReason" style="display:none"></div>
+  <button id="killNextBtn" style="display:none"></button>
+
+  <!-- QUICK ACTIONS -->
+  <div class="action-strip">
+    <button class="qs-btn bank" onclick="bankTelVar()">🏦 Bank</button>
+    <button class="qs-btn gank" onclick="gankedTelVar()">☠ Ganked</button>
+    <button class="qs-btn undo" id="undoBtn" onclick="undoLastAction()">↶ Undo</button>
+    <button class="qs-btn sort" id="sortBtn" onclick="toggleSortByRespawn()">⇅ Sort</button>
   </div>
 
-
-  <div class="panel status-panel">
-    <div class="panel-hd">🗺️ District Status Summary</div>
-    <div class="status-grid" id="districtStatusSummary"></div>
-  </div>
-
-  <div class="panel history-panel">
-    <div class="panel-hd">📜 Session History</div>
-    <div class="log-list" id="sessionLog">
-      <div class="log-empty">No session events yet</div>
-    </div>
-  </div>
-
-
-
-  <div class="panel help-panel">
-    <div class="panel-hd"><span>🧾 Key / Tips / FAQ</span><button class="help-toggle" id="helpToggleBtn" onclick="toggleHelpPanel()">Hide Help</button></div>
-    <div class="help-grid">
-      <div class="help-card">
-        <div class="help-kicker">Icon key</div>
-        <div class="icon-key">
-          <div class="key-item"><span class="key-icon">☠</span><span>Killed means you killed the boss and starts the exact 15-minute timer.</span></div>
-          <div class="key-item"><span class="key-icon">👁</span><span>Seen Alive is a scout check. It confirms the boss is up without adding Tel Var.</span></div>
-          <div class="key-item"><span class="key-icon">?</span><span>Guess lets you estimate when the boss died, then builds a timer from that guess.</span></div>
-          <div class="key-item"><span class="key-icon">🏦</span><span>Banked Tel Var moves your carried Tel Var into Session Banked and resets carrying to 0.</span></div>
-          <div class="key-item"><span class="key-icon">☠️</span><span>Ganked removes 50% of your carried Tel Var and adds it to Tel Var Lost.</span></div>
-        </div>
-      </div>
-      <div class="help-card">
-        <div class="help-kicker">Tips & FAQ</div>
-        <details class="help-details" open>
-          <summary>When do window alerts happen?</summary>
-          <div class="help-body">Only real timer events should flash the window now: the 1-minute respawn warning and the boss respawned alert. Normal notices like no Tel Var to bank, undo, or scout check should only show a small notice.</div>
-        </details>
-        <details class="help-details">
-          <summary>How to use unknown timers</summary>
-          <div class="help-body"><ul><li>Use Guess when you find a corpse but did not kill it — estimate how long ago it died.</li><li>Fresh unknown means it may still be early.</li><li>Check soon means it is probably worth scouting.</li><li>Likely ready means the unknown timer has aged past the normal respawn window.</li></ul></div>
-        </details>
-        <details class="help-details">
-          <summary>Quick route advice</summary>
-          <div class="help-body"><ul><li>Use Seen Alive while scouting so Next Best Boss can prioritize confirmed spawns.</li><li>Use Guess if you have a rough idea when someone else killed the boss.</li><li>Use Banked Tel Var before a risky cross-map run, unless you and Cesar are choosing violence.</li></ul></div>
-        </details>
-      </div>
+  <!-- NEXT RESPAWN HERO -->
+  <div class="next-up" id="nextUp">
+    <div class="next-up-label">Next Respawn</div>
+    <div class="next-up-body">
+      <div class="next-up-name" id="nextUpName">—</div>
+      <div class="next-up-timer" id="nextUpCountdown">—</div>
     </div>
   </div>
 
-
+  <!-- BOSS TIMERS -->
   <div class="district-section-hd">
     <span class="district-section-hd-title">Boss Timers</span>
-    <button class="sort-btn" id="sortBtn" onclick="toggleSortByRespawn()">⇅ Sort by Respawn</button>
   </div>
   <div class="districts" id="districts"></div>
   <button class="reset-all" onclick="resetAll()">↺ Reset All Timers</button>
@@ -1793,6 +1769,27 @@ function windowAlert(name,type){
   flash(type==='spawn'?'green':'amber');
   toast(name,type);
   flashTitle(type,name);
+  if(type==='spawn')playSpawn();
+  else if(type==='warning')playWarn();
+}
+
+function updateNextUp(){
+  const now=Date.now();
+  let bestName='—',bestTimer='—',bestIsAlive=false;
+  let bestRem=Infinity;
+  DISTRICTS.forEach((d,i)=>{
+    const t=timers[i];
+    if(t.unknown)return;
+    if(!t.running||!t.end){bestIsAlive=true;bestName=d.name;bestTimer='ALIVE';bestRem=-1;return;}
+    const rem=Math.max(0,(t.end-now)/1000);
+    if(rem<bestRem){bestRem=rem;bestName=d.name;bestTimer=fmt(rem);bestIsAlive=false;}
+  });
+  if(bestRem===-1){
+    DISTRICTS.forEach((d,i)=>{if(!timers[i].running&&!timers[i].unknown){bestName=d.name;bestTimer='ALIVE';}});
+  }
+  const nameEl=document.getElementById('nextUpName'),timerEl=document.getElementById('nextUpCountdown');
+  if(nameEl)nameEl.textContent=bestName;
+  if(timerEl){timerEl.textContent=bestTimer;timerEl.className='next-up-timer'+(bestIsAlive||bestTimer==='ALIVE'?' alive':'');}
 }
 
 function perKill(){return Math.round(BASE_TV*MULT[stI]*(1+dcHeld.size*0.33)/grSz);}
@@ -2225,6 +2222,7 @@ function tick(){
   });
   buildSkulls();
   updateTV();
+  updateNextUp();
   if(sortByRespawn)applyRespawnSort();
 }
 

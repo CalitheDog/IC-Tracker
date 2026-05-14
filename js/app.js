@@ -494,6 +494,27 @@ function windowAlert(name,type){
   flash(type==='spawn'?'green':'amber');
   toast(name,type);
   flashTitle(type,name);
+  if(type==='spawn')playSpawn();
+  else if(type==='warning')playWarn();
+}
+
+function updateNextUp(){
+  const now=Date.now();
+  let bestName='—',bestTimer='—',bestIsAlive=false;
+  let bestRem=Infinity;
+  DISTRICTS.forEach((d,i)=>{
+    const t=timers[i];
+    if(t.unknown)return;
+    if(!t.running||!t.end){bestIsAlive=true;bestName=d.name;bestTimer='ALIVE';bestRem=-1;return;}
+    const rem=Math.max(0,(t.end-now)/1000);
+    if(rem<bestRem){bestRem=rem;bestName=d.name;bestTimer=fmt(rem);bestIsAlive=false;}
+  });
+  if(bestRem===-1){
+    DISTRICTS.forEach((d,i)=>{if(!timers[i].running&&!timers[i].unknown){bestName=d.name;bestTimer='ALIVE';}});
+  }
+  const nameEl=document.getElementById('nextUpName'),timerEl=document.getElementById('nextUpCountdown');
+  if(nameEl)nameEl.textContent=bestName;
+  if(timerEl){timerEl.textContent=bestTimer;timerEl.className='next-up-timer'+(bestIsAlive||bestTimer==='ALIVE'?' alive':'');}
 }
 
 function perKill(){return Math.round(BASE_TV*MULT[stI]*(1+dcHeld.size*0.33)/grSz);}
@@ -929,6 +950,7 @@ function tick(){
   });
   buildSkulls();
   updateTV();
+  updateNextUp();
 }
 
 function init(){
