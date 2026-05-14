@@ -45,6 +45,8 @@ const TX={alive:'#58c070',dead:'#d07828',urgent:'#f03418',warn:'#ccaa28',dcA:'#6
 const timers=DISTRICTS.map(()=>({end:null,running:false,wasRunning:false,warnFired:false,unknown:false,unknownAt:null}));
 const dcHeld=new Set();
 let muted=true,actx=null,stI=0,grSz=1,totalKills=0,currentTelVar=0,bankedTelVar=0,lostTelVar=0,farmStart=null,farmEnd=null,farmRunning=false,activePreset=null;
+let alliance='dc';
+const ALLIANCES={ep:{name:'Ebonheart Pact',short:'EP',color:'#e04a3a'},dc:{name:'Daggerfall Covenant',short:'DC',color:'#5aa0e8'},ad:{name:'Aldmeri Dominion',short:'AD',color:'#d4c030'}};
 const skulls=DEFAULT_SKULLS;
 
 function ns(t){return document.createElementNS('http://www.w3.org/2000/svg',t);}
@@ -238,7 +240,7 @@ function bossChipHtml(boss, di, bi){
 
 function districtStatusHtml(i){
   const t=timers[i];let rem=0,up=true,wn=false,urg=false;
-  if(t.unknown)return `<span class="warn">Body found — respawn unknown</span>`;
+  if(t.unknown)return `<span class="warn">Timer unknown — respawn uncertain</span>`;
   if(t.running&&t.end){
     rem=Math.max(0,(t.end-Date.now())/1000);
     up=rem<=0;wn=!up&&rem<=WARN_AT;urg=!up&&rem<15;
@@ -283,7 +285,6 @@ function buildRows(){
       <span class="dc-pill" id="dp${i}" style="display:none">DC</span>
       <div class="dtimer alive" id="dt${i}">ALIVE</div>
       <button class="dbtn kill" onclick="killBoss(${i})">Killed</button>
-      <button class="dbtn body" onclick="bodyFound(${i})">Body Found :(</button>
       <button class="dbtn rst" onclick="rstBoss(${i})">Reset</button>`;
     wrap.appendChild(row);
   });
@@ -406,28 +407,28 @@ function getNextTarget(){
       return a.i-b.i;
     });
     const n=alive[0];
-    return {di:n.i,title:`${n.d.name} — ${bossNamesForDistrict(n.i)}`,ready:true,bodyable:true,reason:streak?'Alive now. Streakah mode ignores flags and keeps the route goblin-safe.':dcHeld.has(n.i)?'Alive now + DC district bonus active.':'Alive now. No DC bonus on this district.'};
+    return {di:n.i,title:`${n.d.name} — ${bossNamesForDistrict(n.i)}`,ready:true,reason:streak?'Alive now. Streakah mode ignores flags and keeps the route goblin-safe.':dcHeld.has(n.i)?'Alive now + DC district bonus active.':'Alive now. No DC bonus on this district.'};
   }
   const knownWaiting=DISTRICTS.map((d,i)=>({d,i,state:states[i]})).filter(x=>!x.state.unknown).sort((a,b)=>a.state.rem-b.state.rem);
   if(knownWaiting.length){
     const waiting=knownWaiting[0];
-    return {di:waiting.i,title:`${waiting.d.name} — ${bossNamesForDistrict(waiting.i)}`,ready:false,bodyable:false,reason:`Closest known respawn in ${fmt(waiting.state.rem)}.`};
+    return {di:waiting.i,title:`${waiting.d.name} — ${bossNamesForDistrict(waiting.i)}`,ready:false,reason:`Closest known respawn in ${fmt(waiting.state.rem)}.`};
   }
   const unknowns=DISTRICTS.map((d,i)=>({d,i,state:states[i]})).filter(x=>x.state.unknown);
   if(unknowns.length){
     const first=unknowns[0];
-    return {di:first.i,title:'All tracked bosses are uncertain',ready:false,bodyable:false,reason:'Every timer is unknown. Reset a boss when you confirm it is alive, or mark it killed when you kill it.'};
+    return {di:first.i,title:'All tracked bosses are uncertain',ready:false,reason:'Every timer is unknown. Reset a boss when you confirm it is alive, or mark it killed when you kill it.'};
   }
-  return {di:null,title:'No target available',ready:false,bodyable:false,reason:'No reliable timer data.'};
+  return {di:null,title:'No target available',ready:false,reason:'No reliable timer data.'};
 }
 
 function updateCommandCenter(){
   const next=getNextTarget();lastNextTarget=next;
-  const title=document.getElementById('nextTargetTitle'),reason=document.getElementById('nextTargetReason'),btn=document.getElementById('killNextBtn'),bodyBtn=document.getElementById('bodyNextBtn');
+  const title=document.getElementById('nextTargetTitle'),reason=document.getElementById('nextTargetReason'),btn=document.getElementById('killNextBtn');
   if(title)title.textContent=next.title;
   if(reason)reason.innerHTML=`<span class="${next.ready?'good':'warn'}">${next.ready?'Ready':'Waiting'}</span> · ${next.reason}<br>Estimated value: <span class="good">${perKill().toLocaleString()}</span> Tel Var`;
   if(btn)btn.disabled=!next.ready;
-  if(bodyBtn)bodyBtn.disabled=!(next&&next.bodyable&&typeof next.di==='number');
+
   const net=bankedTelVar+currentTelVar,gross=net+lostTelVar,eff=gross>0?Math.round((net/gross)*100):null;
   const netEl=document.getElementById('netSessionTv'),grossEl=document.getElementById('grossSessionTv'),effEl=document.getElementById('effSessionTv'),undoBtn=document.getElementById('undoBtn');
   if(netEl)netEl.textContent=net.toLocaleString();
@@ -437,7 +438,6 @@ function updateCommandCenter(){
 }
 
 function killNextTarget(){if(lastNextTarget&&lastNextTarget.ready)killBoss(lastNextTarget.di);}
-function markNextBodyFound(){if(lastNextTarget&&lastNextTarget.bodyable&&typeof lastNextTarget.di==='number')bodyFound(lastNextTarget.di);}
 
 function copySessionSummary(){
   const elapsed=farmElapsed(),net=bankedTelVar+currentTelVar,gross=net+lostTelVar,eff=gross>0?Math.round((net/gross)*100)+'%':'—';
@@ -528,6 +528,16 @@ function setGr(g,skipUndo=false){
   updateTV();
 }
 
+function setAlliance(a){
+  if(!ALLIANCES[a])return;
+  alliance=a;
+  document.querySelectorAll('#allianceEl .alliance-btn').forEach(b=>b.classList.toggle('sel',b.classList.contains(a)));
+  const lbl=document.getElementById('dcLabel');
+  if(lbl)lbl.textContent=`${ALLIANCES[a].short}-held districts (tap to toggle)`;
+  try{localStorage.setItem('ic-alliance',a);}catch(e){}
+  updateTV();
+}
+
 function applyPreset(mode){
   pushUndo('Preset change');
   activePreset=mode;
@@ -597,16 +607,6 @@ function killBoss(i){
   updateTV();
 }
 
-function bodyFound(i){
-  pushUndo('Someone else killed it');
-  timers[i].end=null;timers[i].running=false;timers[i].wasRunning=false;timers[i].warnFired=false;timers[i].unknown=true;timers[i].unknownAt=Date.now();
-  logEvent(`Someone else killed ${DISTRICTS[i].name} (${bossNamesForDistrict(i)}) — respawn timer unknown.`);
-  flash('amber');
-  toast(`${DISTRICTS[i].name} body found — timer unknown`,'info');
-  updateTV();
-}
-
-
 function rstBoss(i){
   pushUndo('Reset boss timer');
   timers[i].end=null;timers[i].running=false;timers[i].wasRunning=false;timers[i].warnFired=false;timers[i].unknown=false;timers[i].unknownAt=null;
@@ -638,7 +638,7 @@ function tick(){
     const drow=document.getElementById(`dr${i}`),dot=document.getElementById(`dd${i}`),timer=document.getElementById(`dt${i}`);
     if(drow&&!drow.classList.contains('just-up')){drow.className='drow'+(dcHeld.has(i)?' dc-held':'');drow.classList.add(unknown?'unknown':up?'alive':wn?'warn':'dead');}
     if(dot){dot.className='ddot '+(unknown?'unknown':up?'alive':wn?'warn':'dead');}
-    if(timer){timer.textContent=str;timer.className='dtimer '+(unknown?'unknown':up?'alive':urg?'urgent':wn?'warn':'dead');timer.title=unknown?'Someone else killed it. Exact respawn is unknown. Use Reset when you confirm it is alive.':'';}
+    if(timer){timer.textContent=str;timer.className='dtimer '+(unknown?'unknown':up?'alive':urg?'urgent':wn?'warn':'dead');timer.title=unknown?'Exact respawn is unknown. Use Reset when you confirm it is alive.':'';}
   });
   buildSkulls();
   updateTV();
@@ -650,7 +650,7 @@ function unknownDecayInfo(i){
   const t=timers[i];
   if(!t.unknown||!t.unknownAt)return {age:0,label:'Unknown',detail:'Exact respawn unknown.'};
   const age=(Date.now()-t.unknownAt)/1000;
-  if(age<300)return {age,label:'Fresh unknown',detail:`Body found ${fmt(age)} ago. Could still be early in its timer.`};
+  if(age<300)return {age,label:'Fresh unknown',detail:`Unknown since ${fmt(age)} ago. Could still be early in its timer.`};
   if(age<600)return {age,label:'Uncertain',detail:`Unknown for ${fmt(age)}. It may still be down.`};
   if(age<900)return {age,label:'Check soon',detail:`Unknown for ${fmt(age)}. Worth checking soon.`};
   return {age,label:'Likely ready',detail:`Unknown for ${fmt(age)}. Treat as checkable.`};
@@ -708,7 +708,6 @@ function buildRows(){
       <span class="dc-pill" id="dp${i}" style="display:none">DC</span>
       <div class="dtimer alive" id="dt${i}">ALIVE</div>
       <button class="dbtn kill" onclick="killBoss(${i})">Killed</button>
-      <button class="dbtn body" onclick="bodyFound(${i})">Body Found :(</button>
       <button class="dbtn guess" onclick="guessTimer(${i})">Guess</button>
       <button class="dbtn scout" onclick="seenAlive(${i})">Seen Alive</button>
       <button class="dbtn rst" onclick="rstBoss(${i})">Reset</button>`;
@@ -769,15 +768,6 @@ function killBoss(i){
   updateTV();
 }
 
-function bodyFound(i){
-  pushUndo('Someone else killed it');
-  timers[i].end=null;timers[i].running=false;timers[i].wasRunning=false;timers[i].warnFired=false;timers[i].unknown=true;timers[i].unknownAt=Date.now();timers[i].seenAt=null;
-  logEvent(`Someone else killed ${DISTRICTS[i].name} (${bossNamesForDistrict(i)}) — respawn timer unknown.`);
-  toast(`${DISTRICTS[i].name} body found — timer unknown`,'info');
-  saveSession();
-  updateTV();
-}
-
 function rstBoss(i){
   pushUndo('Reset boss timer');
   timers[i].end=null;timers[i].running=false;timers[i].wasRunning=false;timers[i].warnFired=false;timers[i].unknown=false;timers[i].unknownAt=null;timers[i].seenAt=null;
@@ -806,28 +796,28 @@ function getNextTarget(){
       return a.i-b.i;
     });
     const n=alive[0],seen=timers[n.i].seenAt?' Scout check confirmed alive.':'';
-    return {di:n.i,title:`${n.d.name} — ${bossNamesForDistrict(n.i)}`,ready:true,bodyable:true,reason:streak?`Alive now.${seen} Streakah mode ignores flags and keeps the route goblin-safe.`:dcHeld.has(n.i)?`Alive now + DC district bonus active.${seen}`:`Alive now. No DC bonus on this district.${seen}`};
+    return {di:n.i,title:`${n.d.name} — ${bossNamesForDistrict(n.i)}`,ready:true,reason:streak?`Alive now.${seen} Streakah mode ignores flags and keeps the route goblin-safe.`:dcHeld.has(n.i)?`Alive now + DC district bonus active.${seen}`:`Alive now. No DC bonus on this district.${seen}`};
   }
   const knownWaiting=DISTRICTS.map((d,i)=>({d,i,state:states[i]})).filter(x=>!x.state.unknown).sort((a,b)=>a.state.rem-b.state.rem);
   if(knownWaiting.length){
     const waiting=knownWaiting[0];
-    return {di:waiting.i,title:`${waiting.d.name} — ${bossNamesForDistrict(waiting.i)}`,ready:false,bodyable:false,reason:`Closest known respawn in ${fmt(waiting.state.rem)}.`};
+    return {di:waiting.i,title:`${waiting.d.name} — ${bossNamesForDistrict(waiting.i)}`,ready:false,reason:`Closest known respawn in ${fmt(waiting.state.rem)}.`};
   }
   const unknowns=DISTRICTS.map((d,i)=>({d,i,state:states[i]})).filter(x=>x.state.unknown).sort((a,b)=>a.state.decay.age-b.state.decay.age);
   if(unknowns.length){
     const first=unknowns[0];
-    return {di:first.i,title:`Check ${first.d.name} — unknown timer`,ready:false,bodyable:false,reason:`${first.state.decay.detail} Use Guess if you have a rough death time, or Seen Alive if you scout it up.`};
+    return {di:first.i,title:`Check ${first.d.name} — unknown timer`,ready:false,reason:`${first.state.decay.detail} Use Guess if you have a rough death time, or Seen Alive if you scout it up.`};
   }
-  return {di:null,title:'No target available',ready:false,bodyable:false,reason:'No reliable timer data.'};
+  return {di:null,title:'No target available',ready:false,reason:'No reliable timer data.'};
 }
 
 function updateCommandCenter(){
   const next=getNextTarget();lastNextTarget=next;
-  const title=document.getElementById('nextTargetTitle'),reason=document.getElementById('nextTargetReason'),btn=document.getElementById('killNextBtn'),bodyBtn=document.getElementById('bodyNextBtn');
+  const title=document.getElementById('nextTargetTitle'),reason=document.getElementById('nextTargetReason'),btn=document.getElementById('killNextBtn');
   if(title)title.textContent=next.title;
   if(reason)reason.innerHTML=`<span class="${next.ready?'good':'warn'}">${next.ready?'Ready':'Waiting'}</span> · ${next.reason}<br>Estimated value: <span class="good">${perKill().toLocaleString()}</span> Tel Var`;
   if(btn)btn.disabled=!next.ready;
-  if(bodyBtn)bodyBtn.disabled=!(next&&next.bodyable&&typeof next.di==='number');
+
   const net=bankedTelVar+currentTelVar,gross=net+lostTelVar,eff=gross>0?Math.round((net/gross)*100):null;
   const netEl=document.getElementById('netSessionTv'),grossEl=document.getElementById('grossSessionTv'),effEl=document.getElementById('effSessionTv'),undoBtn=document.getElementById('undoBtn');
   if(netEl)netEl.textContent=net.toLocaleString();
@@ -863,6 +853,8 @@ function tick(){
 
 function init(){
   loadTheme();
+  const savedAlliance=localStorage.getItem('ic-alliance');
+  if(savedAlliance&&ALLIANCES[savedAlliance])setAlliance(savedAlliance);
   buildGear();buildMap();buildRows();buildDCToggles();buildSkulls();updateTV();
   tick();setInterval(tick,500);
   setInterval(saveSession,15000);
@@ -1097,7 +1089,7 @@ function saveSession() {
       dcHeld: [...dcHeld],
       stI, grSz, totalKills, currentTelVar, bankedTelVar, lostTelVar,
       farmStart, farmEnd, farmRunning,
-      activePreset,
+      activePreset, alliance,
       killStreak, bestStreak,
       eventLog: eventLog.slice(0, 20)
     };
@@ -1121,6 +1113,7 @@ function loadSession(data) {
   farmEnd = data.farmEnd ?? null;
   farmRunning = data.farmRunning ?? false;
   activePreset = data.activePreset ?? null;
+  if(data.alliance&&ALLIANCES[data.alliance])setAlliance(data.alliance);
   killStreak = data.killStreak ?? 0;
   bestStreak = data.bestStreak ?? bestStreak;
   eventLog = data.eventLog || [];
