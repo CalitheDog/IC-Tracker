@@ -4,6 +4,11 @@
  */
 const { describe, it, assert } = TestRunner;
 
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
 /* ═══════════════════════════════════════════
    HELPERS: save/restore global state between tests
    ═══════════════════════════════════════════ */
@@ -22,6 +27,7 @@ function resetState() {
   killStreak = 0;
   sortByRespawn = false;
   telvarTarget = 0;
+  riskTolerance = 0;
   dcHeld.clear();
   actionStack = [];
   eventLog = [];
@@ -38,6 +44,8 @@ function resetState() {
   if (adj) adj.value = '';
   const tgt = document.getElementById('tvTargetInput');
   if (tgt) tgt.value = '';
+  const risk = document.getElementById('tvRiskInput');
+  if (risk) risk.value = '';
 }
 
 
@@ -1319,20 +1327,20 @@ describe('Alliance Map Hint', () => {
   it('EP hint color matches ALLIANCES.ep.color', () => {
     resetState();
     setAlliance('ep');
-    assert.equal(document.getElementById('mapHintAlliance').style.color, ALLIANCES.ep.color);
+    assert.equal(document.getElementById('mapHintAlliance').style.color, hexToRgb(ALLIANCES.ep.color));
     setAlliance('dc');
   });
 
   it('DC hint color matches ALLIANCES.dc.color', () => {
     resetState();
     setAlliance('dc');
-    assert.equal(document.getElementById('mapHintAlliance').style.color, ALLIANCES.dc.color);
+    assert.equal(document.getElementById('mapHintAlliance').style.color, hexToRgb(ALLIANCES.dc.color));
   });
 
   it('AD hint color matches ALLIANCES.ad.color', () => {
     resetState();
     setAlliance('ad');
-    assert.equal(document.getElementById('mapHintAlliance').style.color, ALLIANCES.ad.color);
+    assert.equal(document.getElementById('mapHintAlliance').style.color, hexToRgb(ALLIANCES.ad.color));
     setAlliance('dc');
   });
 
@@ -1349,6 +1357,90 @@ describe('Alliance Map Hint', () => {
 
 
 /* ═══════════════════════════════════════════
+   22. RISK METER
+   ═══════════════════════════════════════════ */
+describe('Risk Meter — setRiskTolerance()', () => {
+
+  it('setRiskTolerance() sets riskTolerance from input', () => {
+    resetState();
+    document.getElementById('tvRiskInput').value = '5000';
+    setRiskTolerance();
+    assert.equal(riskTolerance, 5000);
+  });
+
+  it('Empty input clears riskTolerance to 0', () => {
+    resetState();
+    riskTolerance = 5000;
+    document.getElementById('tvRiskInput').value = '';
+    setRiskTolerance();
+    assert.equal(riskTolerance, 0);
+  });
+
+  it('Zero input clears riskTolerance to 0', () => {
+    resetState();
+    riskTolerance = 5000;
+    document.getElementById('tvRiskInput').value = '0';
+    setRiskTolerance();
+    assert.equal(riskTolerance, 0);
+  });
+
+  it('Negative input clears riskTolerance to 0', () => {
+    resetState();
+    document.getElementById('tvRiskInput').value = '-1000';
+    setRiskTolerance();
+    assert.equal(riskTolerance, 0);
+  });
+
+  it('setRiskTolerance() clears the input field', () => {
+    resetState();
+    document.getElementById('tvRiskInput').value = '3000';
+    setRiskTolerance();
+    assert.equal(document.getElementById('tvRiskInput').value, '');
+  });
+
+  it('riskWarn shows when carrying >= riskTolerance', () => {
+    resetState();
+    riskTolerance = 2000;
+    currentTelVar = 2000;
+    updateTV();
+    assert.ok(document.getElementById('riskWarn').classList.contains('show'));
+  });
+
+  it('riskWarn is hidden when carrying < riskTolerance', () => {
+    resetState();
+    riskTolerance = 5000;
+    currentTelVar = 1000;
+    updateTV();
+    assert.notOk(document.getElementById('riskWarn').classList.contains('show'));
+  });
+
+  it('riskWarn is hidden when riskTolerance is 0', () => {
+    resetState();
+    riskTolerance = 0;
+    currentTelVar = 99999;
+    updateTV();
+    assert.notOk(document.getElementById('riskWarn').classList.contains('show'));
+  });
+
+  it('tvT gets at-risk class when carrying >= riskTolerance', () => {
+    resetState();
+    riskTolerance = 1000;
+    currentTelVar = 1500;
+    updateTV();
+    assert.ok(document.getElementById('tvT').classList.contains('at-risk'));
+  });
+
+  it('tvT loses at-risk class when carrying drops below riskTolerance', () => {
+    resetState();
+    riskTolerance = 5000;
+    currentTelVar = 1000;
+    updateTV();
+    assert.notOk(document.getElementById('tvT').classList.contains('at-risk'));
+  });
+});
+
+
+/* ═══════════════════════════════════════════
    CLEANUP
    ═══════════════════════════════════════════ */
 describe('Cleanup', () => {
@@ -1358,6 +1450,7 @@ describe('Cleanup', () => {
     localStorage.removeItem('esoIcBestStreak');
     localStorage.removeItem('ic-alliance');
     localStorage.removeItem('ic-telvar-target');
+    localStorage.removeItem('ic-risk-tolerance');
     assert.ok(true);
   });
 });
