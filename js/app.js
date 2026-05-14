@@ -543,7 +543,7 @@ function setGr(g,skipUndo=false){
 function setAlliance(a){
   if(!ALLIANCES[a])return;
   alliance=a;
-  document.querySelectorAll('#allianceEl .alliance-btn').forEach(b=>b.classList.toggle('sel',b.classList.contains(a)));
+  document.querySelectorAll('#allianceEl .alliance-btn').forEach(b=>b.classList.toggle('sel',b.dataset.al===a));
   const lbl=document.getElementById('dcLabel');
   if(lbl)lbl.textContent=`${ALLIANCES[a].short}-held districts (tap to toggle)`;
   document.body.classList.remove('alliance-ep','alliance-dc','alliance-ad');

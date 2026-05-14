@@ -732,16 +732,21 @@ describe('Alliance Selection', () => {
   });
 
   it('Alliance UI buttons update sel class', () => {
-    setAlliance('ep');
     const btns = document.querySelectorAll('#allianceEl .alliance-btn');
-    let epSel = false, dcSel = false;
-    btns.forEach(b => {
-      if (b.classList.contains('ep') && b.classList.contains('sel')) epSel = true;
-      if (b.classList.contains('dc') && b.classList.contains('sel')) dcSel = true;
-    });
-    assert.ok(epSel, 'EP button should have sel class');
-    assert.notOk(dcSel, 'DC button should not have sel class');
+    const selFor = (a) => [...btns].find(b => b.dataset.al === a && b.classList.contains('sel'));
+
+    setAlliance('ep');
+    assert.ok(selFor('ep'), 'EP button should have sel class');
+    assert.notOk(selFor('dc'), 'DC button should not have sel class');
+    assert.notOk(selFor('ad'), 'AD button should not have sel class');
+
+    setAlliance('ad');
+    assert.ok(selFor('ad'), 'AD button should have sel class');
+    assert.notOk(selFor('ep'), 'EP button should not have sel class');
+
     setAlliance('dc');
+    assert.ok(selFor('dc'), 'DC button should have sel class');
+    assert.notOk(selFor('ad'), 'AD button should not have sel class');
   });
 });
 
