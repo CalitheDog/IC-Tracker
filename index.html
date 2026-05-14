@@ -987,6 +987,37 @@ body.light .shortcut-hint{
   color:#5c421d;
 }
 
+/* Sort by respawn button */
+.sort-bar{display:flex;justify-content:flex-end;margin-bottom:6px;}
+.sort-btn{font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;padding:5px 12px;border-radius:5px;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.22);color:#5a4018;transition:all 0.15s;}
+.sort-btn:hover{background:rgba(201,168,76,0.1);color:#9a7030;}
+.sort-btn.active{background:rgba(201,168,76,0.16);border-color:rgba(201,168,76,0.55);color:#c9a84c;box-shadow:0 0 10px rgba(201,168,76,0.12);}
+body.light .sort-btn{background:rgba(0,0,0,0.04);border-color:rgba(122,86,24,0.28);color:#6e4a18;}
+body.light .sort-btn.active{background:rgba(201,168,76,0.14);border-color:rgba(122,86,24,0.5);color:#7a5010;}
+
+/* Telvar target progress bar */
+.tv-target-wrap{margin:8px 0 4px;}
+.tv-target-bar-label{display:flex;justify-content:space-between;font-size:0.54rem;letter-spacing:0.08em;color:#5a4018;text-transform:uppercase;margin-bottom:4px;}
+.tv-target-bar{height:7px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;border:1px solid rgba(201,168,76,0.14);}
+.tv-target-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#7a5518,#c9a84c);transition:width 0.5s ease;}
+.tv-target-fill.done{background:linear-gradient(90deg,#1e7830,#4cb864);}
+body.light .tv-target-bar-label{color:#6e4a18;}
+body.light .tv-target-bar{background:rgba(0,0,0,0.07);border-color:rgba(122,86,24,0.18);}
+
+/* Manual telvar add + target set row */
+.tv-adj-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center;}
+.tv-adj-input{flex:1;min-width:100px;background:rgba(0,0,0,0.28);border:1px solid rgba(201,168,76,0.22);color:#c9a84c;font-family:'Cinzel',serif;font-size:0.68rem;padding:6px 9px;border-radius:5px;outline:none;-moz-appearance:textfield;}
+.tv-adj-input::-webkit-outer-spin-button,.tv-adj-input::-webkit-inner-spin-button{-webkit-appearance:none;}
+.tv-adj-input::placeholder{color:#3a2e0e;font-size:0.6rem;}
+.tv-adj-input:focus{border-color:rgba(201,168,76,0.5);}
+.tv-adj-btn{font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;padding:7px 12px;border-radius:5px;cursor:pointer;white-space:nowrap;transition:all 0.15s;}
+.tv-adj-btn.add{background:rgba(30,90,45,0.28);border:1px solid rgba(76,180,100,0.38);color:#4cb864;}
+.tv-adj-btn.add:hover{background:rgba(30,90,45,0.45);transform:translateY(-1px);}
+.tv-adj-btn.tgt{background:rgba(140,100,10,0.22);border:1px solid rgba(201,168,76,0.38);color:#c9a84c;}
+.tv-adj-btn.tgt:hover{background:rgba(140,100,10,0.38);transform:translateY(-1px);}
+body.light .tv-adj-input{background:rgba(255,255,255,0.55);border-color:rgba(122,86,24,0.28);color:#5a3a10;}
+body.light .tv-adj-input::placeholder{color:#a08040;}
+
 </style>
 
 <div id="flashOverlay"></div>
@@ -1112,11 +1143,21 @@ body.light .shortcut-hint{
       <div class="tv-stat"><div class="tv-sv" id="tvPK">—</div><div class="tv-sl">Per Kill</div></div>
       <div class="tv-stat"><div class="tv-sv" id="tvTime">00:00:00</div><div class="tv-sl">Farm Time</div></div>
     </div>
+    <div class="tv-target-wrap" id="tvTargetWrap" style="display:none">
+      <div class="tv-target-bar-label"><span id="tvTargetText">0 / 0</span><span id="tvTargetPct">0%</span></div>
+      <div class="tv-target-bar"><div class="tv-target-fill" id="tvTargetFill" style="width:0%"></div></div>
+    </div>
     <div class="tv-actions">
       <button class="tv-action start" id="farmStartBtn" onclick="startFarm()">▶ Start Farming</button>
       <button class="tv-action end" id="farmEndBtn" onclick="endFarm()" disabled>■ End Farming</button>
       <button class="tv-action bank" onclick="bankTelVar()">🏦 Banked Tel Var</button>
       <button class="tv-action gank" onclick="gankedTelVar()">☠ Ganked</button>
+    </div>
+    <div class="tv-adj-row">
+      <input type="number" class="tv-adj-input" id="tvAdjustInput" placeholder="Add tel var" min="1" step="100" onkeydown="if(event.key==='Enter')addManualTelvar()">
+      <button class="tv-adj-btn add" onclick="addManualTelvar()">+Add</button>
+      <input type="number" class="tv-adj-input" id="tvTargetInput" placeholder="Set target" min="1" step="1000" onkeydown="if(event.key==='Enter')setTelvarTarget()">
+      <button class="tv-adj-btn tgt" onclick="setTelvarTarget()">🎯 Target</button>
     </div>
   </div>
 
@@ -1198,6 +1239,9 @@ body.light .shortcut-hint{
   </div>
 
 
+  <div class="sort-bar">
+    <button class="sort-btn" id="sortBtn" onclick="toggleSortByRespawn()">⇅ Sort by Respawn</button>
+  </div>
   <!-- DISTRICT ROWS -->
   <div class="districts" id="districts"></div>
   <button class="reset-all" onclick="resetAll()">↺ Reset All Timers</button>
@@ -1265,7 +1309,7 @@ const TX={alive:'#58c070',dead:'#d07828',urgent:'#f03418',warn:'#ccaa28'};
 
 const timers=DISTRICTS.map(()=>({end:null,running:false,wasRunning:false,warnFired:false,unknown:false,unknownAt:null}));
 const dcHeld=new Set();
-let muted=true,actx=null,stI=0,grSz=1,totalKills=0,currentTelVar=0,bankedTelVar=0,lostTelVar=0,farmStart=null,farmEnd=null,farmRunning=false,activePreset=null;
+let muted=true,actx=null,stI=0,grSz=1,totalKills=0,currentTelVar=0,bankedTelVar=0,lostTelVar=0,farmStart=null,farmEnd=null,farmRunning=false,activePreset=null,sortByRespawn=false,telvarTarget=0;
 let alliance='dc';
 const ALLIANCES={ep:{name:'Ebonheart Pact',short:'EP',color:'#e04a3a'},dc:{name:'Daggerfall Covenant',short:'DC',color:'#5aa0e8'},ad:{name:'Aldmeri Dominion',short:'AD',color:'#d4c030'}};
 const skulls=DEFAULT_SKULLS;
@@ -1738,6 +1782,21 @@ function updateTV(){
   if(presetBtn)presetBtn.classList.add('active');
   const presetNote=document.getElementById('presetNote');
   if(presetNote)presetNote.classList.toggle('show',districtCapturesLocked());
+  const tvTargetWrap=document.getElementById('tvTargetWrap');
+  if(tvTargetWrap){
+    const net=bankedTelVar+currentTelVar;
+    if(telvarTarget>0){
+      const pct=Math.min(100,Math.round(net/telvarTarget*100));
+      tvTargetWrap.style.display='';
+      document.getElementById('tvTargetText').textContent=`${net.toLocaleString()} / ${telvarTarget.toLocaleString()}`;
+      document.getElementById('tvTargetPct').textContent=`${pct}%`;
+      const fill=document.getElementById('tvTargetFill');
+      fill.style.width=pct+'%';
+      fill.classList.toggle('done',pct>=100);
+    }else{
+      tvTargetWrap.style.display='none';
+    }
+  }
   updateCommandCenter();
 }
 
@@ -1831,6 +1890,50 @@ function gankedTelVar(){
   logEvent(`Ganked — lost ${lost.toLocaleString()} Tel Var.`);
   toast(`Ganked — lost ${lost.toLocaleString()} Tel Var`,'error');
   updateTV();
+}
+
+function addManualTelvar(){
+  const input=document.getElementById('tvAdjustInput');
+  const n=parseInt(input.value,10);
+  if(!n||n<=0){toast('Enter a positive amount','info');return;}
+  pushUndo('Manual Tel Var add');
+  currentTelVar+=n;
+  input.value='';
+  logEvent(`Added ${n.toLocaleString()} Tel Var manually.`);
+  toast(`+${n.toLocaleString()} Tel Var added`,'success');
+  updateTV();
+}
+
+function setTelvarTarget(){
+  const input=document.getElementById('tvTargetInput');
+  const raw=input.value.trim();
+  const n=parseInt(raw,10);
+  telvarTarget=(raw===''||!n||n<=0)?0:n;
+  input.value='';
+  try{localStorage.setItem('ic-telvar-target',telvarTarget);}catch(e){}
+  updateTV();
+}
+
+function toggleSortByRespawn(){
+  sortByRespawn=!sortByRespawn;
+  const btn=document.getElementById('sortBtn');
+  if(btn)btn.classList.toggle('active',sortByRespawn);
+  if(!sortByRespawn){const wrap=document.getElementById('districts');if(wrap){const rows=[...wrap.children];rows.sort((a,b)=>parseInt(a.id.replace('dr',''))-parseInt(b.id.replace('dr','')));rows.forEach(r=>wrap.appendChild(r));}}
+}
+
+function applyRespawnSort(){
+  const wrap=document.getElementById('districts');
+  if(!wrap)return;
+  const rows=[...wrap.children];
+  rows.sort((a,b)=>{
+    const ai=parseInt(a.id.replace('dr','')),bi=parseInt(b.id.replace('dr',''));
+    const sa=districtState(ai),sb=districtState(bi);
+    if(sa.unknown&&!sb.unknown)return 1;
+    if(!sa.unknown&&sb.unknown)return -1;
+    if(sa.unknown&&sb.unknown)return 0;
+    return (sa.up?0:sa.rem)-(sb.up?0:sb.rem);
+  });
+  rows.forEach(r=>wrap.appendChild(r));
 }
 
 function killBoss(i){
@@ -2071,6 +2174,7 @@ function tick(){
   });
   buildSkulls();
   updateTV();
+  if(sortByRespawn)applyRespawnSort();
 }
 
 function init(){
@@ -2080,6 +2184,7 @@ function init(){
   try{JSON.parse(localStorage.getItem('ic-dcHeld')||'[]').forEach(i=>{if(i>=0&&i<DISTRICTS.length)dcHeld.add(i);});}catch(e){}
   DISTRICTS.forEach((_,i)=>refreshRow(i));
   setAlliance(savedAlliance&&ALLIANCES[savedAlliance]?savedAlliance:'dc');
+  try{const t=parseInt(localStorage.getItem('ic-telvar-target')||'0');if(t>0)telvarTarget=t;}catch(e){}
   buildDCToggles();buildSkulls();updateTV();
   tick();setInterval(tick,500);
 }
