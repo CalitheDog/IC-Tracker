@@ -162,6 +162,8 @@ body.alliance-ad .dc-toggle.held{background:rgba(160,140,20,0.22);border-color:r
 .drow.warn .dbosses{color:#8a7020;}
 
 .dc-pill{font-family:'Cinzel',serif;font-size:0.52rem;letter-spacing:0.1em;padding:2px 8px;border-radius:3px;background:rgba(30,70,160,0.28);border:1px solid rgba(70,130,230,0.4);color:#6ab0e0;text-transform:uppercase;flex-shrink:0;}
+body.alliance-ep .dc-pill{background:rgba(120,20,20,0.28);border-color:rgba(200,50,40,0.4);color:#e07060;}
+body.alliance-ad .dc-pill{background:rgba(100,80,0,0.28);border-color:rgba(200,170,0,0.4);color:#d4b830;}
 
 .dtimer{font-family:'Cinzel',serif;font-size:1.2rem;font-weight:700;min-width:70px;text-align:right;letter-spacing:0.04em;color:#3a2e0e;transition:color 0.3s;flex-shrink:0;}
 .dtimer.alive{color:#4c9960;}
@@ -1763,6 +1765,7 @@ function setAlliance(a){
   document.querySelectorAll('#allianceEl .alliance-btn').forEach(b=>b.classList.toggle('sel',b.classList.contains(a)));
   const lbl=document.getElementById('dcLabel');
   if(lbl)lbl.textContent=`${ALLIANCES[a].short}-held districts (tap to toggle)`;
+  document.querySelectorAll('.dc-pill').forEach(p=>p.textContent=ALLIANCES[a].short);
   document.body.classList.remove('alliance-ep','alliance-dc','alliance-ad');
   document.body.classList.add('alliance-'+a);
   try{localStorage.setItem('ic-alliance',a);}catch(e){}
