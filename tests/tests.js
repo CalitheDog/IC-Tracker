@@ -732,16 +732,322 @@ describe('Alliance Selection', () => {
   });
 
   it('Alliance UI buttons update sel class', () => {
-    setAlliance('ep');
     const btns = document.querySelectorAll('#allianceEl .alliance-btn');
-    let epSel = false, dcSel = false;
-    btns.forEach(b => {
-      if (b.classList.contains('ep') && b.classList.contains('sel')) epSel = true;
-      if (b.classList.contains('dc') && b.classList.contains('sel')) dcSel = true;
-    });
-    assert.ok(epSel, 'EP button should have sel class');
-    assert.notOk(dcSel, 'DC button should not have sel class');
+    const selFor = (a) => [...btns].find(b => b.dataset.al === a && b.classList.contains('sel'));
+
+    setAlliance('ep');
+    assert.ok(selFor('ep'), 'EP button should have sel class');
+    assert.notOk(selFor('dc'), 'DC button should not have sel class');
+    assert.notOk(selFor('ad'), 'AD button should not have sel class');
+
+    setAlliance('ad');
+    assert.ok(selFor('ad'), 'AD button should have sel class');
+    assert.notOk(selFor('ep'), 'EP button should not have sel class');
+
     setAlliance('dc');
+    assert.ok(selFor('dc'), 'DC button should have sel class');
+    assert.notOk(selFor('ad'), 'AD button should not have sel class');
+  });
+});
+
+
+/* ═══════════════════════════════════════════
+   13. DC-HELD DISTRICT TOGGLES
+   ═══════════════════════════════════════════ */
+describe('DC-Held District Toggles', () => {
+
+  it('toggleDC() adds a district to dcHeld', () => {
+    resetState();
+    assert.notOk(dcHeld.has(0));
+    toggleDC(0);
+    assert.ok(dcHeld.has(0));
+  });
+
+  it('toggleDC() removes the district when called again', () => {
+    resetState();
+    toggleDC(0);
+    assert.ok(dcHeld.has(0));
+    toggleDC(0);
+    assert.notOk(dcHeld.has(0));
+  });
+
+  it('Multiple districts can be held independently', () => {
+    resetState();
+    toggleDC(0);
+    toggleDC(3);
+    assert.ok(dcHeld.has(0));
+    assert.ok(dcHeld.has(3));
+    assert.notOk(dcHeld.has(1));
+    assert.equal(dcHeld.size, 2);
+  });
+
+  it('toggleDC() is blocked when Streakah mode is active', () => {
+    resetState();
+    applyPreset('streakah');
+    toggleDC(0);
+    assert.notOk(dcHeld.has(0), 'District capture should be blocked in Streakah mode');
+  });
+
+  it('Streakah preset clears all held districts', () => {
+    resetState();
+    dcHeld.add(0); dcHeld.add(1); dcHeld.add(3);
+    applyPreset('streakah');
+    assert.equal(dcHeld.size, 0, 'Streakah should clear all held districts');
+  });
+
+  it('Holding a district increases perKill', () => {
+    resetState();
+    const before = perKill();
+    toggleDC(0);
+    assert.greaterThan(perKill(), before);
+  });
+
+  it('All 6 districts can be held simultaneously', () => {
+    resetState();
+    for (let i = 0; i < 6; i++) toggleDC(i);
+    assert.equal(dcHeld.size, 6);
+  });
+
+  it('Toggling off each held district reduces perKill back to base', () => {
+    resetState();
+    for (let i = 0; i < 6; i++) toggleDC(i);
+    for (let i = 0; i < 6; i++) toggleDC(i);
+    assert.equal(perKill(), 1327);
+  });
+});
+
+
+/* ═══════════════════════════════════════════
+   14. ALLIANCE SLICE COLORS
+   ═══════════════════════════════════════════ */
+describe('Alliance Slice Colors', () => {
+
+  it('heldC() returns DC colors by default', () => {
+    resetState();
+    const hc = heldC();
+    assert.equal(hc.dA.f, ALLIANCE_HELD.dc.dA.f);
+    assert.equal(hc.dA.s, ALLIANCE_HELD.dc.dA.s);
+  });
+
+  it('heldC() returns EP colors when EP is selected', () => {
+    resetState();
+    setAlliance('ep');
+    assert.equal(heldC().dA.f, ALLIANCE_HELD.ep.dA.f);
+    setAlliance('dc');
+  });
+
+  it('heldC() returns AD colors when AD is selected', () => {
+    resetState();
+    setAlliance('ad');
+    assert.equal(heldC().dA.f, ALLIANCE_HELD.ad.dA.f);
+    setAlliance('dc');
+  });
+
+  it('heldC() falls back to DC colors for an invalid alliance', () => {
+    resetState();
+    alliance = 'invalid';
+    assert.equal(heldC().dA.f, ALLIANCE_HELD.dc.dA.f);
+    alliance = 'dc';
+  });
+
+  it('ALLIANCE_HELD has dA, dD, dW entries with f and s for all factions', () => {
+    ['ep', 'dc', 'ad'].forEach(a => {
+      const hc = ALLIANCE_HELD[a];
+      assert.ok(hc, `${a} should exist in ALLIANCE_HELD`);
+      ['dA', 'dD', 'dW'].forEach(key => {
+        assert.ok(hc[key] && hc[key].f && hc[key].s,
+          `${a}.${key} should have fill (f) and stroke (s)`);
+      });
+    });
+  });
+
+  it('All three alliances have distinct alive fill colors', () => {
+    const fills = new Set(['ep', 'dc', 'ad'].map(a => ALLIANCE_HELD[a].dA.f));
+    assert.equal(fills.size, 3, 'Each alliance should have a unique alive fill color');
+  });
+
+  it('sliceC() returns neutral alive color for a non-held alive district', () => {
+    resetState();
+    const c = sliceC(0);
+    assert.equal(c.f, C.nA.f);
+    assert.equal(c.s, C.nA.s);
+  });
+
+  it('sliceC() returns alliance alive color for a held alive district', () => {
+    resetState();
+    dcHeld.add(0);
+    const c = sliceC(0);
+    assert.equal(c.f, heldC().dA.f);
+    assert.equal(c.s, heldC().dA.s);
+  });
+
+  it('sliceC() returns neutral dead color for a non-held dead district', () => {
+    resetState();
+    killBoss(0);
+    assert.equal(sliceC(0).f, C.nD.f);
+  });
+
+  it('sliceC() returns alliance dead color for a held dead district', () => {
+    resetState();
+    dcHeld.add(0);
+    killBoss(0);
+    assert.equal(sliceC(0).f, heldC().dD.f);
+  });
+
+  it('sliceC() returns neutral dead color for a non-held unknown district', () => {
+    resetState();
+    timers[0].unknown = true;
+    assert.equal(sliceC(0).f, C.nD.f);
+  });
+
+  it('sliceC() returns alliance dead color for a held unknown district', () => {
+    resetState();
+    dcHeld.add(0);
+    timers[0].unknown = true;
+    assert.equal(sliceC(0).f, heldC().dD.f);
+  });
+
+  it('Switching alliance changes the color sliceC returns for a held district', () => {
+    resetState();
+    dcHeld.add(0);
+    setAlliance('dc');
+    const colorDC = sliceC(0).f;
+    setAlliance('ep');
+    const colorEP = sliceC(0).f;
+    setAlliance('ad');
+    const colorAD = sliceC(0).f;
+    assert.notOk(colorDC === colorEP, 'DC and EP held colors should differ');
+    assert.notOk(colorDC === colorAD, 'DC and AD held colors should differ');
+    setAlliance('dc');
+  });
+});
+
+
+/* ═══════════════════════════════════════════
+   15. PRESET NAMES
+   ═══════════════════════════════════════════ */
+describe('Preset Names — modeName()', () => {
+
+  it('Returns "Chud Mode" for chud preset', () => {
+    resetState();
+    activePreset = 'chud';
+    assert.equal(modeName(), 'Chud Mode');
+  });
+
+  it('Returns "Chad Mode" for chad preset', () => {
+    resetState();
+    activePreset = 'chad';
+    assert.equal(modeName(), 'Chad Mode');
+  });
+
+  it('Returns "The Streakah" for streakah preset', () => {
+    resetState();
+    activePreset = 'streakah';
+    assert.equal(modeName(), 'The Streakah');
+  });
+
+  it('Returns "Manual" when no preset is active', () => {
+    resetState();
+    assert.equal(modeName(), 'Manual');
+  });
+});
+
+
+/* ═══════════════════════════════════════════
+   16. COMMAND CENTER — getNextTarget()
+   ═══════════════════════════════════════════ */
+describe('Command Center — getNextTarget()', () => {
+
+  it('Returns a ready target when any district is alive', () => {
+    resetState();
+    const result = getNextTarget();
+    assert.ok(result.ready, 'Should be ready when districts are alive');
+    assert.notOk(result.di === null, 'Should have a target district index');
+  });
+
+  it('Returns not-ready when all districts are dead', () => {
+    resetState();
+    for (let i = 0; i < 6; i++) killBoss(i);
+    const result = getNextTarget();
+    assert.notOk(result.ready, 'Should not be ready when all are dead');
+    assert.ok(result.reason.length > 0, 'Should explain why no target');
+  });
+
+  it('Prioritizes held alive district over non-held alive', () => {
+    resetState();
+    dcHeld.add(3);
+    const result = getNextTarget();
+    assert.equal(result.di, 3, 'Held district should be first priority');
+  });
+
+  it('Falls back to unknown districts when all timers are unknown', () => {
+    resetState();
+    DISTRICTS.forEach((_, i) => {
+      timers[i].running = false;
+      timers[i].end = null;
+      timers[i].unknown = true;
+      timers[i].unknownAt = Date.now() - i * 60000;
+    });
+    const result = getNextTarget();
+    assert.notOk(result.ready, 'Unknown district should not be marked ready');
+    assert.ok(result.title.includes('Check'), 'Should recommend checking an unknown district');
+  });
+});
+
+
+/* ═══════════════════════════════════════════
+   17. TIMER GUESS — setTimerGuess()
+   ═══════════════════════════════════════════ */
+describe('Timer Guess — setTimerGuess()', () => {
+
+  it('7-minute guess sets a running timer with ~8 minutes remaining', () => {
+    resetState();
+    setTimerGuess(0, 7);
+    const state = districtState(0);
+    assert.notOk(state.up, 'District should still be dead');
+    assert.greaterThan(state.rem, 460);
+    assert.lessThan(state.rem, 481);
+  });
+
+  it('15-minute guess marks district as alive (exactly at respawn threshold)', () => {
+    resetState();
+    setTimerGuess(0, 15);
+    const state = districtState(0);
+    assert.ok(state.up, 'District guessed dead 15 min ago should be alive');
+  });
+
+  it('20-minute guess also marks district as alive', () => {
+    resetState();
+    setTimerGuess(0, 20);
+    assert.ok(districtState(0).up, 'District guessed 20 min ago should be alive');
+  });
+
+  it('setTimerGuess() clears unknown timer state', () => {
+    resetState();
+    timers[0].unknown = true;
+    timers[0].unknownAt = Date.now() - 300000;
+    setTimerGuess(0, 5);
+    assert.notOk(timers[0].unknown, 'Unknown flag should be cleared after guess');
+    assert.notOk(districtState(0).unknown, 'districtState should not report unknown');
+  });
+
+  it('seenAlive() marks a district as alive and records scout time', () => {
+    resetState();
+    killBoss(0); // set it dead first
+    seenAlive(0);
+    const state = districtState(0);
+    assert.ok(state.up, 'Should be alive after seenAlive');
+    assert.notOk(state.unknown, 'Should not be unknown after seenAlive');
+    assert.ok(timers[0].seenAt > 0, 'seenAt should be recorded');
+  });
+
+  it('seenAlive() clears unknown state', () => {
+    resetState();
+    timers[0].unknown = true;
+    timers[0].unknownAt = Date.now();
+    seenAlive(0);
+    assert.notOk(timers[0].unknown, 'Unknown flag should be cleared');
+    assert.ok(districtState(0).up, 'District should be alive after seen');
   });
 });
 

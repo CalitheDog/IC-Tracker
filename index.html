@@ -78,17 +78,17 @@ svg.map{width:360px;height:360px;}
 .preset-btn.streakah:hover{background:linear-gradient(135deg,rgba(150,12,12,0.58),rgba(30,20,20,0.52));color:#ff8a70;box-shadow:0 0 24px rgba(220,30,20,0.28);}
 .preset-btn.active{outline:1px solid rgba(255,220,120,0.8);box-shadow:0 0 24px rgba(255,190,70,0.28);}
 .alliance-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
-.alliance-btn{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.1em;padding:8px 10px;border-radius:6px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;opacity:0.55;}
-.alliance-btn.ep{background:rgba(160,30,25,0.22);border:1px solid rgba(200,50,40,0.38);color:#e04a3a;}
-.alliance-btn.ep:hover{background:rgba(180,35,28,0.36);color:#ff6a58;}
-.alliance-btn.dc{background:rgba(30,60,160,0.22);border:1px solid rgba(60,110,220,0.38);color:#5aa0e8;}
-.alliance-btn.dc:hover{background:rgba(35,70,180,0.36);color:#78b8ff;}
-.alliance-btn.ad{background:rgba(160,140,20,0.22);border:1px solid rgba(200,180,40,0.38);color:#d4c030;}
-.alliance-btn.ad:hover{background:rgba(180,160,28,0.36);color:#f0e040;}
-.alliance-btn.sel{opacity:1;outline:1px solid rgba(255,255,255,0.3);box-shadow:0 0 16px rgba(255,255,255,0.08);}
-.alliance-btn.ep.sel{outline-color:rgba(220,60,50,0.7);box-shadow:0 0 18px rgba(200,40,30,0.22);}
-.alliance-btn.dc.sel{outline-color:rgba(80,140,240,0.7);box-shadow:0 0 18px rgba(50,100,220,0.22);}
-.alliance-btn.ad.sel{outline-color:rgba(210,190,50,0.7);box-shadow:0 0 18px rgba(200,180,40,0.22);}
+.alliance-btn{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.1em;padding:8px 10px;border-radius:6px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;opacity:0.72;}
+.alliance-btn.ep{background:rgba(160,30,25,0.32);border:1px solid rgba(200,50,40,0.55);color:#e04a3a;}
+.alliance-btn.ep:hover{background:rgba(180,35,28,0.46);color:#ff6a58;opacity:0.9;}
+.alliance-btn.dc{background:rgba(30,60,160,0.32);border:1px solid rgba(60,110,220,0.55);color:#5aa0e8;}
+.alliance-btn.dc:hover{background:rgba(35,70,180,0.46);color:#78b8ff;opacity:0.9;}
+.alliance-btn.ald{background:rgba(160,140,20,0.32);border:1px solid rgba(200,180,40,0.55);color:#d4c030;}
+.alliance-btn.ald:hover{background:rgba(180,160,28,0.46);color:#f0e040;opacity:0.9;}
+.alliance-btn.sel{opacity:1;}
+.alliance-btn.ep.sel{background:rgba(200,45,35,0.55);border:2px solid rgba(220,60,50,0.9);color:#ff7a68;box-shadow:0 0 24px rgba(200,40,30,0.45),inset 0 0 12px rgba(200,40,30,0.15);}
+.alliance-btn.dc.sel{background:rgba(35,80,220,0.55);border:2px solid rgba(80,140,240,0.9);color:#88ccff;box-shadow:0 0 24px rgba(50,100,220,0.45),inset 0 0 12px rgba(50,100,220,0.15);}
+.alliance-btn.ald.sel{background:rgba(180,155,0,0.55);border:2px solid rgba(230,205,40,0.9);color:#ffe84a;box-shadow:0 0 24px rgba(200,175,0,0.45),inset 0 0 12px rgba(200,175,0,0.15);}
 .preset-note{font-size:0.55rem;letter-spacing:0.1em;color:#8a3020;text-transform:uppercase;margin:-6px 0 10px;display:none;}
 .preset-note.show{display:block;}
 .seg{font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.04em;padding:6px 11px;border-radius:4px;cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(201,168,76,0.14);color:#4a3a20;transition:all 0.15s;white-space:nowrap;}
@@ -203,7 +203,7 @@ body.light .preset-btn.streakah{background:rgba(180,40,25,0.16);border-color:rgb
 body.light .preset-note{color:#9a1f12;}
 body.light .alliance-btn.ep{background:rgba(200,40,30,0.14);border-color:rgba(180,30,20,0.38);color:#9a2218;}
 body.light .alliance-btn.dc{background:rgba(40,80,200,0.14);border-color:rgba(40,80,200,0.38);color:#2856a0;}
-body.light .alliance-btn.ad{background:rgba(180,160,20,0.14);border-color:rgba(150,130,20,0.38);color:#8a7a10;}
+body.light .alliance-btn.ald{background:rgba(180,160,20,0.14);border-color:rgba(150,130,20,0.38);color:#8a7a10;}
 body.light .seg.sel,body.light .tbtn.on{background:rgba(201,168,76,0.28);border-color:rgba(122,86,24,0.58);color:#6b4a12;}
 body.light .footer{color:#5f4218;text-shadow:none;}
 body.light .credits{color:#76521d;text-shadow:none;}
@@ -1076,9 +1076,9 @@ body.light .shortcut-hint{
     <div class="preset-note" id="presetNote">The Streakah does not capture flags. District captures are locked off.</div>
     <div class="tv-lbl" style="margin-bottom:8px">Your alliance</div>
     <div class="alliance-grid" id="allianceEl">
-      <button class="alliance-btn ep" onclick="setAlliance('ep')">Ebonheart Pact</button>
-      <button class="alliance-btn dc" onclick="setAlliance('dc')">Daggerfall Covenant</button>
-      <button class="alliance-btn ad" onclick="setAlliance('ad')">Aldmeri Dominion</button>
+      <button class="alliance-btn ep" data-al="ep" onclick="setAlliance('ep')">Ebonheart Pact</button>
+      <button class="alliance-btn dc" data-al="dc" onclick="setAlliance('dc')">Daggerfall Covenant</button>
+      <button class="alliance-btn ald" data-al="ad" onclick="setAlliance('ad')">Aldmeri Dominion</button>
     </div>
     <div class="tv-grid">
       <div class="tv-row">
@@ -1327,7 +1327,7 @@ function setGr(g){grSz=g;document.querySelectorAll('#groupEl .seg').forEach((b,j
 function setAlliance(a){
   if(!ALLIANCES[a])return;
   alliance=a;
-  document.querySelectorAll('#allianceEl .alliance-btn').forEach(b=>b.classList.toggle('sel',b.classList.contains(a)));
+  document.querySelectorAll('#allianceEl .alliance-btn').forEach(b=>b.classList.toggle('sel',b.dataset.al===a));
   const lbl=document.getElementById('dcLabel');
   if(lbl)lbl.textContent=`${ALLIANCES[a].short}-held districts (tap to toggle)`;
   document.body.classList.remove('alliance-ep','alliance-dc','alliance-ad');
@@ -1762,7 +1762,7 @@ function setGr(g,skipUndo=false){
 function setAlliance(a){
   if(!ALLIANCES[a])return;
   alliance=a;
-  document.querySelectorAll('#allianceEl .alliance-btn').forEach(b=>b.classList.toggle('sel',b.classList.contains(a)));
+  document.querySelectorAll('#allianceEl .alliance-btn').forEach(b=>b.classList.toggle('sel',b.dataset.al===a));
   const lbl=document.getElementById('dcLabel');
   if(lbl)lbl.textContent=`${ALLIANCES[a].short}-held districts (tap to toggle)`;
   document.querySelectorAll('.dc-pill').forEach(p=>p.textContent=ALLIANCES[a].short);
