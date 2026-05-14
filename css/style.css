@@ -92,6 +92,8 @@ svg.map{width:300px;height:300px;}
 .dc-toggle{font-family:'Cinzel',serif;font-size:0.54rem;letter-spacing:0.06em;padding:4px 6px;border-radius:4px;cursor:pointer;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:#4a3820;text-align:center;transition:all 0.15s;text-transform:uppercase;}
 .dc-toggle:hover{color:#7a6030;}
 .dc-toggle.held{background:rgba(20,60,160,0.22);border-color:rgba(70,130,230,0.5);color:#6ab0e0;}
+body.alliance-ep .dc-toggle.held{background:rgba(160,30,25,0.22);border-color:rgba(220,55,40,0.55);color:#e8685a;}
+body.alliance-ad .dc-toggle.held{background:rgba(160,140,20,0.22);border-color:rgba(220,190,40,0.55);color:#f0d840;}
 .dc-toggle.locked{opacity:0.35;cursor:not-allowed;color:#7a3025;border-color:rgba(160,40,25,0.35);}
 .dc-toggle.locked:hover{color:#7a3025;}
 .sc.locked{cursor:not-allowed;}

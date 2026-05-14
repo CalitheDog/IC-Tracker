@@ -40,7 +40,19 @@ const C={
   nA:{f:'#1a3d22',s:'#2a5e34'},nD:{f:'#3a1806',s:'#742c0e'},nW:{f:'#372b06',s:'#826a14'},
   dA:{f:'#0c2644',s:'#174482'},dD:{f:'#261630',s:'#522870'},dW:{f:'#182436',s:'#386088'},
 };
-const TX={alive:'#58c070',dead:'#d07828',urgent:'#f03418',warn:'#ccaa28',dcA:'#68b8e8',dcD:'#9868c8',dcW:'#78a0c8'};
+const ALLIANCE_HELD={
+  ep:{dA:{f:'#3d0e10',s:'#8a1f20'},dD:{f:'#2e0c0e',s:'#6a181a'},dW:{f:'#3a1812',s:'#8a3024'}},
+  dc:{dA:{f:'#0c2644',s:'#174482'},dD:{f:'#0c1c34',s:'#1a3a6a'},dW:{f:'#182436',s:'#386088'}},
+  ad:{dA:{f:'#3d3a0a',s:'#8a8217'},dD:{f:'#2e2a0c',s:'#6a5c18'},dW:{f:'#3a3212',s:'#8a7a24'}},
+};
+const ALLIANCE_TX={
+  ep:{dcA:'#ff6a58',dcD:'#c86868',dcW:'#e08878'},
+  dc:{dcA:'#68b8e8',dcD:'#9868c8',dcW:'#78a0c8'},
+  ad:{dcA:'#f0d840',dcD:'#c8b048',dcW:'#d8c060'},
+};
+function heldC(){return ALLIANCE_HELD[alliance]||ALLIANCE_HELD.dc;}
+function heldTX(){return ALLIANCE_TX[alliance]||ALLIANCE_TX.dc;}
+const TX={alive:'#58c070',dead:'#d07828',urgent:'#f03418',warn:'#ccaa28'};
 
 const timers=DISTRICTS.map(()=>({end:null,running:false,wasRunning:false,warnFired:false,unknown:false,unknownAt:null}));
 const dcHeld=new Set();
@@ -57,8 +69,8 @@ function fmt(s){const m=Math.floor(Math.max(0,s)/60),sc=Math.floor(Math.max(0,s)
 function fmtH(s){s=Math.max(0,Math.floor(s));const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sc=s%60;return`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sc).padStart(2,'0')}`;}
 function farmElapsed(){if(!farmStart)return 0;return ((farmRunning?Date.now():farmEnd)-farmStart)/1000;}
 
-function sliceC(i){const h=dcHeld.has(i),t=timers[i];let rem=0,up=true,wn=false;if(t.unknown){return h?C.dD:C.nD;}if(t.running&&t.end){rem=Math.max(0,(t.end-Date.now())/1000);up=rem<=0;wn=!up&&rem<=WARN_AT;}if(up)return h?C.dA:C.nA;if(wn)return h?C.dW:C.nW;return h?C.dD:C.nD;}
-function textC(i){const h=dcHeld.has(i),t=timers[i];let rem=0,up=true,wn=false;if(t.unknown)return TX.warn;if(t.running&&t.end){rem=Math.max(0,(t.end-Date.now())/1000);up=rem<=0;wn=!up&&rem<=WARN_AT;}const urg=!up&&rem<15;if(up)return h?TX.dcA:TX.alive;if(urg)return TX.urgent;if(wn)return h?TX.dcW:TX.warn;return h?TX.dcD:TX.dead;}
+function sliceC(i){const h=dcHeld.has(i),t=timers[i],HC=heldC();let rem=0,up=true,wn=false;if(t.unknown){return h?HC.dD:C.nD;}if(t.running&&t.end){rem=Math.max(0,(t.end-Date.now())/1000);up=rem<=0;wn=!up&&rem<=WARN_AT;}if(up)return h?HC.dA:C.nA;if(wn)return h?HC.dW:C.nW;return h?HC.dD:C.nD;}
+function textC(i){const h=dcHeld.has(i),t=timers[i],HT=heldTX();let rem=0,up=true,wn=false;if(t.unknown)return TX.warn;if(t.running&&t.end){rem=Math.max(0,(t.end-Date.now())/1000);up=rem<=0;wn=!up&&rem<=WARN_AT;}const urg=!up&&rem<15;if(up)return h?HT.dcA:TX.alive;if(urg)return TX.urgent;if(wn)return h?HT.dcW:TX.warn;return h?HT.dcD:TX.dead;}
 
 function districtCapturesLocked(){return activePreset==='streakah';}
 function toggleDC(i){if(districtCapturesLocked())return;dcHeld.has(i)?dcHeld.delete(i):dcHeld.add(i);refreshSlice(i);refreshRow(i);buildDCToggles();updateTV();}
@@ -534,7 +546,10 @@ function setAlliance(a){
   document.querySelectorAll('#allianceEl .alliance-btn').forEach(b=>b.classList.toggle('sel',b.classList.contains(a)));
   const lbl=document.getElementById('dcLabel');
   if(lbl)lbl.textContent=`${ALLIANCES[a].short}-held districts (tap to toggle)`;
+  document.body.classList.remove('alliance-ep','alliance-dc','alliance-ad');
+  document.body.classList.add('alliance-'+a);
   try{localStorage.setItem('ic-alliance',a);}catch(e){}
+  if(typeof refreshSlice==='function')DISTRICTS.forEach((_,i)=>refreshSlice(i));
   updateTV();
 }
 
@@ -854,7 +869,7 @@ function tick(){
 function init(){
   loadTheme();
   const savedAlliance=localStorage.getItem('ic-alliance');
-  if(savedAlliance&&ALLIANCES[savedAlliance])setAlliance(savedAlliance);
+  setAlliance(savedAlliance&&ALLIANCES[savedAlliance]?savedAlliance:'dc');
   buildGear();buildMap();buildRows();buildDCToggles();buildSkulls();updateTV();
   tick();setInterval(tick,500);
   setInterval(saveSession,15000);
