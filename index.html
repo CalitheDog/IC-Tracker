@@ -120,13 +120,18 @@ body.light .formula-summary{color:#6e4a18;}
 
 .panel-sep{border:none;border-top:1px solid rgba(201,168,76,0.08);margin:14px 0;}
 
-.tv-adj-group{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-top:12px;border-top:1px solid rgba(201,168,76,0.08);}
+.tv-adj-group{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding-top:12px;border-top:1px solid rgba(201,168,76,0.08);}
 .tv-adj-item{display:flex;flex-direction:column;gap:4px;}
 .tv-adj-item-label{font-size:0.53rem;letter-spacing:0.11em;text-transform:uppercase;color:#4a3820;}
 body.light .tv-adj-item-label{color:#6e4a18;}
 .tv-adj-line{display:flex;gap:5px;}
 .tv-adj-line .tv-adj-input{flex:1;min-width:0;}
 .tv-adj-line .tv-adj-btn{padding:6px 10px;flex-shrink:0;}
+
+.risk-warn{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:#e03820;text-align:center;padding:8px 12px;border:1px solid rgba(220,40,20,0.4);border-radius:6px;background:rgba(180,20,10,0.12);margin-top:8px;display:none;animation:fl 1.4s ease-in-out infinite;}
+.risk-warn.show{display:block;}
+.tv-sv.at-risk{color:#ff4a34!important;animation:fl 1.2s ease-in-out infinite;}
+body.light .risk-warn{background:rgba(220,40,20,0.1);color:#9a1f12;border-color:rgba(180,30,20,0.35);}
 
 .district-section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding:0 2px;}
 .district-section-hd-title{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:#5a4018;}
@@ -1178,6 +1183,7 @@ body.light .tv-adj-input::placeholder{color:#a08040;}
       <button class="tv-action bank" onclick="bankTelVar()">🏦 Banked Tel Var</button>
       <button class="tv-action gank" onclick="gankedTelVar()">☠ Ganked</button>
     </div>
+    <div class="risk-warn" id="riskWarn">⚠ Bank Now — Carrying over your risk limit</div>
     <div class="tv-adj-group">
       <div class="tv-adj-item">
         <span class="tv-adj-item-label">Add Tel Var</span>
@@ -1193,38 +1199,31 @@ body.light .tv-adj-input::placeholder{color:#a08040;}
           <button class="tv-adj-btn tgt" onclick="setTelvarTarget()">Set</button>
         </div>
       </div>
+      <div class="tv-adj-item">
+        <span class="tv-adj-item-label">Risk Limit</span>
+        <div class="tv-adj-line">
+          <input type="number" class="tv-adj-input" id="tvRiskInput" placeholder="Limit" min="1" step="1000" onkeydown="if(event.key==='Enter')setRiskTolerance()">
+          <button class="tv-adj-btn tgt" onclick="setRiskTolerance()">Set</button>
+        </div>
+      </div>
     </div>
   </div>
 
 
-  <!-- COMMAND CENTER -->
+  <!-- SESSION SUMMARY -->
   <div class="panel command-panel">
-    <div class="panel-hd">🧭 Command Center</div>
-    <div class="command-grid">
-      <div class="command-card">
-        <div class="command-kicker">Next Best Boss</div>
-        <div class="command-title" id="nextTargetTitle">—</div>
-        <div class="command-line" id="nextTargetReason">Waiting for timer data.</div>
-        <div class="command-actions">
-          <button class="command-btn kill-next" id="killNextBtn" onclick="killNextTarget()">☠ Mark Next Killed</button>
-
-          <button class="command-btn undo" id="undoBtn" onclick="undoLastAction()">↶ Undo Last</button>
-        </div>
-      </div>
-      <div class="command-card">
-        <div class="command-kicker">Projected Session Value</div>
-        <div class="projected-grid">
-          <div class="projected-stat"><div class="projected-num" id="netSessionTv">0</div><div class="projected-lbl">Net</div></div>
-          <div class="projected-stat"><div class="projected-num" id="grossSessionTv">0</div><div class="projected-lbl">Gross</div></div>
-          <div class="projected-stat"><div class="projected-num" id="effSessionTv">—</div><div class="projected-lbl">Efficiency</div></div>
-        </div>
-        <div class="command-line" style="margin-top:10px" id="projectedNote">Net = banked + carrying. Gross includes Tel Var lost.</div>
-        <div class="command-actions">
-          <button class="command-btn" onclick="copySessionSummary()">📋 Copy Session Summary</button>
-        </div>
-        <div class="copy-pill" id="copyPill">Copied session summary</div>
-      </div>
+    <div class="panel-hd">📊 Session Summary</div>
+    <div class="projected-grid">
+      <div class="projected-stat"><div class="projected-num" id="netSessionTv">0</div><div class="projected-lbl">Net</div></div>
+      <div class="projected-stat"><div class="projected-num" id="grossSessionTv">0</div><div class="projected-lbl">Gross</div></div>
+      <div class="projected-stat"><div class="projected-num" id="effSessionTv">—</div><div class="projected-lbl">Efficiency</div></div>
     </div>
+    <div class="command-line" style="margin-top:10px" id="projectedNote">Net = banked + carrying. Gross includes Tel Var lost.</div>
+    <div class="command-actions">
+      <button class="command-btn undo" id="undoBtn" onclick="undoLastAction()">↶ Undo Last</button>
+      <button class="command-btn" onclick="copySessionSummary()">📋 Copy Summary</button>
+    </div>
+    <div class="copy-pill" id="copyPill">Copied session summary</div>
   </div>
 
 
@@ -1344,7 +1343,7 @@ const TX={alive:'#58c070',dead:'#d07828',urgent:'#f03418',warn:'#ccaa28'};
 
 const timers=DISTRICTS.map(()=>({end:null,running:false,wasRunning:false,warnFired:false,unknown:false,unknownAt:null}));
 const dcHeld=new Set();
-let muted=true,actx=null,stI=0,grSz=1,totalKills=0,currentTelVar=0,bankedTelVar=0,lostTelVar=0,farmStart=null,farmEnd=null,farmRunning=false,activePreset=null,sortByRespawn=false,telvarTarget=0;
+let muted=true,actx=null,stI=0,grSz=1,totalKills=0,currentTelVar=0,bankedTelVar=0,lostTelVar=0,farmStart=null,farmEnd=null,farmRunning=false,activePreset=null,sortByRespawn=false,telvarTarget=0,riskTolerance=0;
 let alliance='dc';
 const ALLIANCES={ep:{name:'Ebonheart Pact',short:'EP',color:'#e04a3a'},dc:{name:'Daggerfall Covenant',short:'DC',color:'#5aa0e8'},ad:{name:'Aldmeri Dominion',short:'AD',color:'#d4c030'}};
 const skulls=DEFAULT_SKULLS;
@@ -1819,6 +1818,9 @@ function updateTV(){
   if(presetBtn)presetBtn.classList.add('active');
   const presetNote=document.getElementById('presetNote');
   if(presetNote)presetNote.classList.toggle('show',districtCapturesLocked());
+  const atRisk=riskTolerance>0&&currentTelVar>=riskTolerance;
+  const tvTEl=document.getElementById('tvT');if(tvTEl)tvTEl.classList.toggle('at-risk',atRisk);
+  const riskWarn=document.getElementById('riskWarn');if(riskWarn)riskWarn.classList.toggle('show',atRisk);
   const tvTargetWrap=document.getElementById('tvTargetWrap');
   if(tvTargetWrap){
     const net=bankedTelVar+currentTelVar;
@@ -1950,6 +1952,16 @@ function setTelvarTarget(){
   telvarTarget=(raw===''||!n||n<=0)?0:n;
   input.value='';
   try{localStorage.setItem('ic-telvar-target',telvarTarget);}catch(e){}
+  updateTV();
+}
+
+function setRiskTolerance(){
+  const input=document.getElementById('tvRiskInput');
+  const raw=input?input.value.trim():'';
+  const n=parseInt(raw,10);
+  riskTolerance=(raw===''||!n||n<=0)?0:n;
+  if(input)input.value='';
+  try{localStorage.setItem('ic-risk-tolerance',riskTolerance);}catch(e){}
   updateTV();
 }
 
@@ -2224,6 +2236,7 @@ function init(){
   DISTRICTS.forEach((_,i)=>refreshRow(i));
   setAlliance(savedAlliance&&ALLIANCES[savedAlliance]?savedAlliance:'dc');
   try{const t=parseInt(localStorage.getItem('ic-telvar-target')||'0');if(t>0)telvarTarget=t;}catch(e){}
+  try{const r=parseInt(localStorage.getItem('ic-risk-tolerance')||'0');if(r>0)riskTolerance=r;}catch(e){}
   buildDCToggles();buildSkulls();updateTV();
   tick();setInterval(tick,500);
 }
