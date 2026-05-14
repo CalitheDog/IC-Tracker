@@ -20,6 +20,8 @@ function resetState() {
   activePreset = null;
   alliance = 'dc';
   killStreak = 0;
+  sortByRespawn = false;
+  telvarTarget = 0;
   dcHeld.clear();
   actionStack = [];
   eventLog = [];
@@ -32,6 +34,10 @@ function resetState() {
     timers[i].unknownAt = null;
     if (timers[i].seenAt !== undefined) timers[i].seenAt = null;
   });
+  const adj = document.getElementById('tvAdjustInput');
+  if (adj) adj.value = '';
+  const tgt = document.getElementById('tvTargetInput');
+  if (tgt) tgt.value = '';
 }
 
 
@@ -1053,6 +1059,296 @@ describe('Timer Guess — setTimerGuess()', () => {
 
 
 /* ═══════════════════════════════════════════
+   18. MANUAL TEL VAR ADD
+   ═══════════════════════════════════════════ */
+describe('Manual Tel Var Add — addManualTelvar()', () => {
+
+  it('Adds amount to currentTelVar', () => {
+    resetState();
+    document.getElementById('tvAdjustInput').value = '500';
+    addManualTelvar();
+    assert.equal(currentTelVar, 500);
+  });
+
+  it('Stacks with existing currentTelVar', () => {
+    resetState();
+    currentTelVar = 1000;
+    document.getElementById('tvAdjustInput').value = '350';
+    addManualTelvar();
+    assert.equal(currentTelVar, 1350);
+  });
+
+  it('Clears the input after adding', () => {
+    resetState();
+    const input = document.getElementById('tvAdjustInput');
+    input.value = '200';
+    addManualTelvar();
+    assert.equal(input.value, '');
+  });
+
+  it('Logs the event', () => {
+    resetState();
+    document.getElementById('tvAdjustInput').value = '777';
+    addManualTelvar();
+    assert.ok(eventLog.some(e => e.text.includes('777')), 'Event log should mention the amount');
+  });
+
+  it('Supports undo', () => {
+    resetState();
+    document.getElementById('tvAdjustInput').value = '999';
+    addManualTelvar();
+    assert.equal(currentTelVar, 999);
+    undoLastAction();
+    assert.equal(currentTelVar, 0);
+  });
+
+  it('Ignores zero', () => {
+    resetState();
+    document.getElementById('tvAdjustInput').value = '0';
+    addManualTelvar();
+    assert.equal(currentTelVar, 0);
+  });
+
+  it('Ignores negative values', () => {
+    resetState();
+    document.getElementById('tvAdjustInput').value = '-100';
+    addManualTelvar();
+    assert.equal(currentTelVar, 0);
+  });
+
+  it('Does not affect totalKills', () => {
+    resetState();
+    document.getElementById('tvAdjustInput').value = '5000';
+    addManualTelvar();
+    assert.equal(totalKills, 0);
+  });
+});
+
+
+/* ═══════════════════════════════════════════
+   19. TELVAR TARGET
+   ═══════════════════════════════════════════ */
+describe('Telvar Target — setTelvarTarget()', () => {
+
+  it('Sets telvarTarget from input', () => {
+    resetState();
+    document.getElementById('tvTargetInput').value = '50000';
+    setTelvarTarget();
+    assert.equal(telvarTarget, 50000);
+  });
+
+  it('Empty input clears the target', () => {
+    resetState();
+    telvarTarget = 50000;
+    document.getElementById('tvTargetInput').value = '';
+    setTelvarTarget();
+    assert.equal(telvarTarget, 0);
+  });
+
+  it('Zero input clears the target', () => {
+    resetState();
+    telvarTarget = 10000;
+    document.getElementById('tvTargetInput').value = '0';
+    setTelvarTarget();
+    assert.equal(telvarTarget, 0);
+  });
+
+  it('Clears the input field after setting', () => {
+    resetState();
+    const input = document.getElementById('tvTargetInput');
+    input.value = '25000';
+    setTelvarTarget();
+    assert.equal(input.value, '');
+  });
+
+  it('Persists to localStorage', () => {
+    resetState();
+    document.getElementById('tvTargetInput').value = '75000';
+    setTelvarTarget();
+    assert.equal(localStorage.getItem('ic-telvar-target'), '75000');
+  });
+
+  it('Target 0 hides the progress bar', () => {
+    resetState();
+    telvarTarget = 0;
+    updateTV();
+    const wrap = document.getElementById('tvTargetWrap');
+    assert.equal(wrap.style.display, 'none');
+  });
+
+  it('Target > 0 shows the progress bar', () => {
+    resetState();
+    telvarTarget = 50000;
+    updateTV();
+    const wrap = document.getElementById('tvTargetWrap');
+    assert.notOk(wrap.style.display === 'none', 'Wrap should be visible');
+  });
+
+  it('Progress text shows net / target', () => {
+    resetState();
+    currentTelVar = 10000;
+    bankedTelVar = 5000;
+    telvarTarget = 50000;
+    updateTV();
+    const text = document.getElementById('tvTargetText').textContent;
+    assert.includes(text, '15,000');
+    assert.includes(text, '50,000');
+  });
+
+  it('Progress percentage is capped at 100%', () => {
+    resetState();
+    currentTelVar = 60000;
+    telvarTarget = 50000;
+    updateTV();
+    const pct = document.getElementById('tvTargetPct').textContent;
+    assert.equal(pct, '100%');
+  });
+
+  it('Fill has "done" class when target reached', () => {
+    resetState();
+    currentTelVar = 50000;
+    telvarTarget = 50000;
+    updateTV();
+    assert.ok(document.getElementById('tvTargetFill').classList.contains('done'));
+  });
+
+  it('Fill does not have "done" class when below target', () => {
+    resetState();
+    currentTelVar = 10000;
+    telvarTarget = 50000;
+    updateTV();
+    assert.notOk(document.getElementById('tvTargetFill').classList.contains('done'));
+  });
+});
+
+
+/* ═══════════════════════════════════════════
+   20. RESPAWN SORT — applyRespawnSort()
+   ═══════════════════════════════════════════ */
+describe('Respawn Sort — applyRespawnSort()', () => {
+
+  function districtOrder() {
+    return [...document.getElementById('districts').children]
+      .map(el => parseInt(el.id.replace('dr', '')));
+  }
+
+  it('Default order is 0-1-2-3-4-5', () => {
+    resetState();
+    const order = districtOrder();
+    assert.equal(order.join(','), '0,1,2,3,4,5');
+  });
+
+  it('All-alive: sort preserves original order', () => {
+    resetState();
+    applyRespawnSort();
+    assert.equal(districtOrder().join(','), '0,1,2,3,4,5');
+  });
+
+  it('Killed district moves below alive districts', () => {
+    resetState();
+    killBoss(0);
+    applyRespawnSort();
+    const order = districtOrder();
+    assert.notOk(order[0] === 0, 'Killed district 0 should not be first');
+    assert.equal(order[order.length - 1], 0, 'Killed district 0 should be last when others are alive');
+  });
+
+  it('Among dead districts, soonest respawn sorts first', () => {
+    resetState();
+    // Kill district 2 first (oldest, most time elapsed, least remaining)
+    timers[2].end = Date.now() + 60 * 1000;   // 1 min left
+    timers[2].running = true;
+    // Kill district 4 with more time left
+    timers[4].end = Date.now() + 600 * 1000;  // 10 min left
+    timers[4].running = true;
+    // Kill all others so only 2 and 4 are dead
+    [0, 1, 3, 5].forEach(i => killBoss(i));
+    applyRespawnSort();
+    const order = districtOrder();
+    const pos2 = order.indexOf(2), pos4 = order.indexOf(4);
+    assert.lessThan(pos2, pos4, 'District 2 (less remaining) should sort before district 4');
+  });
+
+  it('Unknown districts sort after all known timers', () => {
+    resetState();
+    timers[1].unknown = true;
+    timers[1].unknownAt = Date.now();
+    applyRespawnSort();
+    const order = districtOrder();
+    assert.equal(order[order.length - 1], 1, 'Unknown district should be last');
+  });
+
+  it('Multiple unknowns all sort to the end', () => {
+    resetState();
+    timers[0].unknown = true; timers[0].unknownAt = Date.now();
+    timers[3].unknown = true; timers[3].unknownAt = Date.now();
+    applyRespawnSort();
+    const order = districtOrder();
+    const knownCount = DISTRICTS.length - 2;
+    const tail = order.slice(knownCount);
+    assert.ok(tail.includes(0) && tail.includes(3), 'Both unknowns should be in the tail');
+  });
+});
+
+
+/* ═══════════════════════════════════════════
+   21. ALLIANCE MAP HINT
+   ═══════════════════════════════════════════ */
+describe('Alliance Map Hint', () => {
+
+  it('EP alliance sets hint text to "EP control"', () => {
+    resetState();
+    setAlliance('ep');
+    assert.equal(document.getElementById('mapHintAlliance').textContent, 'EP control');
+    setAlliance('dc');
+  });
+
+  it('DC alliance sets hint text to "DC control"', () => {
+    resetState();
+    setAlliance('dc');
+    assert.equal(document.getElementById('mapHintAlliance').textContent, 'DC control');
+  });
+
+  it('AD alliance sets hint text to "AD control"', () => {
+    resetState();
+    setAlliance('ad');
+    assert.equal(document.getElementById('mapHintAlliance').textContent, 'AD control');
+    setAlliance('dc');
+  });
+
+  it('EP hint color matches ALLIANCES.ep.color', () => {
+    resetState();
+    setAlliance('ep');
+    assert.equal(document.getElementById('mapHintAlliance').style.color, ALLIANCES.ep.color);
+    setAlliance('dc');
+  });
+
+  it('DC hint color matches ALLIANCES.dc.color', () => {
+    resetState();
+    setAlliance('dc');
+    assert.equal(document.getElementById('mapHintAlliance').style.color, ALLIANCES.dc.color);
+  });
+
+  it('AD hint color matches ALLIANCES.ad.color', () => {
+    resetState();
+    setAlliance('ad');
+    assert.equal(document.getElementById('mapHintAlliance').style.color, ALLIANCES.ad.color);
+    setAlliance('dc');
+  });
+
+  it('Hint updates immediately on every alliance switch', () => {
+    resetState();
+    setAlliance('ep');
+    assert.equal(document.getElementById('mapHintAlliance').textContent, 'EP control');
+    setAlliance('ad');
+    assert.equal(document.getElementById('mapHintAlliance').textContent, 'AD control');
+    setAlliance('dc');
+    assert.equal(document.getElementById('mapHintAlliance').textContent, 'DC control');
+  });
+});
+
+
+/* ═══════════════════════════════════════════
    CLEANUP
    ═══════════════════════════════════════════ */
 describe('Cleanup', () => {
@@ -1061,6 +1357,7 @@ describe('Cleanup', () => {
     localStorage.removeItem('esoIcSession');
     localStorage.removeItem('esoIcBestStreak');
     localStorage.removeItem('ic-alliance');
+    localStorage.removeItem('ic-telvar-target');
     assert.ok(true);
   });
 });

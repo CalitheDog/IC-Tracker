@@ -56,7 +56,7 @@ const TX={alive:'#58c070',dead:'#d07828',urgent:'#f03418',warn:'#ccaa28'};
 
 const timers=DISTRICTS.map(()=>({end:null,running:false,wasRunning:false,warnFired:false,unknown:false,unknownAt:null}));
 const dcHeld=new Set();
-let muted=true,actx=null,stI=0,grSz=1,totalKills=0,currentTelVar=0,bankedTelVar=0,lostTelVar=0,farmStart=null,farmEnd=null,farmRunning=false,activePreset=null;
+let muted=true,actx=null,stI=0,grSz=1,totalKills=0,currentTelVar=0,bankedTelVar=0,lostTelVar=0,farmStart=null,farmEnd=null,farmRunning=false,activePreset=null,sortByRespawn=false,telvarTarget=0;
 let alliance='dc';
 const ALLIANCES={ep:{name:'Ebonheart Pact',short:'EP',color:'#e04a3a'},dc:{name:'Daggerfall Covenant',short:'DC',color:'#5aa0e8'},ad:{name:'Aldmeri Dominion',short:'AD',color:'#d4c030'}};
 const skulls=DEFAULT_SKULLS;
@@ -519,6 +519,19 @@ function updateTV(){
   if(presetBtn)presetBtn.classList.add('active');
   const presetNote=document.getElementById('presetNote');
   if(presetNote)presetNote.classList.toggle('show',districtCapturesLocked());
+  const tvTargetWrap=document.getElementById('tvTargetWrap');
+  if(tvTargetWrap){
+    const net=bankedTelVar+currentTelVar;
+    if(telvarTarget>0){
+      const pct=Math.min(100,Math.round(net/telvarTarget*100));
+      tvTargetWrap.style.display='';
+      const tt=document.getElementById('tvTargetText');if(tt)tt.textContent=`${net.toLocaleString()} / ${telvarTarget.toLocaleString()}`;
+      const tp=document.getElementById('tvTargetPct');if(tp)tp.textContent=`${pct}%`;
+      const fill=document.getElementById('tvTargetFill');if(fill){fill.style.width=pct+'%';fill.classList.toggle('done',pct>=100);}
+    }else{
+      tvTargetWrap.style.display='none';
+    }
+  }
   updateCommandCenter();
 }
 
@@ -546,6 +559,8 @@ function setAlliance(a){
   document.querySelectorAll('#allianceEl .alliance-btn').forEach(b=>b.classList.toggle('sel',b.dataset.al===a));
   const lbl=document.getElementById('dcLabel');
   if(lbl)lbl.textContent=`${ALLIANCES[a].short}-held districts (tap to toggle)`;
+  const hint=document.getElementById('mapHintAlliance');
+  if(hint){hint.textContent=`${ALLIANCES[a].short} control`;hint.style.color=ALLIANCES[a].color;}
   document.body.classList.remove('alliance-ep','alliance-dc','alliance-ad');
   document.body.classList.add('alliance-'+a);
   try{localStorage.setItem('ic-alliance',a);}catch(e){}
@@ -611,6 +626,43 @@ function gankedTelVar(){
   toast(`Ganked — lost ${lost.toLocaleString()} Tel Var`,'error');
   saveSession();
   updateTV();
+}
+
+function addManualTelvar(){
+  const input=document.getElementById('tvAdjustInput');
+  const n=input?parseInt(input.value,10):NaN;
+  if(!n||n<=0){toast('Enter a positive amount','info');return;}
+  pushUndo('Manual Tel Var add');
+  currentTelVar+=n;
+  if(input)input.value='';
+  logEvent(`Added ${n.toLocaleString()} Tel Var manually.`);
+  toast(`+${n.toLocaleString()} Tel Var added`,'success');
+  updateTV();
+}
+
+function setTelvarTarget(){
+  const input=document.getElementById('tvTargetInput');
+  const raw=input?input.value.trim():'';
+  const n=parseInt(raw,10);
+  telvarTarget=(raw===''||!n||n<=0)?0:n;
+  if(input)input.value='';
+  try{localStorage.setItem('ic-telvar-target',telvarTarget);}catch(e){}
+  updateTV();
+}
+
+function applyRespawnSort(){
+  const wrap=document.getElementById('districts');
+  if(!wrap)return;
+  const rows=[...wrap.children];
+  rows.sort((a,b)=>{
+    const ai=parseInt(a.id.replace('dr','')),bi=parseInt(b.id.replace('dr',''));
+    const sa=districtState(ai),sb=districtState(bi);
+    if(sa.unknown&&!sb.unknown)return 1;
+    if(!sa.unknown&&sb.unknown)return -1;
+    if(sa.unknown&&sb.unknown)return 0;
+    return (sa.up?0:sa.rem)-(sb.up?0:sb.rem);
+  });
+  rows.forEach(r=>wrap.appendChild(r));
 }
 
 function killBoss(i){
