@@ -1067,7 +1067,7 @@ body.light .tv-adj-input::placeholder{color:#a08040;}
 <div class="layout">
   <div class="map-section">
     <div class="map-toolbar">
-      <span class="map-hint">Tap slice = <em>DC control</em> · Hover skull = boss pic</span>
+      <span class="map-hint">Tap slice = <em id="mapHintAlliance">DC control</em> · Hover skull = boss pic</span>
     </div>
     <div class="map-wrap">
       <svg id="map" class="map" viewBox="0 0 360 360" xmlns="http://www.w3.org/2000/svg">
@@ -1374,6 +1374,8 @@ function setAlliance(a){
   document.querySelectorAll('#allianceEl .alliance-btn').forEach(b=>b.classList.toggle('sel',b.dataset.al===a));
   const lbl=document.getElementById('dcLabel');
   if(lbl)lbl.textContent=`${ALLIANCES[a].short}-held districts (tap to toggle)`;
+  const hint=document.getElementById('mapHintAlliance');
+  if(hint){hint.textContent=`${ALLIANCES[a].short} control`;hint.style.color=ALLIANCES[a].color;}
   document.body.classList.remove('alliance-ep','alliance-dc','alliance-ad');
   document.body.classList.add('alliance-'+a);
   try{localStorage.setItem('ic-alliance',a);}catch(e){}
@@ -1825,6 +1827,8 @@ function setAlliance(a){
   const lbl=document.getElementById('dcLabel');
   if(lbl)lbl.textContent=`${ALLIANCES[a].short}-held districts (tap to toggle)`;
   document.querySelectorAll('.dc-pill').forEach(p=>p.textContent=ALLIANCES[a].short);
+  const hint=document.getElementById('mapHintAlliance');
+  if(hint){hint.textContent=`${ALLIANCES[a].short} control`;hint.style.color=ALLIANCES[a].color;}
   document.body.classList.remove('alliance-ep','alliance-dc','alliance-ad');
   document.body.classList.add('alliance-'+a);
   try{localStorage.setItem('ic-alliance',a);}catch(e){}
