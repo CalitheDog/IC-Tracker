@@ -459,8 +459,8 @@ body.light .ddot.unknown{background:#715bd2;box-shadow:none;}
     grid-template-columns:380px minmax(0,1fr);
     grid-template-areas:
       "map      nextup"
-      "telvar   actions"
       "telvar   districts"
+      "telvar   actions"
       ".        reset";
     align-items:start;
     gap:14px;
@@ -1352,6 +1352,8 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
     </div>
   </div>
 
+  <div class="districts" id="districts"></div>
+
   <!-- QUICK ACTIONS -->
   <div class="action-strip">
     <button class="qs-btn bank" onclick="bankTelVar()">🏦 Bank</button>
@@ -1359,8 +1361,6 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
     <button class="qs-btn undo" id="undoBtn" onclick="undoLastAction()">↶ Undo</button>
     <button class="qs-btn sort" id="sortBtn" onclick="toggleSortByRespawn()">⇅ Sort</button>
   </div>
-
-  <div class="districts" id="districts"></div>
 
   <button class="reset-all" onclick="resetAll()">↺ Reset All Timers</button>
 
