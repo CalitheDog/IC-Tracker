@@ -56,7 +56,7 @@ const TX={alive:'#58c070',dead:'#d07828',urgent:'#f03418',warn:'#ccaa28'};
 
 const timers=DISTRICTS.map(()=>({end:null,running:false,wasRunning:false,warnFired:false,unknown:false,unknownAt:null}));
 const dcHeld=new Set();
-let muted=true,actx=null,stI=0,grSz=1,totalKills=0,currentTelVar=0,bankedTelVar=0,lostTelVar=0,farmStart=null,farmEnd=null,farmRunning=false,activePreset=null,sortByRespawn=false,telvarTarget=0,riskTolerance=0;
+let muted=true,actx=null,stI=0,grSz=1,totalKills=0,currentTelVar=0,bankedTelVar=0,lostTelVar=0,farmStart=null,farmEnd=null,farmRunning=false,activePreset=null,sortByRespawn=false,telvarTarget=0;
 let alliance='dc';
 const ALLIANCES={ep:{name:'Ebonheart Pact',short:'EP',color:'#e04a3a'},dc:{name:'Daggerfall Covenant',short:'DC',color:'#5aa0e8'},ad:{name:'Aldmeri Dominion',short:'AD',color:'#d4c030'}};
 const skulls=DEFAULT_SKULLS;
@@ -94,8 +94,13 @@ function perKill(){return Math.round(BASE_TV*MULT[stI]*(1+dcHeld.size*0.33)/grSz
 function updateTV(){
   const m=MULT[stI],b=1+dcHeld.size*0.33,raw=Math.round(BASE_TV*m*b),pk=Math.round(raw/grSz);
   const sessionTelVar=bankedTelVar+currentTelVar,elapsed=farmElapsed();
-  const gn=grSz>1?`÷ ${grSz} = <span class="res">${pk.toLocaleString()}</span> each`:` = <span class="res">${pk.toLocaleString()}</span>`;
-  document.getElementById('formula').innerHTML=`1,327 base × <span class="hl">×${m}</span> mult × <span class="hlb">×${b.toFixed(2)}</span> district bonus (<span class="hlb">${dcHeld.size}/6 held</span>)<br>${gn}`;
+  const grpLabel=grSz===1?'÷ Solo':`÷ ${grSz}`;
+  document.getElementById('formula').innerHTML=
+    `<div class="formula-row"><span class="lbl">Base</span><span class="val">1,327</span></div>`+
+    `<div class="formula-row"><span class="lbl">× Stones mult</span><span class="val">×${m}</span></div>`+
+    `<div class="formula-row"><span class="lbl">× District bonus</span><span class="val dc">×${b.toFixed(2)} <em>(${dcHeld.size}/6)</em></span></div>`+
+    `<div class="formula-row"><span class="lbl">${grSz===1?'Group':'÷ Group'}</span><span class="val">${grpLabel}</span></div>`+
+    `<div class="formula-result"><span class="lbl">Per Kill</span><span class="res">${pk.toLocaleString()}</span></div>`;
   document.getElementById('tvK').textContent=totalKills;
   document.getElementById('tvT').textContent=currentTelVar.toLocaleString();
   document.getElementById('tvB').textContent=bankedTelVar.toLocaleString();
@@ -521,8 +526,13 @@ function perKill(){return Math.round(BASE_TV*MULT[stI]*(1+dcHeld.size*0.33)/grSz
 function updateTV(){
   const m=MULT[stI],b=1+dcHeld.size*0.33,raw=Math.round(BASE_TV*m*b),pk=Math.round(raw/grSz);
   const sessionTelVar=bankedTelVar+currentTelVar,elapsed=farmElapsed();
-  const gn=grSz>1?`÷ ${grSz} = <span class="res">${pk.toLocaleString()}</span> each`:` = <span class="res">${pk.toLocaleString()}</span>`;
-  document.getElementById('formula').innerHTML=`1,327 base × <span class="hl">×${m}</span> mult × <span class="hlb">×${b.toFixed(2)}</span> district bonus (<span class="hlb">${dcHeld.size}/6 held</span>)<br>${gn}`;
+  const grpLabel=grSz===1?'÷ Solo':`÷ ${grSz}`;
+  document.getElementById('formula').innerHTML=
+    `<div class="formula-row"><span class="lbl">Base</span><span class="val">1,327</span></div>`+
+    `<div class="formula-row"><span class="lbl">× Stones mult</span><span class="val">×${m}</span></div>`+
+    `<div class="formula-row"><span class="lbl">× District bonus</span><span class="val dc">×${b.toFixed(2)} <em>(${dcHeld.size}/6)</em></span></div>`+
+    `<div class="formula-row"><span class="lbl">${grSz===1?'Group':'÷ Group'}</span><span class="val">${grpLabel}</span></div>`+
+    `<div class="formula-result"><span class="lbl">Per Kill</span><span class="res">${pk.toLocaleString()}</span></div>`;
   document.getElementById('tvK').textContent=totalKills;
   document.getElementById('tvT').textContent=currentTelVar.toLocaleString();
   document.getElementById('tvB').textContent=bankedTelVar.toLocaleString();
@@ -541,9 +551,6 @@ function updateTV(){
   if(presetBtn)presetBtn.classList.add('active');
   const presetNote=document.getElementById('presetNote');
   if(presetNote)presetNote.classList.toggle('show',districtCapturesLocked());
-  const atRisk=riskTolerance>0&&currentTelVar>=riskTolerance;
-  const tvTEl=document.getElementById('tvT');if(tvTEl)tvTEl.classList.toggle('at-risk',atRisk);
-  const riskWarn=document.getElementById('riskWarn');if(riskWarn)riskWarn.classList.toggle('show',atRisk);
   const tvTargetWrap=document.getElementById('tvTargetWrap');
   if(tvTargetWrap){
     const net=bankedTelVar+currentTelVar;
@@ -673,16 +680,6 @@ function setTelvarTarget(){
   telvarTarget=(raw===''||!n||n<=0)?0:n;
   if(input)input.value='';
   try{localStorage.setItem('ic-telvar-target',telvarTarget);}catch(e){}
-  updateTV();
-}
-
-function setRiskTolerance(){
-  const input=document.getElementById('tvRiskInput');
-  const raw=input?input.value.trim():'';
-  const n=parseInt(raw,10);
-  riskTolerance=(raw===''||!n||n<=0)?0:n;
-  if(input)input.value='';
-  try{localStorage.setItem('ic-risk-tolerance',riskTolerance);}catch(e){}
   updateTV();
 }
 
