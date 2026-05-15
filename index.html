@@ -99,11 +99,12 @@ svg.map text{pointer-events:none;user-select:none;-webkit-user-select:none;}
 
 /* TEL VAR — now full width */
 .panel{background:rgba(255,255,255,0.025);border:1px solid rgba(201,168,76,0.18);border-radius:10px;padding:16px 20px;}
-.panel-hd{font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.2em;color:#5a4018;text-transform:uppercase;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(201,168,76,0.1);}
+.panel-hd{font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.2em;color:#5a4018;text-transform:uppercase;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(201,168,76,0.1);display:flex;align-items:center;gap:0.55em;}
+.tv-stone-icon{width:1.4em;height:1.4em;color:#7ab6e8;flex-shrink:0;filter:drop-shadow(0 0 5px rgba(90,160,232,0.45));}
 
 .tv-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px;}
 .tv-row{}
-.tv-lbl{font-size:0.6rem;letter-spacing:0.14em;color:#4a3820;text-transform:uppercase;margin-bottom:6px;}
+.tv-lbl{font-size:0.6rem;letter-spacing:0.14em;color:#a08538;text-transform:uppercase;margin-bottom:6px;}
 .segs{display:flex;gap:4px;flex-wrap:wrap;}
 
 .preset-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:14px;}
@@ -138,8 +139,8 @@ svg.map text{pointer-events:none;user-select:none;-webkit-user-select:none;}
 
 /* districts held — visual toggles inside panel */
 .dc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px;}
-.dc-toggle{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.06em;padding:6px 8px;border-radius:5px;cursor:pointer;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:#4a3820;text-align:center;transition:all 0.15s;text-transform:uppercase;}
-.dc-toggle:hover{color:#7a6030;}
+.dc-toggle{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.06em;padding:6px 8px;border-radius:5px;cursor:pointer;border:1px solid rgba(201,168,76,0.18);background:rgba(255,255,255,0.04);color:#b08c40;text-align:center;transition:all 0.15s;text-transform:uppercase;}
+.dc-toggle:hover{color:#e0c878;border-color:rgba(201,168,76,0.45);}
 .dc-toggle.held{background:rgba(20,60,160,0.22);border-color:rgba(70,130,230,0.5);color:#6ab0e0;}
 body.alliance-ep .dc-toggle.held{background:rgba(160,30,25,0.22);border-color:rgba(220,55,40,0.55);color:#e8685a;}
 body.alliance-ad .dc-toggle.held{background:rgba(160,140,20,0.22);border-color:rgba(220,190,40,0.55);color:#f0d840;}
@@ -147,23 +148,23 @@ body.alliance-ad .dc-toggle.held{background:rgba(160,140,20,0.22);border-color:r
 .dc-toggle.locked:hover{color:#7a3025;}
 .sc.locked{cursor:not-allowed;}
 
-.formula-card{background:linear-gradient(180deg,rgba(8,5,2,0.55),rgba(0,0,0,0.42));border:1px solid rgba(201,168,76,0.20);border-radius:8px;padding:9px 12px 10px;margin-top:6px;}
-.formula-card-title{font-family:'Cinzel',serif;font-size:0.54rem;letter-spacing:0.18em;text-transform:uppercase;color:#7a5a25;margin-bottom:5px;}
-.formula-row{display:flex;justify-content:space-between;align-items:baseline;padding:2px 0;font-family:'Crimson Text',Georgia,serif;font-size:0.74rem;}
-.formula-row .lbl{color:#8a6a30;}
-.formula-row .val{color:#c9a84c;font-family:'Cinzel',serif;font-weight:600;}
-.formula-row .val.dc{color:#6ab0e0;}
-.formula-row .val em{font-style:normal;color:#5a4018;font-size:0.85em;letter-spacing:0.04em;}
-.formula-result{display:flex;justify-content:space-between;align-items:center;margin-top:5px;padding-top:6px;border-top:1px solid rgba(201,168,76,0.32);}
-.formula-result .lbl{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:#9a7838;}
-.formula-result .res{color:#ffd060;font-family:'Cinzel',serif;font-size:1.1rem;font-weight:700;font-variant-numeric:tabular-nums;text-shadow:0 0 18px rgba(201,168,76,0.32);}
+.formula-card{background:linear-gradient(180deg,rgba(8,5,2,0.55),rgba(0,0,0,0.42));border:1px solid rgba(201,168,76,0.20);border-radius:8px;padding:11px 14px 12px;margin-top:6px;}
+.formula-card-title{font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:#a08538;margin-bottom:7px;}
+.formula-row{display:flex;justify-content:space-between;align-items:baseline;padding:3px 0;font-family:'Crimson Text',Georgia,serif;font-size:0.92rem;}
+.formula-row .lbl{color:#b09050;}
+.formula-row .val{color:#e0c878;font-family:'Cinzel',serif;font-weight:600;}
+.formula-row .val.dc{color:#88c0ee;}
+.formula-row .val em{font-style:normal;color:#7a5a25;font-size:0.78em;letter-spacing:0.04em;}
+.formula-result{display:flex;justify-content:space-between;align-items:center;margin-top:7px;padding-top:8px;border-top:1px solid rgba(201,168,76,0.32);}
+.formula-result .lbl{font-family:'Cinzel',serif;font-size:0.66rem;letter-spacing:0.18em;text-transform:uppercase;color:#b09050;}
+.formula-result .res{color:#ffd060;font-family:'Cinzel',serif;font-size:1.35rem;font-weight:700;font-variant-numeric:tabular-nums;text-shadow:0 0 22px rgba(201,168,76,0.36);}
 body.light .formula-summary{color:#6e4a18;}
 
 .panel-sep{border:none;border-top:1px solid rgba(201,168,76,0.08);margin:14px 0;}
 
 .tv-adj-group{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding-top:12px;border-top:1px solid rgba(201,168,76,0.08);overflow:hidden;}
 .tv-adj-item{display:flex;flex-direction:column;gap:4px;min-width:0;overflow:hidden;}
-.tv-adj-item-label{font-size:0.53rem;letter-spacing:0.11em;text-transform:uppercase;color:#4a3820;}
+.tv-adj-item-label{font-size:0.56rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#b09050;}
 body.light .tv-adj-item-label{color:#6e4a18;}
 .tv-adj-line{display:flex;gap:5px;}
 .tv-adj-line .tv-adj-input{flex:1;min-width:0;}
@@ -301,8 +302,15 @@ body.light .reset-all{background:rgba(160,80,40,0.12);color:#744020;}
 .boss-modal.show{display:flex;}
 .boss-modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.78);backdrop-filter:blur(3px);}
 .boss-modal-card{position:relative;width:min(520px,94vw);overflow:hidden;border-radius:14px;background:#0b0905;border:1px solid rgba(201,168,76,0.28);box-shadow:0 18px 70px rgba(0,0,0,0.88);}
-.boss-modal-img{display:block;width:100%;max-height:390px;object-fit:cover;object-position:center;background:#050403;border-bottom:1px solid rgba(201,168,76,0.18);}
-.boss-modal-missing{display:none;min-height:220px;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);color:#6a5020;font-family:'Cinzel',serif;letter-spacing:0.12em;text-transform:uppercase;border-bottom:1px solid rgba(201,168,76,0.12);}
+.boss-modal-images{display:flex;background:#050403;border-bottom:1px solid rgba(201,168,76,0.18);}
+.boss-modal-image-slot{flex:1 1 0;min-width:0;display:flex;flex-direction:column;border-right:1px solid rgba(201,168,76,0.18);}
+.boss-modal-image-slot:last-child{border-right:none;}
+.boss-modal-image-wrap{width:100%;aspect-ratio:1/1;background:#050403;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.boss-modal-images[data-count="1"] .boss-modal-image-wrap{aspect-ratio:auto;max-height:380px;}
+.boss-modal-image{width:100%;height:100%;object-fit:cover;object-position:center;}
+.boss-modal-image.boss-placeholder{font-family:'Cinzel',serif;font-size:1.6rem;color:#6a5020;background:rgba(0,0,0,0.35);}
+.boss-modal-image-name{padding:7px 10px;text-align:center;font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:#d4b060;background:rgba(0,0,0,0.45);border-top:1px solid rgba(201,168,76,0.14);}
+.boss-modal-images[data-count="1"] .boss-modal-image-name{display:none;}
 .boss-modal-body{padding:16px 18px 18px;}
 .boss-modal-kicker{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.18em;color:#6a501f;text-transform:uppercase;margin-bottom:6px;}
 .boss-modal-title{font-family:'Cinzel',serif;font-size:1.2rem;letter-spacing:0.06em;color:#d4b060;text-transform:uppercase;margin-bottom:8px;}
@@ -311,6 +319,10 @@ body.light .reset-all{background:rgba(160,80,40,0.12);color:#744020;}
 .boss-modal-meta .dead{color:#d4a040;}
 .boss-modal-meta .warn{color:#d4b030;}
 .boss-modal-meta .urgent{color:#e03820;}
+.alliance-bonus{font-weight:600;color:#5aa0e8;}
+body.alliance-ep .alliance-bonus{color:#ff7a68;}
+body.alliance-dc .alliance-bonus{color:#88ccff;}
+body.alliance-ad .alliance-bonus{color:#ffe84a;}
 .boss-modal-actions{display:flex;gap:8px;flex-wrap:wrap;}
 .boss-modal-kill,.boss-modal-close-bottom{flex:1;min-width:130px;font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.1em;padding:9px 12px;border-radius:6px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;}
 .boss-modal-kill{background:rgba(160,35,15,0.28);border:1px solid rgba(180,55,25,0.55);color:#d06040;}
@@ -1139,8 +1151,7 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
   <div class="boss-modal-backdrop"></div>
   <div class="boss-modal-card" onclick="event.stopPropagation()">
     <button class="boss-modal-close" onclick="closeBossModal()">×</button>
-    <img id="bossModalImg" class="boss-modal-img" alt="">
-    <div id="bossModalMissing" class="boss-modal-missing">No image uploaded yet</div>
+    <div id="bossModalImages" class="boss-modal-images"></div>
     <div class="boss-modal-body">
       <div class="boss-modal-kicker" id="bossModalDistrict"></div>
       <div class="boss-modal-title" id="bossModalTitle"></div>
@@ -1196,7 +1207,7 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
       <li><kbd>B</kbd> — Bank · <kbd>X</kbd> — Ganked · <kbd>U</kbd> — Undo</li>
     </ul>
 
-    <div class="help-credit">Built by <b>JNVGaming</b> (PSN) — send hate mail and gold.</div>
+    <div class="help-credit">Built by <b>JNVGaming</b> · NA PS Server — send hate mail and gold.</div>
 
     <button class="help-got-it" onclick="closeHelp()">Got it</button>
   </div>
@@ -1289,7 +1300,7 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
 <!-- TEL VAR — always visible, full-width below layout, internal 2 columns -->
 <div class="telvar-details" id="telvarDetails">
 <div class="panel telvar-panel">
-  <div class="panel-hd">🪙 Tel Var Estimator</div>
+  <div class="panel-hd"><svg class="tv-stone-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><polygon points="16,3 27,9.5 27,22.5 16,29 5,22.5 5,9.5"/><polygon points="16,9 20.4,13 16,14.6 11.6,13"/><polygon points="16,17.4 20.4,19 16,23 11.6,19"/><line x1="9" y1="16" x2="23" y2="16"/></svg>Tel Var Estimator</div>
   <div class="telvar-cols">
     <div class="telvar-col">
       <div class="tv-lbl" style="margin-bottom:8px">Quick presets</div>
@@ -1373,7 +1384,7 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
 </div>
 
 <div class="footer">15 min respawn · 1-min warning</div>
-<div class="credits">Built by JNVGaming (PSN) — send hate mail and gold</div>
+<div class="credits">Built by JNVGaming · NA PS Server — send hate mail and gold</div>
 
 <script>
 const BASE_TV=1327,MULT=[1,2,3,4],RESPAWN=900,WARN_AT=60;
@@ -1568,7 +1579,7 @@ function drawSkull(g,sk,idx){
   grp.addEventListener('mouseenter',(ev)=>showSkullTooltip(ev,sk));
   grp.addEventListener('mousemove',(ev)=>moveSkullTooltip(ev));
   grp.addEventListener('mouseleave',hideSkullTooltip);
-  grp.addEventListener('click',()=>openBossModal(sk.di,typeof sk.bi==='number'?sk.bi:0));
+  grp.addEventListener('click',()=>openBossModal(sk.di,typeof sk.bi==='number'?sk.bi:null));
   const h=ns('circle');h.setAttribute('cy',`${-sz*0.15}`);h.setAttribute('r',`${sz*0.4}`);h.setAttribute('fill',col);grp.appendChild(h);
   [-1,1].forEach(s=>{const e=ns('circle');e.setAttribute('cx',`${s*sz*0.13}`);e.setAttribute('cy',`${-sz*0.21}`);e.setAttribute('r',`${sz*0.09}`);e.setAttribute('fill','rgba(0,0,0,0.78)');grp.appendChild(e);});
   const n=ns('polygon');n.setAttribute('points',`0,${-sz*0.06} ${-sz*0.055},${sz*0.04} ${sz*0.055},${sz*0.04}`);n.setAttribute('fill','rgba(0,0,0,0.62)');grp.appendChild(n);
@@ -1660,16 +1671,21 @@ function districtStatusHtml(i){
 }
 
 function openBossModal(di,bi){
-  const boss=DISTRICTS[di].bosses[bi],district=DISTRICTS[di].name,img=BOSS_IMAGES[boss];
-  const modal=document.getElementById('bossModal'),imgEl=document.getElementById('bossModalImg'),miss=document.getElementById('bossModalMissing');
-  document.getElementById('bossModalDistrict').textContent=`${district} District`;
-  document.getElementById('bossModalTitle').textContent=boss;
-  document.getElementById('bossModalMeta').innerHTML=`Status: ${districtStatusHtml(di)}<br>Estimated Tel Var if killed now: <span class="alive">${perKill().toLocaleString()}</span><br>${dcHeld.has(di)?'DC bonus active for this district.':'No DC bonus on this district.'}`;
-  if(img){
-    imgEl.src=img;imgEl.alt=boss;imgEl.style.display='block';miss.style.display='none';
-  }else{
-    imgEl.removeAttribute('src');imgEl.alt='';imgEl.style.display='none';miss.style.display='flex';
-  }
+  const district=DISTRICTS[di];
+  const bossNames=(typeof bi==='number')?[district.bosses[bi]]:district.bosses;
+  const modal=document.getElementById('bossModal');
+  const imagesEl=document.getElementById('bossModalImages');
+  imagesEl.innerHTML=bossNames.map(name=>{
+    const img=BOSS_IMAGES[name];
+    const visual=img
+      ? `<img class="boss-modal-image" src="${img}" alt="${name}">`
+      : `<div class="boss-modal-image boss-placeholder">?</div>`;
+    return `<div class="boss-modal-image-slot"><div class="boss-modal-image-wrap">${visual}</div><div class="boss-modal-image-name">${name}</div></div>`;
+  }).join('');
+  imagesEl.dataset.count=bossNames.length;
+  document.getElementById('bossModalDistrict').textContent=`${district.name} District`;
+  document.getElementById('bossModalTitle').textContent=bossNames.length>1?bossNames.join(' & '):bossNames[0];
+  document.getElementById('bossModalMeta').innerHTML=`Status: ${districtStatusHtml(di)}<br>Estimated Tel Var if killed now: <span class="alive">${perKill().toLocaleString()}</span><br>${dcHeld.has(di)?'<span class="alliance-bonus">Alliance bonus</span> active for this district.':'No <span class="alliance-bonus">alliance bonus</span> on this district.'}`;
   document.getElementById('bossModalKillBtn').onclick=()=>{killBoss(di);closeBossModal();};
   modal.classList.add('show');
 }
@@ -1815,7 +1831,7 @@ function getNextTarget(){
       return a.i-b.i;
     });
     const n=alive[0];
-    return {di:n.i,title:`${n.d.name} — ${bossNamesForDistrict(n.i)}`,ready:true,reason:streak?'Alive now. Streakah mode ignores flags and keeps the route goblin-safe.':dcHeld.has(n.i)?'Alive now + DC district bonus active.':'Alive now. No DC bonus on this district.'};
+    return {di:n.i,title:`${n.d.name} — ${bossNamesForDistrict(n.i)}`,ready:true,reason:streak?'Alive now. Streakah mode ignores flags and keeps the route goblin-safe.':dcHeld.has(n.i)?'Alive now + alliance bonus active.':'Alive now. No alliance bonus on this district.'};
   }
   const knownWaiting=DISTRICTS.map((d,i)=>({d,i,state:states[i]})).filter(x=>!x.state.unknown).sort((a,b)=>a.state.rem-b.state.rem);
   if(knownWaiting.length){
@@ -2179,7 +2195,7 @@ function districtStatusText(i){
   if(state.unknown)return {main:state.decay.label,sub:state.decay.detail};
   if(state.up){
     const seen=t.seenAt?` · scouted ${fmt((Date.now()-t.seenAt)/1000)} ago`:'';
-    return {main:'Alive',sub:`Ready now${dcHeld.has(i)?' · DC bonus active':''}${seen}`};
+    return {main:'Alive',sub:`Ready now${dcHeld.has(i)?' · alliance bonus active':''}${seen}`};
   }
   if(state.wn)return {main:`${fmt(state.rem)}`,sub:'One-minute warning window'};
   return {main:`${fmt(state.rem)}`,sub:'Respawn timer known'};
@@ -2295,7 +2311,7 @@ function getNextTarget(){
       return a.i-b.i;
     });
     const n=alive[0],seen=timers[n.i].seenAt?' Scout check confirmed alive.':'';
-    return {di:n.i,title:`${n.d.name} — ${bossNamesForDistrict(n.i)}`,ready:true,reason:streak?`Alive now.${seen} Streakah mode ignores flags and keeps the route goblin-safe.`:dcHeld.has(n.i)?`Alive now + DC district bonus active.${seen}`:`Alive now. No DC bonus on this district.${seen}`};
+    return {di:n.i,title:`${n.d.name} — ${bossNamesForDistrict(n.i)}`,ready:true,reason:streak?`Alive now.${seen} Streakah mode ignores flags and keeps the route goblin-safe.`:dcHeld.has(n.i)?`Alive now + alliance bonus active.${seen}`:`Alive now. No alliance bonus on this district.${seen}`};
   }
   const knownWaiting=DISTRICTS.map((d,i)=>({d,i,state:states[i]})).filter(x=>!x.state.unknown).sort((a,b)=>a.state.rem-b.state.rem);
   if(knownWaiting.length){

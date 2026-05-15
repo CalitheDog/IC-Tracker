@@ -176,7 +176,7 @@ function drawSkull(g,sk,idx){
   grp.addEventListener('mouseenter',(ev)=>showSkullTooltip(ev,sk));
   grp.addEventListener('mousemove',(ev)=>moveSkullTooltip(ev));
   grp.addEventListener('mouseleave',hideSkullTooltip);
-  grp.addEventListener('click',()=>openBossModal(sk.di,typeof sk.bi==='number'?sk.bi:0));
+  grp.addEventListener('click',()=>openBossModal(sk.di,typeof sk.bi==='number'?sk.bi:null));
   const h=ns('circle');h.setAttribute('cy',`${-sz*0.15}`);h.setAttribute('r',`${sz*0.4}`);h.setAttribute('fill',col);grp.appendChild(h);
   [-1,1].forEach(s=>{const e=ns('circle');e.setAttribute('cx',`${s*sz*0.13}`);e.setAttribute('cy',`${-sz*0.21}`);e.setAttribute('r',`${sz*0.09}`);e.setAttribute('fill','rgba(0,0,0,0.78)');grp.appendChild(e);});
   const n=ns('polygon');n.setAttribute('points',`0,${-sz*0.06} ${-sz*0.055},${sz*0.04} ${sz*0.055},${sz*0.04}`);n.setAttribute('fill','rgba(0,0,0,0.62)');grp.appendChild(n);
@@ -268,16 +268,23 @@ function districtStatusHtml(i){
 }
 
 function openBossModal(di,bi){
-  const boss=DISTRICTS[di].bosses[bi],district=DISTRICTS[di].name,img=BOSS_IMAGES[boss];
-  const modal=document.getElementById('bossModal'),imgEl=document.getElementById('bossModalImg'),miss=document.getElementById('bossModalMissing');
-  document.getElementById('bossModalDistrict').textContent=`${district} District`;
-  document.getElementById('bossModalTitle').textContent=boss;
-  document.getElementById('bossModalMeta').innerHTML=`Status: ${districtStatusHtml(di)}<br>Estimated Tel Var if killed now: <span class="alive">${perKill().toLocaleString()}</span><br>${dcHeld.has(di)?'DC bonus active for this district.':'No DC bonus on this district.'}`;
-  if(img){
-    imgEl.src=img;imgEl.alt=boss;imgEl.style.display='block';miss.style.display='none';
-  }else{
-    imgEl.removeAttribute('src');imgEl.alt='';imgEl.style.display='none';miss.style.display='flex';
+  const district=DISTRICTS[di];
+  const bossNames=(typeof bi==='number')?[district.bosses[bi]]:district.bosses;
+  const modal=document.getElementById('bossModal');
+  const imagesEl=document.getElementById('bossModalImages');
+  if(imagesEl){
+    imagesEl.innerHTML=bossNames.map(name=>{
+      const img=BOSS_IMAGES[name];
+      const visual=img
+        ? `<img class="boss-modal-image" src="${img}" alt="${name}">`
+        : `<div class="boss-modal-image boss-placeholder">?</div>`;
+      return `<div class="boss-modal-image-slot"><div class="boss-modal-image-wrap">${visual}</div><div class="boss-modal-image-name">${name}</div></div>`;
+    }).join('');
+    imagesEl.dataset.count=bossNames.length;
   }
+  document.getElementById('bossModalDistrict').textContent=`${district.name} District`;
+  document.getElementById('bossModalTitle').textContent=bossNames.length>1?bossNames.join(' & '):bossNames[0];
+  document.getElementById('bossModalMeta').innerHTML=`Status: ${districtStatusHtml(di)}<br>Estimated Tel Var if killed now: <span class="alive">${perKill().toLocaleString()}</span><br>${dcHeld.has(di)?'<span class="alliance-bonus">Alliance bonus</span> active for this district.':'No <span class="alliance-bonus">alliance bonus</span> on this district.'}`;
   document.getElementById('bossModalKillBtn').onclick=()=>{killBoss(di);closeBossModal();};
   modal.classList.add('show');
 }
@@ -423,7 +430,7 @@ function getNextTarget(){
       return a.i-b.i;
     });
     const n=alive[0];
-    return {di:n.i,title:`${n.d.name} — ${bossNamesForDistrict(n.i)}`,ready:true,reason:streak?'Alive now. Streakah mode ignores flags and keeps the route goblin-safe.':dcHeld.has(n.i)?'Alive now + DC district bonus active.':'Alive now. No DC bonus on this district.'};
+    return {di:n.i,title:`${n.d.name} — ${bossNamesForDistrict(n.i)}`,ready:true,reason:streak?'Alive now. Streakah mode ignores flags and keeps the route goblin-safe.':dcHeld.has(n.i)?'Alive now + alliance bonus active.':'Alive now. No alliance bonus on this district.'};
   }
   const knownWaiting=DISTRICTS.map((d,i)=>({d,i,state:states[i]})).filter(x=>!x.state.unknown).sort((a,b)=>a.state.rem-b.state.rem);
   if(knownWaiting.length){
@@ -779,7 +786,7 @@ function districtStatusText(i){
   if(state.unknown)return {main:state.decay.label,sub:state.decay.detail};
   if(state.up){
     const seen=t.seenAt?` · scouted ${fmt((Date.now()-t.seenAt)/1000)} ago`:'';
-    return {main:'Alive',sub:`Ready now${dcHeld.has(i)?' · DC bonus active':''}${seen}`};
+    return {main:'Alive',sub:`Ready now${dcHeld.has(i)?' · alliance bonus active':''}${seen}`};
   }
   if(state.wn)return {main:`${fmt(state.rem)}`,sub:'One-minute warning window'};
   return {main:`${fmt(state.rem)}`,sub:'Respawn timer known'};
@@ -907,7 +914,7 @@ function getNextTarget(){
       return a.i-b.i;
     });
     const n=alive[0],seen=timers[n.i].seenAt?' Scout check confirmed alive.':'';
-    return {di:n.i,title:`${n.d.name} — ${bossNamesForDistrict(n.i)}`,ready:true,reason:streak?`Alive now.${seen} Streakah mode ignores flags and keeps the route goblin-safe.`:dcHeld.has(n.i)?`Alive now + DC district bonus active.${seen}`:`Alive now. No DC bonus on this district.${seen}`};
+    return {di:n.i,title:`${n.d.name} — ${bossNamesForDistrict(n.i)}`,ready:true,reason:streak?`Alive now.${seen} Streakah mode ignores flags and keeps the route goblin-safe.`:dcHeld.has(n.i)?`Alive now + alliance bonus active.${seen}`:`Alive now. No alliance bonus on this district.${seen}`};
   }
   const knownWaiting=DISTRICTS.map((d,i)=>({d,i,state:states[i]})).filter(x=>!x.state.unknown).sort((a,b)=>a.state.rem-b.state.rem);
   if(knownWaiting.length){

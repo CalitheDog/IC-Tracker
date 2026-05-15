@@ -8,20 +8,32 @@
       <stop offset="0%" stop-color="#e0c878"/>
       <stop offset="100%" stop-color="#a08038"/>
     </linearGradient>
+    <linearGradient id="stoneBlue" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#9ed0f5"/>
+      <stop offset="100%" stop-color="#3a6cad"/>
+    </linearGradient>
   </defs>
   <rect width="512" height="512" rx="90" fill="url(#bg)"/>
   <circle cx="256" cy="256" r="200" fill="none" stroke="url(#gold)" stroke-width="6" opacity="0.55"/>
-  <circle cx="256" cy="256" r="170" fill="none" stroke="#c9a84c" stroke-width="2" opacity="0.35"/>
-  <g transform="translate(256 256)" fill="url(#gold)">
-    <path d="M-2-78 L2-78 L2 78 L-2 78 Z" opacity="0.85"/>
-    <text x="0" y="38" text-anchor="middle" font-family="'Cinzel Decorative', 'Times New Roman', serif" font-weight="700" font-size="150" letter-spacing="-6" style="font-feature-settings:'kern'">
-      <tspan x="-44">I</tspan><tspan x="44">C</tspan>
-    </text>
+  <circle cx="256" cy="256" r="170" fill="none" stroke="#c9a84c" stroke-width="2" opacity="0.32"/>
+
+  <!-- Tel Var Stone -->
+  <g transform="translate(256 256)" stroke="url(#stoneBlue)" fill="none" stroke-width="10" stroke-linejoin="round" stroke-linecap="round">
+    <!-- Hexagon (pointy-top), radius ~130 -->
+    <polygon points="0,-130 113,-65 113,65 0,130 -113,65 -113,-65"/>
+    <!-- Upper rhombus -->
+    <polygon points="0,-78 32,-32 0,-14 -32,-32"/>
+    <!-- Lower rhombus -->
+    <polygon points="0,14 32,32 0,78 -32,32"/>
+    <!-- Horizontal divider -->
+    <line x1="-58" y1="0" x2="58" y2="0"/>
   </g>
-  <g stroke="#c9a84c" stroke-width="3" fill="none" opacity="0.7">
-    <line x1="256" y1="40" x2="256" y2="72"/>
-    <line x1="256" y1="440" x2="256" y2="472"/>
-    <line x1="40" y1="256" x2="72" y2="256"/>
-    <line x1="440" y1="256" x2="472" y2="256"/>
+
+  <!-- Corner accent ticks -->
+  <g stroke="#c9a84c" stroke-width="3" fill="none" opacity="0.55">
+    <line x1="256" y1="40" x2="256" y2="62"/>
+    <line x1="256" y1="450" x2="256" y2="472"/>
+    <line x1="40" y1="256" x2="62" y2="256"/>
+    <line x1="450" y1="256" x2="472" y2="256"/>
   </g>
 </svg>
