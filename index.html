@@ -64,6 +64,8 @@ body::before{content:'';position:absolute;inset:0;background:radial-gradient(ell
 .hd-unknown{background:#8a4ec0;box-shadow:0 0 8px rgba(140,80,200,0.5);}
 .help-got-it{display:block;margin:1.4rem auto 0;font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;padding:9px 22px;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.45);color:#c9a84c;border-radius:5px;cursor:pointer;transition:all 0.15s;}
 .help-got-it:hover{background:rgba(201,168,76,0.25);color:#e0c878;}
+.help-credit{font-size:0.74rem;color:#7a5a25;text-align:center;margin-top:1.3rem;padding-top:0.9rem;border-top:1px solid rgba(201,168,76,0.15);font-style:italic;}
+.help-credit b{color:#c9a84c;font-style:normal;letter-spacing:0.04em;}
 
 .header{text-align:center;margin-bottom:1rem;}
 .eyebrow{font-size:0.62rem;letter-spacing:0.38em;color:#5a4018;text-transform:uppercase;margin-bottom:0.35rem;}
@@ -265,6 +267,8 @@ body.light .help-got-it{background:rgba(201,168,76,0.25);border-color:rgba(122,8
 body.light .help-got-it:hover{background:rgba(201,168,76,0.4);color:#3a2814;}
 body.light .help-list.help-list-ol li::before{color:#6e4a18;}
 body.light .help-list.help-list-ul li::before{color:#7a5618;}
+body.light .help-credit{color:#6e4a18;border-color:rgba(122,86,24,0.22);}
+body.light .help-credit b{color:#7a5618;}
 body.light .tv-action.start{background:rgba(60,130,70,0.18);border-color:rgba(60,130,70,0.35);color:#286b34;}
 body.light .tv-action.end{background:rgba(201,168,76,0.2);border-color:rgba(122,86,24,0.35);color:#684610;}
 body.light .tv-action.bank{background:rgba(70,130,230,0.16);border-color:rgba(50,90,160,0.35);color:#255c91;}
@@ -1198,6 +1202,8 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
       <li><b>Seen Alive</b> — mark a boss up without claiming the kill.</li>
       <li><b>Risk Limit</b> — set a carrying cap; warns when you're carrying too much.</li>
     </ul>
+
+    <div class="help-credit">Built by <b>JNVGaming</b> (PSN) — send hate mail and gold.</div>
 
     <button class="help-got-it" onclick="closeHelp()">Got it</button>
   </div>

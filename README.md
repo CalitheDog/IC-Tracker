@@ -89,3 +89,7 @@ Open `http://localhost:5173/tests/` — results render in the browser.
 | Elvens | Zoal the Ever-Wakeful, Screeching Matron |
 
 Respawn time: **15 minutes** from kill. Warning fires at **1 minute** remaining.
+
+## Credits
+
+Built by **JNVGaming** (PSN). Hate mail and gold gratefully accepted.
