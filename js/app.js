@@ -102,6 +102,8 @@ function updateTV(){
   document.getElementById('tvL').textContent=lostTelVar.toLocaleString();
   document.getElementById('tvPK').textContent=pk.toLocaleString();
   document.getElementById('tvTime').textContent=fmtH(elapsed);
+  const tvTGTel=document.getElementById('tvTGT');
+  if(tvTGTel)tvTGTel.textContent=telvarTarget>0?telvarTarget.toLocaleString():'—';
   if(farmStart&&sessionTelVar>0&&elapsed>0){document.getElementById('tvH').textContent=Math.round(sessionTelVar/(elapsed/3600)).toLocaleString();}
   else document.getElementById('tvH').textContent='—';
   const startBtn=document.getElementById('farmStartBtn'),endBtn=document.getElementById('farmEndBtn');
@@ -527,6 +529,8 @@ function updateTV(){
   document.getElementById('tvL').textContent=lostTelVar.toLocaleString();
   document.getElementById('tvPK').textContent=pk.toLocaleString();
   document.getElementById('tvTime').textContent=fmtH(elapsed);
+  const tvTGTel=document.getElementById('tvTGT');
+  if(tvTGTel)tvTGTel.textContent=telvarTarget>0?telvarTarget.toLocaleString():'—';
   if(farmStart&&sessionTelVar>0&&elapsed>0){document.getElementById('tvH').textContent=Math.round(sessionTelVar/(elapsed/3600)).toLocaleString();}
   else document.getElementById('tvH').textContent='—';
   const startBtn=document.getElementById('farmStartBtn'),endBtn=document.getElementById('farmEndBtn');
@@ -649,15 +653,16 @@ function gankedTelVar(){
   updateTV();
 }
 
-function addManualTelvar(){
+function setManualTelvar(){
   const input=document.getElementById('tvAdjustInput');
-  const n=input?parseInt(input.value,10):NaN;
-  if(!n||n<=0){toast('Enter a positive amount','info');return;}
-  pushUndo('Manual Tel Var add');
-  currentTelVar+=n;
+  const raw=input?input.value.trim():'';
+  const n=parseInt(raw,10);
+  if(raw===''||isNaN(n)||n<0){toast('Enter a Tel Var total (0 or more)','info');return;}
+  pushUndo('Set Tel Var');
+  currentTelVar=n;
   if(input)input.value='';
-  logEvent(`Added ${n.toLocaleString()} Tel Var manually.`);
-  toast(`+${n.toLocaleString()} Tel Var added`,'success');
+  logEvent(`Set carrying Tel Var to ${n.toLocaleString()}.`);
+  toast(`Tel Var set to ${n.toLocaleString()}`,'success');
   updateTV();
 }
 
