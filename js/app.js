@@ -953,11 +953,16 @@ function tick(){
   updateNextUp();
 }
 
+function openHelp(){const o=document.getElementById('helpOverlay');if(o)o.style.display='flex';}
+function closeHelp(){const o=document.getElementById('helpOverlay');if(o)o.style.display='none';}
+function maybeCloseHelp(e){if(e&&e.target===e.currentTarget)closeHelp();}
+
 function init(){
   loadTheme();
   const savedAlliance=localStorage.getItem('ic-alliance');
   setAlliance(savedAlliance&&ALLIANCES[savedAlliance]?savedAlliance:'dc');
   buildGear();buildMap();buildRows();buildDCToggles();buildSkulls();updateTV();
+  if(!localStorage.getItem('ic-help-seen')){openHelp();localStorage.setItem('ic-help-seen','1');}
   tick();setInterval(tick,500);
   setInterval(saveSession,15000);
   checkSavedSession();
