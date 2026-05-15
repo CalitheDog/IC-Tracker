@@ -116,17 +116,20 @@ svg.map text{pointer-events:none;user-select:none;-webkit-user-select:none;}
 .preset-btn.streakah:hover{background:linear-gradient(135deg,rgba(150,12,12,0.58),rgba(30,20,20,0.52));color:#ff8a70;box-shadow:0 0 24px rgba(220,30,20,0.28);}
 .preset-btn.active{outline:1px solid rgba(255,220,120,0.8);box-shadow:0 0 24px rgba(255,190,70,0.28);}
 .alliance-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
-.alliance-btn{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.1em;padding:8px 10px;border-radius:6px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;opacity:0.72;}
-.alliance-btn.ep{background:rgba(160,30,25,0.32);border:1px solid rgba(200,50,40,0.55);color:#e04a3a;}
-.alliance-btn.ep:hover{background:rgba(180,35,28,0.46);color:#ff6a58;opacity:0.9;}
-.alliance-btn.dc{background:rgba(30,60,160,0.32);border:1px solid rgba(60,110,220,0.55);color:#5aa0e8;}
-.alliance-btn.dc:hover{background:rgba(35,70,180,0.46);color:#78b8ff;opacity:0.9;}
-.alliance-btn.ald{background:rgba(160,140,20,0.32);border:1px solid rgba(200,180,40,0.55);color:#d4c030;}
-.alliance-btn.ald:hover{background:rgba(180,160,28,0.46);color:#f0e040;opacity:0.9;}
-.alliance-btn.sel{opacity:1;}
-.alliance-btn.ep.sel{background:rgba(200,45,35,0.55);border:2px solid rgba(220,60,50,0.9);color:#ff7a68;box-shadow:0 0 24px rgba(200,40,30,0.45),inset 0 0 12px rgba(200,40,30,0.15);}
-.alliance-btn.dc.sel{background:rgba(35,80,220,0.55);border:2px solid rgba(80,140,240,0.9);color:#88ccff;box-shadow:0 0 24px rgba(50,100,220,0.45),inset 0 0 12px rgba(50,100,220,0.15);}
-.alliance-btn.ald.sel{background:rgba(180,155,0,0.55);border:2px solid rgba(230,205,40,0.9);color:#ffe84a;box-shadow:0 0 24px rgba(200,175,0,0.45),inset 0 0 12px rgba(200,175,0,0.15);}
+.alliance-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:'Cinzel',serif;padding:10px 6px 9px;border-radius:7px;cursor:pointer;transition:all 0.2s;opacity:0.7;}
+.alliance-btn .alliance-short{font-family:'Cinzel Decorative','Cinzel',serif;font-size:1.35rem;font-weight:700;letter-spacing:0.06em;line-height:1;}
+.alliance-btn .alliance-name{font-size:0.5rem;letter-spacing:0.11em;text-transform:uppercase;opacity:0.85;line-height:1.1;}
+.alliance-btn.ep{background:linear-gradient(180deg,rgba(160,30,25,0.32),rgba(80,15,10,0.18));border:1px solid rgba(200,50,40,0.55);color:#e04a3a;}
+.alliance-btn.ep:hover{background:linear-gradient(180deg,rgba(180,35,28,0.46),rgba(100,20,12,0.26));color:#ff6a58;opacity:0.9;}
+.alliance-btn.dc{background:linear-gradient(180deg,rgba(30,60,160,0.32),rgba(15,30,90,0.18));border:1px solid rgba(60,110,220,0.55);color:#5aa0e8;}
+.alliance-btn.dc:hover{background:linear-gradient(180deg,rgba(35,70,180,0.46),rgba(18,38,100,0.26));color:#78b8ff;opacity:0.9;}
+.alliance-btn.ald{background:linear-gradient(180deg,rgba(160,140,20,0.32),rgba(80,68,10,0.18));border:1px solid rgba(200,180,40,0.55);color:#d4c030;}
+.alliance-btn.ald:hover{background:linear-gradient(180deg,rgba(180,160,28,0.46),rgba(96,80,16,0.26));color:#f0e040;opacity:0.9;}
+.alliance-btn.sel{opacity:1;transform:translateY(-1px);}
+.alliance-btn.ep.sel{background:linear-gradient(180deg,rgba(200,45,35,0.62),rgba(100,18,12,0.42));border:2px solid rgba(220,60,50,0.95);color:#ff7a68;box-shadow:0 0 28px rgba(200,40,30,0.5),inset 0 0 14px rgba(200,40,30,0.2);}
+.alliance-btn.dc.sel{background:linear-gradient(180deg,rgba(35,80,220,0.62),rgba(20,40,120,0.42));border:2px solid rgba(80,140,240,0.95);color:#88ccff;box-shadow:0 0 28px rgba(50,100,220,0.5),inset 0 0 14px rgba(50,100,220,0.2);}
+.alliance-btn.ald.sel{background:linear-gradient(180deg,rgba(180,155,0,0.62),rgba(100,80,0,0.42));border:2px solid rgba(230,205,40,0.95);color:#ffe84a;box-shadow:0 0 28px rgba(200,175,0,0.5),inset 0 0 14px rgba(200,175,0,0.2);}
+.alliance-btn.sel .alliance-short{text-shadow:0 0 18px currentColor;}
 .preset-note{font-size:0.55rem;letter-spacing:0.1em;color:#8a3020;text-transform:uppercase;margin:-6px 0 10px;display:none;}
 .preset-note.show{display:block;}
 .seg{font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.04em;padding:6px 11px;border-radius:4px;cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(201,168,76,0.14);color:#4a3a20;transition:all 0.15s;white-space:nowrap;}
@@ -144,21 +147,21 @@ body.alliance-ad .dc-toggle.held{background:rgba(160,140,20,0.22);border-color:r
 .dc-toggle.locked:hover{color:#7a3025;}
 .sc.locked{cursor:not-allowed;}
 
-.formula{background:rgba(0,0,0,0.3);border:1px solid rgba(201,168,76,0.09);border-radius:6px;padding:12px 14px;font-size:0.78rem;line-height:2;color:#5a4030;}
-.formula .hl{color:#c9a84c;font-weight:600;font-family:'Cinzel',serif;}
-.formula .hlb{color:#6ab0e0;font-weight:600;font-family:'Cinzel',serif;}
-.formula .res{color:#ffd060;font-size:1rem;font-weight:700;font-family:'Cinzel',serif;}
-.formula-details{margin-bottom:14px;}
-.formula-summary{font-size:0.54rem;letter-spacing:0.12em;text-transform:uppercase;color:#4a3820;cursor:pointer;user-select:none;padding:6px 0;list-style:none;display:flex;align-items:center;gap:6px;}
-.formula-summary::after{content:'▾';color:#c9a84c;font-size:0.7rem;transition:transform 0.2s;}
-.formula-details[open] .formula-summary::after{transform:rotate(180deg);}
-.formula-summary::-webkit-details-marker{display:none;}
-.formula-details .formula{margin-top:8px;margin-bottom:0;}
+.formula-card{background:linear-gradient(180deg,rgba(8,5,2,0.55),rgba(0,0,0,0.42));border:1px solid rgba(201,168,76,0.20);border-radius:8px;padding:9px 12px 10px;margin-top:6px;}
+.formula-card-title{font-family:'Cinzel',serif;font-size:0.54rem;letter-spacing:0.18em;text-transform:uppercase;color:#7a5a25;margin-bottom:5px;}
+.formula-row{display:flex;justify-content:space-between;align-items:baseline;padding:2px 0;font-family:'Crimson Text',Georgia,serif;font-size:0.74rem;}
+.formula-row .lbl{color:#8a6a30;}
+.formula-row .val{color:#c9a84c;font-family:'Cinzel',serif;font-weight:600;}
+.formula-row .val.dc{color:#6ab0e0;}
+.formula-row .val em{font-style:normal;color:#5a4018;font-size:0.85em;letter-spacing:0.04em;}
+.formula-result{display:flex;justify-content:space-between;align-items:center;margin-top:5px;padding-top:6px;border-top:1px solid rgba(201,168,76,0.32);}
+.formula-result .lbl{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:#9a7838;}
+.formula-result .res{color:#ffd060;font-family:'Cinzel',serif;font-size:1.1rem;font-weight:700;font-variant-numeric:tabular-nums;text-shadow:0 0 18px rgba(201,168,76,0.32);}
 body.light .formula-summary{color:#6e4a18;}
 
 .panel-sep{border:none;border-top:1px solid rgba(201,168,76,0.08);margin:14px 0;}
 
-.tv-adj-group{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding-top:12px;border-top:1px solid rgba(201,168,76,0.08);overflow:hidden;}
+.tv-adj-group{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding-top:12px;border-top:1px solid rgba(201,168,76,0.08);overflow:hidden;}
 .tv-adj-item{display:flex;flex-direction:column;gap:4px;min-width:0;overflow:hidden;}
 .tv-adj-item-label{font-size:0.53rem;letter-spacing:0.11em;text-transform:uppercase;color:#4a3820;}
 body.light .tv-adj-item-label{color:#6e4a18;}
@@ -166,10 +169,6 @@ body.light .tv-adj-item-label{color:#6e4a18;}
 .tv-adj-line .tv-adj-input{flex:1;min-width:0;}
 .tv-adj-line .tv-adj-btn{padding:6px 10px;flex-shrink:0;}
 
-.risk-warn{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:#e03820;text-align:center;padding:8px 12px;border:1px solid rgba(220,40,20,0.4);border-radius:6px;background:rgba(180,20,10,0.12);margin-top:8px;display:none;animation:fl 1.4s ease-in-out infinite;}
-.risk-warn.show{display:block;}
-.tv-sv.at-risk{color:#ff4a34!important;animation:fl 1.2s ease-in-out infinite;}
-body.light .risk-warn{background:rgba(220,40,20,0.1);color:#9a1f12;border-color:rgba(180,30,20,0.35);}
 
 
 .tv-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(95px,1fr));gap:8px;}
@@ -225,9 +224,9 @@ body.light .risk-warn{background:rgba(220,40,20,0.1);color:#9a1f12;border-color:
 .drow.dead .dbosses{color:#6a5020;}
 .drow.warn .dbosses{color:#8a7020;}
 
-.dc-pill{font-family:'Cinzel',serif;font-size:0.46rem;letter-spacing:0.1em;padding:1px 6px;border-radius:3px;background:rgba(30,70,160,0.28);border:1px solid rgba(70,130,230,0.4);color:#6ab0e0;text-transform:uppercase;flex-shrink:0;}
-body.alliance-ep .dc-pill{background:rgba(120,20,20,0.28);border-color:rgba(200,50,40,0.4);color:#e07060;}
-body.alliance-ad .dc-pill{background:rgba(100,80,0,0.28);border-color:rgba(200,170,0,0.4);color:#d4b830;}
+.dc-pill{font-family:'Cinzel',serif;font-size:0.55rem;font-weight:600;letter-spacing:0.14em;padding:2px 7px;border-radius:4px;background:rgba(30,70,160,0.32);border:1px solid rgba(70,130,230,0.55);color:#88c0ee;text-transform:uppercase;flex-shrink:0;box-shadow:0 0 10px rgba(70,130,230,0.18);}
+body.alliance-ep .dc-pill{background:rgba(140,25,20,0.32);border-color:rgba(220,55,40,0.55);color:#ff8878;box-shadow:0 0 10px rgba(200,50,40,0.2);}
+body.alliance-ad .dc-pill{background:rgba(120,95,0,0.32);border-color:rgba(220,180,0,0.55);color:#ffd848;box-shadow:0 0 10px rgba(200,170,0,0.2);}
 
 .dtimer{font-family:'Cinzel',serif;font-size:1.25rem;font-weight:700;min-width:64px;text-align:right;letter-spacing:0.04em;color:#3a2e0e;transition:color 0.3s;flex-shrink:0;}
 .dtimer.alive{color:#4c9960;}
@@ -1186,7 +1185,6 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
     <ul class="help-list help-list-ul">
       <li><b>Guess</b> — find a dead boss? Estimate how many minutes ago it died.</li>
       <li><b>Seen Alive</b> — mark a boss up without claiming the kill.</li>
-      <li><b>Risk Limit</b> — set a carrying cap; warns when you're carrying too much.</li>
     </ul>
 
     <h3 class="help-sec">Keyboard shortcuts</h3>
@@ -1303,9 +1301,9 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
       <div class="preset-note" id="presetNote">The Streakah does not capture flags. District captures are locked off.</div>
       <div class="tv-lbl" style="margin-bottom:8px">Your alliance</div>
       <div class="alliance-grid" id="allianceEl">
-        <button class="alliance-btn ep" data-al="ep" onclick="setAlliance('ep')">Ebonheart Pact</button>
-        <button class="alliance-btn dc" data-al="dc" onclick="setAlliance('dc')">Daggerfall Covenant</button>
-        <button class="alliance-btn ald" data-al="ad" onclick="setAlliance('ad')">Aldmeri Dominion</button>
+        <button class="alliance-btn ep" data-al="ep" onclick="setAlliance('ep')"><span class="alliance-short">EP</span><span class="alliance-name">Ebonheart Pact</span></button>
+        <button class="alliance-btn dc" data-al="dc" onclick="setAlliance('dc')"><span class="alliance-short">DC</span><span class="alliance-name">Daggerfall Covenant</span></button>
+        <button class="alliance-btn ald" data-al="ad" onclick="setAlliance('ad')"><span class="alliance-short">AD</span><span class="alliance-name">Aldmeri Dominion</span></button>
       </div>
       <div class="tv-grid">
         <div class="tv-row">
@@ -1327,10 +1325,10 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
           </div>
         </div>
       </div>
-      <details class="formula-details">
-        <summary class="formula-summary">Per-kill formula</summary>
-        <div class="formula" id="formula"></div>
-      </details>
+      <div class="formula-card">
+        <div class="formula-card-title">Per-kill formula</div>
+        <div id="formula"></div>
+      </div>
     </div>
     <div class="telvar-col">
       <div class="tv-lbl" style="margin-bottom:8px" id="dcLabel">DC-held districts (tap to toggle)</div>
@@ -1353,7 +1351,6 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
         <button class="tv-action start" id="farmStartBtn" onclick="startFarm()">▶ Start Farming</button>
         <button class="tv-action end" id="farmEndBtn" onclick="endFarm()" disabled>■ End Farming</button>
       </div>
-      <div class="risk-warn" id="riskWarn">⚠ Bank Now — Carrying over your risk limit</div>
       <div class="tv-adj-group">
         <div class="tv-adj-item">
           <span class="tv-adj-item-label">Set Tel Var</span>
@@ -1367,13 +1364,6 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
           <div class="tv-adj-line">
             <input type="number" class="tv-adj-input" id="tvTargetInput" placeholder="Target" min="1" step="1000" onkeydown="if(event.key==='Enter')setTelvarTarget()">
             <button class="tv-adj-btn tgt" onclick="setTelvarTarget()">Set</button>
-          </div>
-        </div>
-        <div class="tv-adj-item">
-          <span class="tv-adj-item-label">Risk Limit</span>
-          <div class="tv-adj-line">
-            <input type="number" class="tv-adj-input" id="tvRiskInput" placeholder="Limit" min="1" step="1000" onkeydown="if(event.key==='Enter')setRiskTolerance()">
-            <button class="tv-adj-btn tgt" onclick="setRiskTolerance()">Set</button>
           </div>
         </div>
       </div>
@@ -1444,7 +1434,7 @@ const TX={alive:'#58c070',dead:'#d07828',urgent:'#f03418',warn:'#ccaa28'};
 
 const timers=DISTRICTS.map(()=>({end:null,running:false,wasRunning:false,warnFired:false,unknown:false,unknownAt:null}));
 const dcHeld=new Set();
-let muted=true,actx=null,stI=0,grSz=1,totalKills=0,currentTelVar=0,bankedTelVar=0,lostTelVar=0,farmStart=null,farmEnd=null,farmRunning=false,activePreset=null,sortByRespawn=false,telvarTarget=0,riskTolerance=0;
+let muted=true,actx=null,stI=0,grSz=1,totalKills=0,currentTelVar=0,bankedTelVar=0,lostTelVar=0,farmStart=null,farmEnd=null,farmRunning=false,activePreset=null,sortByRespawn=false,telvarTarget=0;
 let alliance='dc';
 const ALLIANCES={ep:{name:'Ebonheart Pact',short:'EP',color:'#e04a3a'},dc:{name:'Daggerfall Covenant',short:'DC',color:'#5aa0e8'},ad:{name:'Aldmeri Dominion',short:'AD',color:'#d4c030'}};
 const skulls=DEFAULT_SKULLS;
@@ -1482,8 +1472,13 @@ function perKill(){return Math.round(BASE_TV*MULT[stI]*(1+dcHeld.size*0.33)/grSz
 function updateTV(){
   const m=MULT[stI],b=1+dcHeld.size*0.33,raw=Math.round(BASE_TV*m*b),pk=Math.round(raw/grSz);
   const sessionTelVar=bankedTelVar+currentTelVar,elapsed=farmElapsed();
-  const gn=grSz>1?`÷ ${grSz} = <span class="res">${pk.toLocaleString()}</span> each`:` = <span class="res">${pk.toLocaleString()}</span>`;
-  document.getElementById('formula').innerHTML=`1,327 base × <span class="hl">×${m}</span> mult × <span class="hlb">×${b.toFixed(2)}</span> district bonus (<span class="hlb">${dcHeld.size}/6 held</span>)<br>${gn}`;
+  const grpLabel=grSz===1?'÷ Solo':`÷ ${grSz}`;
+  document.getElementById('formula').innerHTML=
+    `<div class="formula-row"><span class="lbl">Base</span><span class="val">1,327</span></div>`+
+    `<div class="formula-row"><span class="lbl">× Stones mult</span><span class="val">×${m}</span></div>`+
+    `<div class="formula-row"><span class="lbl">× District bonus</span><span class="val dc">×${b.toFixed(2)} <em>(${dcHeld.size}/6)</em></span></div>`+
+    `<div class="formula-row"><span class="lbl">${grSz===1?'Group':'÷ Group'}</span><span class="val">${grpLabel}</span></div>`+
+    `<div class="formula-result"><span class="lbl">Per Kill</span><span class="res">${pk.toLocaleString()}</span></div>`;
   document.getElementById('tvK').textContent=totalKills;
   document.getElementById('tvT').textContent=currentTelVar.toLocaleString();
   document.getElementById('tvB').textContent=bankedTelVar.toLocaleString();
@@ -1921,8 +1916,13 @@ function perKill(){return Math.round(BASE_TV*MULT[stI]*(1+dcHeld.size*0.33)/grSz
 function updateTV(){
   const m=MULT[stI],b=1+dcHeld.size*0.33,raw=Math.round(BASE_TV*m*b),pk=Math.round(raw/grSz);
   const sessionTelVar=bankedTelVar+currentTelVar,elapsed=farmElapsed();
-  const gn=grSz>1?`÷ ${grSz} = <span class="res">${pk.toLocaleString()}</span> each`:` = <span class="res">${pk.toLocaleString()}</span>`;
-  document.getElementById('formula').innerHTML=`1,327 base × <span class="hl">×${m}</span> mult × <span class="hlb">×${b.toFixed(2)}</span> district bonus (<span class="hlb">${dcHeld.size}/6 held</span>)<br>${gn}`;
+  const grpLabel=grSz===1?'÷ Solo':`÷ ${grSz}`;
+  document.getElementById('formula').innerHTML=
+    `<div class="formula-row"><span class="lbl">Base</span><span class="val">1,327</span></div>`+
+    `<div class="formula-row"><span class="lbl">× Stones mult</span><span class="val">×${m}</span></div>`+
+    `<div class="formula-row"><span class="lbl">× District bonus</span><span class="val dc">×${b.toFixed(2)} <em>(${dcHeld.size}/6)</em></span></div>`+
+    `<div class="formula-row"><span class="lbl">${grSz===1?'Group':'÷ Group'}</span><span class="val">${grpLabel}</span></div>`+
+    `<div class="formula-result"><span class="lbl">Per Kill</span><span class="res">${pk.toLocaleString()}</span></div>`;
   document.getElementById('tvK').textContent=totalKills;
   document.getElementById('tvT').textContent=currentTelVar.toLocaleString();
   document.getElementById('tvB').textContent=bankedTelVar.toLocaleString();
@@ -1941,9 +1941,6 @@ function updateTV(){
   if(presetBtn)presetBtn.classList.add('active');
   const presetNote=document.getElementById('presetNote');
   if(presetNote)presetNote.classList.toggle('show',districtCapturesLocked());
-  const atRisk=riskTolerance>0&&currentTelVar>=riskTolerance;
-  const tvTEl=document.getElementById('tvT');if(tvTEl)tvTEl.classList.toggle('at-risk',atRisk);
-  const riskWarn=document.getElementById('riskWarn');if(riskWarn)riskWarn.classList.toggle('show',atRisk);
   const tvTargetWrap=document.getElementById('tvTargetWrap');
   if(tvTargetWrap){
     const net=bankedTelVar+currentTelVar;
@@ -2076,16 +2073,6 @@ function setTelvarTarget(){
   telvarTarget=(raw===''||!n||n<=0)?0:n;
   input.value='';
   try{localStorage.setItem('ic-telvar-target',telvarTarget);}catch(e){}
-  updateTV();
-}
-
-function setRiskTolerance(){
-  const input=document.getElementById('tvRiskInput');
-  const raw=input?input.value.trim():'';
-  const n=parseInt(raw,10);
-  riskTolerance=(raw===''||!n||n<=0)?0:n;
-  if(input)input.value='';
-  try{localStorage.setItem('ic-risk-tolerance',riskTolerance);}catch(e){}
   updateTV();
 }
 
@@ -2400,7 +2387,6 @@ function init(){
   DISTRICTS.forEach((_,i)=>refreshRow(i));
   setAlliance(savedAlliance&&ALLIANCES[savedAlliance]?savedAlliance:'dc');
   try{const t=parseInt(localStorage.getItem('ic-telvar-target')||'0');if(t>0)telvarTarget=t;}catch(e){}
-  try{const r=parseInt(localStorage.getItem('ic-risk-tolerance')||'0');if(r>0)riskTolerance=r;}catch(e){}
   buildDCToggles();buildSkulls();updateTV();
   if(!isObsMode()&&!localStorage.getItem('ic-help-seen')){openHelp();localStorage.setItem('ic-help-seen','1');}
   tick();setInterval(tick,500);

@@ -43,7 +43,6 @@ When you edit `tests/tests.js`, `js/app.js`, or `tests/runner.js`, **bump the `?
 | `currentTelVar` | Tel Var currently being carried. Updated via the `setManualTelvar()` input (which **sets**, not adds — see below). |
 | `bankedTelVar` | Tel Var banked this session |
 | `lostTelVar` | Tel Var lost to ganks |
-| `riskTolerance` | Carrying limit for the risk warning (0 = off) |
 | `telvarTarget` | Session target. Shown in the progress bar **and** the always-visible "Session Target" stat (`#tvTGT`). |
 | `actionStack[]` | Undo stack — each entry is a full snapshot via `snapshot()` |
 | `wakeLock`, `lastWakeLockState` | Screen Wake Lock — re-acquired in `updateWakeLock()` whenever any timer is running, released when none are |
@@ -58,7 +57,7 @@ perKill = round(1327 × MULT[stI] × (1 + dcHeld.size × 0.33) / grSz)
 
 ## localStorage keys
 
-`ic-alliance`, `ic-dcHeld`, `ic-telvar-target`, `ic-risk-tolerance`, `ic-help-seen`, `esoIcSession`, `esoIcBestStreak`
+`ic-alliance`, `ic-dcHeld`, `ic-telvar-target`, `ic-help-seen`, `esoIcSession`, `esoIcBestStreak`
 
 ## Layout structure
 
