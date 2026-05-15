@@ -47,7 +47,6 @@ No build step, no dependencies, no npm. It's a single HTML file.
 | Gold countdown | Dead, respawning |
 | Amber pulse | Respawning in under 1 minute |
 | Red pulse | Respawning in under 15 seconds |
-| Purple / UNKNOWN | Timer estimated from a Guess |
 
 ### Unknown timers (Guess / Seen Alive)
 
