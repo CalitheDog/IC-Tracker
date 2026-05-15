@@ -1,9 +1,10 @@
-const CACHE = 'ic-tracker-v4';
+const CACHE = 'ic-tracker-v5';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './icon.svg',
+  './assets/stone.png',
+  './assets/bag-of-telvar.png',
   './js/app.js'
 ];
 

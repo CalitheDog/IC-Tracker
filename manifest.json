@@ -10,10 +10,10 @@
   "theme_color": "#c9a84c",
   "icons": [
     {
-      "src": "icon.svg",
-      "type": "image/svg+xml",
+      "src": "assets/stone.png",
+      "type": "image/png",
       "sizes": "any",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }
