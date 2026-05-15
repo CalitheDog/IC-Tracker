@@ -47,6 +47,7 @@
 <div id="tvH" style="display:none">0</div>
 <div id="tvPK" style="display:none">0</div>
 <div id="tvTime" style="display:none">00:00:00</div>
+<div id="tvTGT" style="display:none">—</div>
 <div id="farmStartBtn" style="display:none"></div>
 <div id="farmEndBtn" style="display:none"></div>
 <div id="presetChud" class="preset-btn" style="display:none"></div>
@@ -86,11 +87,11 @@
 <div id="results"></div>
 
 <!-- Load app code (it self-initializes) -->
-<script src="../js/app.js"></script>
+<script src="../js/app.js?v=3"></script>
 
 <!-- Load test runner + tests -->
-<script src="runner.js"></script>
-<script src="tests.js"></script>
+<script src="runner.js?v=3"></script>
+<script src="tests.js?v=3"></script>
 <script>
   // Run tests after app initializes
   TestRunner.render('results');

@@ -1069,65 +1069,76 @@ describe('Timer Guess — setTimerGuess()', () => {
 /* ═══════════════════════════════════════════
    18. MANUAL TEL VAR ADD
    ═══════════════════════════════════════════ */
-describe('Manual Tel Var Add — addManualTelvar()', () => {
+describe('Manual Tel Var Set — setManualTelvar()', () => {
 
-  it('Adds amount to currentTelVar', () => {
+  it('Sets currentTelVar to the entered amount', () => {
     resetState();
     document.getElementById('tvAdjustInput').value = '500';
-    addManualTelvar();
+    setManualTelvar();
     assert.equal(currentTelVar, 500);
   });
 
-  it('Stacks with existing currentTelVar', () => {
+  it('Overwrites existing currentTelVar (does not stack)', () => {
     resetState();
     currentTelVar = 1000;
     document.getElementById('tvAdjustInput').value = '350';
-    addManualTelvar();
-    assert.equal(currentTelVar, 1350);
+    setManualTelvar();
+    assert.equal(currentTelVar, 350);
   });
 
-  it('Clears the input after adding', () => {
+  it('Clears the input after setting', () => {
     resetState();
     const input = document.getElementById('tvAdjustInput');
     input.value = '200';
-    addManualTelvar();
+    setManualTelvar();
     assert.equal(input.value, '');
   });
 
   it('Logs the event', () => {
     resetState();
     document.getElementById('tvAdjustInput').value = '777';
-    addManualTelvar();
+    setManualTelvar();
     assert.ok(eventLog.some(e => e.text.includes('777')), 'Event log should mention the amount');
   });
 
   it('Supports undo', () => {
     resetState();
+    currentTelVar = 1500;
     document.getElementById('tvAdjustInput').value = '999';
-    addManualTelvar();
+    setManualTelvar();
     assert.equal(currentTelVar, 999);
     undoLastAction();
-    assert.equal(currentTelVar, 0);
+    assert.equal(currentTelVar, 1500);
   });
 
-  it('Ignores zero', () => {
+  it('Allows setting to zero', () => {
     resetState();
+    currentTelVar = 5000;
     document.getElementById('tvAdjustInput').value = '0';
-    addManualTelvar();
+    setManualTelvar();
     assert.equal(currentTelVar, 0);
   });
 
   it('Ignores negative values', () => {
     resetState();
+    currentTelVar = 1234;
     document.getElementById('tvAdjustInput').value = '-100';
-    addManualTelvar();
-    assert.equal(currentTelVar, 0);
+    setManualTelvar();
+    assert.equal(currentTelVar, 1234);
+  });
+
+  it('Ignores empty input', () => {
+    resetState();
+    currentTelVar = 2500;
+    document.getElementById('tvAdjustInput').value = '';
+    setManualTelvar();
+    assert.equal(currentTelVar, 2500);
   });
 
   it('Does not affect totalKills', () => {
     resetState();
     document.getElementById('tvAdjustInput').value = '5000';
-    addManualTelvar();
+    setManualTelvar();
     assert.equal(totalKills, 0);
   });
 });

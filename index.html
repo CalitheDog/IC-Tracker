@@ -1332,6 +1332,7 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
         <div class="tv-stat"><div class="tv-sv" id="tvH">—</div><div class="tv-sl">Per Hour</div></div>
         <div class="tv-stat"><div class="tv-sv" id="tvPK">—</div><div class="tv-sl">Per Kill</div></div>
         <div class="tv-stat"><div class="tv-sv" id="tvTime">00:00:00</div><div class="tv-sl">Farm Time</div></div>
+        <div class="tv-stat"><div class="tv-sv gold" id="tvTGT">—</div><div class="tv-sl">Session Target</div></div>
       </div>
       <div class="tv-target-wrap" id="tvTargetWrap" style="display:none">
         <div class="tv-target-bar-label"><span id="tvTargetText">0 / 0</span><span id="tvTargetPct">0%</span></div>
@@ -1344,10 +1345,10 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
       <div class="risk-warn" id="riskWarn">⚠ Bank Now — Carrying over your risk limit</div>
       <div class="tv-adj-group">
         <div class="tv-adj-item">
-          <span class="tv-adj-item-label">Add Tel Var</span>
+          <span class="tv-adj-item-label">Set Tel Var</span>
           <div class="tv-adj-line">
-            <input type="number" class="tv-adj-input" id="tvAdjustInput" placeholder="Amount" min="1" step="100" onkeydown="if(event.key==='Enter')addManualTelvar()">
-            <button class="tv-adj-btn add" onclick="addManualTelvar()">+Add</button>
+            <input type="number" class="tv-adj-input" id="tvAdjustInput" placeholder="Total" min="0" step="100" onkeydown="if(event.key==='Enter')setManualTelvar()">
+            <button class="tv-adj-btn add" onclick="setManualTelvar()">Set</button>
           </div>
         </div>
         <div class="tv-adj-item">
@@ -1478,6 +1479,8 @@ function updateTV(){
   document.getElementById('tvL').textContent=lostTelVar.toLocaleString();
   document.getElementById('tvPK').textContent=pk.toLocaleString();
   document.getElementById('tvTime').textContent=fmtH(elapsed);
+  const tvTGTel=document.getElementById('tvTGT');
+  if(tvTGTel)tvTGTel.textContent=telvarTarget>0?telvarTarget.toLocaleString():'—';
   if(farmStart&&sessionTelVar>0&&elapsed>0){document.getElementById('tvH').textContent=Math.round(sessionTelVar/(elapsed/3600)).toLocaleString();}
   else document.getElementById('tvH').textContent='—';
   const startBtn=document.getElementById('farmStartBtn'),endBtn=document.getElementById('farmEndBtn');
@@ -1915,6 +1918,8 @@ function updateTV(){
   document.getElementById('tvL').textContent=lostTelVar.toLocaleString();
   document.getElementById('tvPK').textContent=pk.toLocaleString();
   document.getElementById('tvTime').textContent=fmtH(elapsed);
+  const tvTGTel=document.getElementById('tvTGT');
+  if(tvTGTel)tvTGTel.textContent=telvarTarget>0?telvarTarget.toLocaleString():'—';
   if(farmStart&&sessionTelVar>0&&elapsed>0){document.getElementById('tvH').textContent=Math.round(sessionTelVar/(elapsed/3600)).toLocaleString();}
   else document.getElementById('tvH').textContent='—';
   const startBtn=document.getElementById('farmStartBtn'),endBtn=document.getElementById('farmEndBtn');
@@ -2040,15 +2045,16 @@ function gankedTelVar(){
   updateTV();
 }
 
-function addManualTelvar(){
+function setManualTelvar(){
   const input=document.getElementById('tvAdjustInput');
-  const n=parseInt(input.value,10);
-  if(!n||n<=0){toast('Enter a positive amount','info');return;}
-  pushUndo('Manual Tel Var add');
-  currentTelVar+=n;
+  const raw=input.value.trim();
+  const n=parseInt(raw,10);
+  if(raw===''||isNaN(n)||n<0){toast('Enter a Tel Var total (0 or more)','info');return;}
+  pushUndo('Set Tel Var');
+  currentTelVar=n;
   input.value='';
-  logEvent(`Added ${n.toLocaleString()} Tel Var manually.`);
-  toast(`+${n.toLocaleString()} Tel Var added`,'success');
+  logEvent(`Set carrying Tel Var to ${n.toLocaleString()}.`);
+  toast(`Tel Var set to ${n.toLocaleString()}`,'success');
   updateTV();
 }
 
