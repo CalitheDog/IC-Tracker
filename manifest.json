@@ -1,0 +1,19 @@
+{
+  "name": "ESO Imperial City Tracker",
+  "short_name": "IC Tracker",
+  "description": "Boss timers and Tel Var calculator for Elder Scrolls Online Imperial City — built for console players.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#090805",
+  "theme_color": "#c9a84c",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any maskable"
+    }
+  ]
+}

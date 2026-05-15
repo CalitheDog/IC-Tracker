@@ -2,8 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Tracker — Imperial City</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ESO Imperial City Tracker</title>
+<meta name="description" content="Boss timers and Tel Var calculator for Elder Scrolls Online Imperial City — built for console players.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="theme-color" content="#c9a84c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="IC Tracker">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -1091,6 +1099,41 @@ body.light .tv-target-bar{background:rgba(0,0,0,0.07);border-color:rgba(122,86,2
 body.light .tv-adj-input{background:rgba(255,255,255,0.55);border-color:rgba(122,86,24,0.28);color:#5a3a10;}
 body.light .tv-adj-input::placeholder{color:#a08040;}
 
+/* OBS browser-source mode: ?obs=1 — transparent bg, just timers + next-up */
+body.obs{background:transparent!important;min-height:auto!important;padding:6px!important;align-items:flex-start!important;}
+body.obs::before,body.obs::after{display:none!important;}
+body.light.obs{background:transparent!important;}
+body.obs .header,
+body.obs #themeBtn,
+body.obs #muteBtn,
+body.obs #helpBtn,
+body.obs #shortcutHint,
+body.obs #helpOverlay,
+body.obs .map-section,
+body.obs .telvar-details,
+body.obs .action-strip,
+body.obs .reset-all,
+body.obs .theme-palette,
+body.obs #districtStatusSummary,
+body.obs .preset-row,
+body.obs #presetNote,
+body.obs .restore-bar,
+body.obs .streak-badge,
+body.obs #flashOverlay,
+body.obs #alertBanner{display:none!important;}
+body.obs .layout{max-width:380px!important;padding:0!important;display:flex!important;flex-direction:column!important;gap:8px!important;grid-template-areas:none!important;}
+body.obs .panel,body.obs .drow,body.obs .next-up{background:rgba(8,5,2,0.78)!important;border-color:rgba(201,168,76,0.55)!important;}
+body.obs .next-up{padding:10px 14px!important;}
+body.obs .next-up-label{font-size:0.55rem!important;letter-spacing:0.3em!important;}
+body.obs .next-up-name{font-size:1rem!important;}
+body.obs .next-up-timer{font-size:1.4rem!important;}
+body.obs .districts{gap:4px!important;}
+body.obs .drow{padding:6px 10px!important;display:grid!important;grid-template-columns:auto 1fr auto!important;gap:8px!important;align-items:center!important;}
+body.obs .dinfo .dbosses,body.obs .dc-pill,body.obs .dbtn{display:none!important;}
+body.obs .ddot{width:9px!important;height:9px!important;}
+body.obs .dname{font-size:0.85rem!important;}
+body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!important;}
+
 </style>
 
 <div id="flashOverlay"></div>
@@ -2177,9 +2220,16 @@ function buildRows(){
 
 function seenAlive(i){
   pushUndo('Scout check');
+  const staleRem=(timers[i].running&&timers[i].end)?Math.max(0,Math.round((timers[i].end-Date.now())/1000)):0;
+  const clearedStale=staleRem>30;
   timers[i].end=null;timers[i].running=false;timers[i].wasRunning=false;timers[i].warnFired=false;timers[i].unknown=false;timers[i].unknownAt=null;timers[i].seenAt=Date.now();
-  logEvent(`Scout check: ${DISTRICTS[i].name} (${bossNamesForDistrict(i)}) seen alive.`);
-  toast(`${DISTRICTS[i].name} seen alive`,'success');
+  if(clearedStale){
+    logEvent(`Scout check: ${DISTRICTS[i].name} (${bossNamesForDistrict(i)}) seen alive — cleared stale ${fmt(staleRem)} timer.`);
+    toast(`${DISTRICTS[i].name} seen alive — stale timer cleared`,'success');
+  } else {
+    logEvent(`Scout check: ${DISTRICTS[i].name} (${bossNamesForDistrict(i)}) seen alive.`);
+    toast(`${DISTRICTS[i].name} seen alive`,'success');
+  }
   updateTV();
 }
 
@@ -2300,7 +2350,30 @@ function tick(){
   updateTV();
   updateNextUp();
   if(sortByRespawn)applyRespawnSort();
+  updateWakeLock();
 }
+
+let wakeLock=null,lastWakeLockState=false;
+async function acquireWakeLock(){
+  if(wakeLock||!('wakeLock' in navigator))return;
+  try{wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>{wakeLock=null;});}catch(e){}
+}
+async function releaseWakeLock(){
+  if(!wakeLock)return;
+  try{await wakeLock.release();}catch(e){}
+  wakeLock=null;
+}
+function updateWakeLock(){
+  const anyRunning=timers.some(t=>t.running);
+  if(anyRunning===lastWakeLockState)return;
+  lastWakeLockState=anyRunning;
+  if(anyRunning)acquireWakeLock();else releaseWakeLock();
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible'&&lastWakeLockState)acquireWakeLock();
+});
+
+function isObsMode(){return new URLSearchParams(location.search).get('obs')==='1';}
 
 function openHelp(){const o=document.getElementById('helpOverlay');if(o)o.style.display='flex';}
 function closeHelp(){const o=document.getElementById('helpOverlay');if(o)o.style.display='none';}
@@ -2308,6 +2381,7 @@ function maybeCloseHelp(e){if(e&&e.target===e.currentTarget)closeHelp();}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeHelp();});
 
 function init(){
+  if(isObsMode())document.body.classList.add('obs');
   loadTheme();
   const savedAlliance=localStorage.getItem('ic-alliance');
   buildGear();buildMap();buildRows();
@@ -2317,10 +2391,14 @@ function init(){
   try{const t=parseInt(localStorage.getItem('ic-telvar-target')||'0');if(t>0)telvarTarget=t;}catch(e){}
   try{const r=parseInt(localStorage.getItem('ic-risk-tolerance')||'0');if(r>0)riskTolerance=r;}catch(e){}
   buildDCToggles();buildSkulls();updateTV();
-  if(!localStorage.getItem('ic-help-seen')){openHelp();localStorage.setItem('ic-help-seen','1');}
+  if(!isObsMode()&&!localStorage.getItem('ic-help-seen')){openHelp();localStorage.setItem('ic-help-seen','1');}
   tick();setInterval(tick,500);
 }
 init();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{});});
+}
 
 /* v20 alternate silly visual themes */
 let fantasyTheme = localStorage.getItem("esoIcFantasyTheme") || "normal";
