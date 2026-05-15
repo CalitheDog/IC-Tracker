@@ -99,7 +99,8 @@ svg.map text{pointer-events:none;user-select:none;-webkit-user-select:none;}
 
 /* TEL VAR — now full width */
 .panel{background:rgba(255,255,255,0.025);border:1px solid rgba(201,168,76,0.18);border-radius:10px;padding:16px 20px;}
-.panel-hd{font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.2em;color:#5a4018;text-transform:uppercase;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(201,168,76,0.1);}
+.panel-hd{font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.2em;color:#5a4018;text-transform:uppercase;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(201,168,76,0.1);display:flex;align-items:center;gap:0.55em;}
+.tv-stone-icon{width:1.4em;height:1.4em;color:#c9a84c;flex-shrink:0;filter:drop-shadow(0 0 4px rgba(201,168,76,0.32));}
 
 .tv-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px;}
 .tv-row{}
@@ -1289,7 +1290,7 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
 <!-- TEL VAR — always visible, full-width below layout, internal 2 columns -->
 <div class="telvar-details" id="telvarDetails">
 <div class="panel telvar-panel">
-  <div class="panel-hd">🪙 Tel Var Estimator</div>
+  <div class="panel-hd"><svg class="tv-stone-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><polygon points="16,3 27,9.5 27,22.5 16,29 5,22.5 5,9.5"/><polygon points="16,9 20.4,13 16,14.6 11.6,13"/><polygon points="16,17.4 20.4,19 16,23 11.6,19"/><line x1="9" y1="16" x2="23" y2="16"/></svg>Tel Var Estimator</div>
   <div class="telvar-cols">
     <div class="telvar-col">
       <div class="tv-lbl" style="margin-bottom:8px">Quick presets</div>
