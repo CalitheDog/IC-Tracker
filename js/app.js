@@ -145,9 +145,6 @@ function getA(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext
 function playSpawn(){if(muted)return;try{const c=getA();[523.25,659.25,783.99,1046.5].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;const t=c.currentTime+i*0.18;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.35,t+0.04);g.gain.exponentialRampToValueAtTime(0.001,t+1.1);o.start(t);o.stop(t+1.2);});}catch(e){}}
 function playWarn(){if(muted)return;try{const c=getA();[392,523.25].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='triangle';o.frequency.value=f;const t=c.currentTime+i*0.22;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.25,t+0.03);g.gain.exponentialRampToValueAtTime(0.001,t+0.7);o.start(t);o.stop(t+0.8);});}catch(e){}}
 function toggleMute(){muted=!muted;const b=document.getElementById('muteBtn');b.textContent=muted?'🔕 Muted':'🔔 Sound On';b.className=muted?'muted':'';}
-function applyTheme(mode){const isLight=mode==='light';document.body.classList.toggle('light',isLight);const b=document.getElementById('themeBtn');if(b)b.textContent=isLight?'🌙 Dark':'☀️ Light';try{localStorage.setItem('ic-theme',mode);}catch(e){}}
-function toggleTheme(){applyTheme(document.body.classList.contains('light')?'dark':'light');}
-function loadTheme(){let mode='dark';try{mode=localStorage.getItem('ic-theme')||'dark';}catch(e){}applyTheme(mode);}
 function flash(type){const el=document.getElementById('flashOverlay');el.className='';void el.offsetWidth;el.className=`flash-${type}`;}
 function toast(name,type='info'){
   const bn=document.getElementById('alertBanner'),t=document.createElement('div');
@@ -808,10 +805,12 @@ function buildRows(){
       </div>
       <span class="dc-pill" id="dp${i}" style="display:none">DC</span>
       <div class="dtimer alive" id="dt${i}">ALIVE</div>
-      <button class="dbtn kill" onclick="killBoss(${i})">Killed</button>
-      <button class="dbtn guess" onclick="guessTimer(${i})">Guess</button>
-      <button class="dbtn scout" onclick="seenAlive(${i})">Seen Alive</button>
-      <button class="dbtn rst" onclick="rstBoss(${i})">Reset</button>`;
+      <div class="drow-actions">
+        <button class="dbtn kill" onclick="killBoss(${i})">Killed</button>
+        <button class="dbtn guess" onclick="guessTimer(${i})">Guess</button>
+        <button class="dbtn scout" onclick="seenAlive(${i})">Seen Alive</button>
+        <button class="dbtn rst" onclick="rstBoss(${i})">Reset</button>
+      </div>`;
     wrap.appendChild(row);
   });
 }
@@ -987,7 +986,6 @@ function maybeCloseHelp(e){if(e&&e.target===e.currentTarget)closeHelp();}
 
 function init(){
   if(isObsMode())document.body.classList.add('obs');
-  loadTheme();
   const savedAlliance=localStorage.getItem('ic-alliance');
   setAlliance(savedAlliance&&ALLIANCES[savedAlliance]?savedAlliance:'dc');
   buildGear();buildMap();buildRows();buildDCToggles();buildSkulls();updateTV();

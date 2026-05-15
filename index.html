@@ -169,9 +169,6 @@ body.light .tv-adj-item-label{color:#6e4a18;}
 .tv-sv.at-risk{color:#ff4a34!important;animation:fl 1.2s ease-in-out infinite;}
 body.light .risk-warn{background:rgba(220,40,20,0.1);color:#9a1f12;border-color:rgba(180,30,20,0.35);}
 
-.district-section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding:0 2px;}
-.district-section-hd-title{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:#5a4018;}
-body.light .district-section-hd-title{color:#6e4a18;}
 
 .tv-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(95px,1fr));gap:8px;}
 .tv-stat{text-align:center;padding:10px 6px;background:rgba(0,0,0,0.25);border-radius:6px;border:1px solid rgba(201,168,76,0.07);}
@@ -192,8 +189,11 @@ body.light .district-section-hd-title{color:#6e4a18;}
 .tv-action:disabled{opacity:0.42;cursor:not-allowed;}
 
 /* DISTRICT ROWS */
-.districts{display:flex;flex-direction:column;gap:8px;}
-.drow{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(255,255,255,0.025);border:1px solid rgba(201,168,76,0.14);border-radius:8px;position:relative;overflow:hidden;transition:border-color 0.25s,background 0.25s;}
+.districts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+@media (max-width:480px){.districts{grid-template-columns:1fr;}}
+.drow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:10px 12px;background:rgba(255,255,255,0.025);border:1px solid rgba(201,168,76,0.14);border-radius:8px;position:relative;overflow:hidden;transition:border-color 0.25s,background 0.25s;}
+.drow-actions{display:flex;gap:5px;width:100%;}
+.drow-actions .dbtn{flex:1;min-width:0;padding:6px 4px;font-size:0.55rem;letter-spacing:0.05em;text-align:center;}
 .drow::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px 0 0 4px;transition:background 0.3s;}
 .drow.alive::before{background:#3a7a48;}
 .drow.alive{border-color:rgba(76,160,96,0.35);background:rgba(20,60,30,0.08);}
@@ -245,8 +245,6 @@ body.alliance-ad .dc-pill{background:rgba(100,80,0,0.28);border-color:rgba(200,1
 
 .footer{margin-top:1.2rem;font-size:0.64rem;letter-spacing:0.12em;color:#9a7838;text-transform:uppercase;text-align:center;text-shadow:0 0 14px rgba(201,168,76,0.22);}
 .credits{margin-top:0.45rem;font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.16em;color:#6f5524;text-transform:uppercase;text-align:center;text-shadow:0 0 12px rgba(201,168,76,0.18);}
-#themeBtn{position:fixed;bottom:56px;right:20px;font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.12em;padding:7px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.2);color:#8a7040;border-radius:5px;cursor:pointer;z-index:100;text-transform:uppercase;transition:all 0.15s;}
-#themeBtn:hover{background:rgba(255,255,255,0.08);color:#c9a84c;}
 body.light{background:#efe5ce;color:#3a2814;}
 body.light::before{background:radial-gradient(ellipse 80% 60% at 50% 20%,rgba(160,110,20,0.13) 0%,transparent 65%);}
 body.light .eyebrow,body.light .panel-hd,body.light .map-hint,body.light .tv-lbl,body.light .tv-sl{color:#6e4a18;}
@@ -382,13 +380,6 @@ body.light .next-up-timer{color:#704c12;text-shadow:none;}
 
 /* TELVAR DETAILS WRAPPER */
 .telvar-details{width:100%;}
-.telvar-summary{font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;color:#8b6a2c;cursor:pointer;user-select:none;padding:10px 4px;list-style:none;display:flex;align-items:center;gap:8px;}
-.telvar-summary::after{content:'▾';color:#c9a84c;font-size:0.75rem;transition:transform 0.2s;}
-.telvar-details[open] .telvar-summary::after{transform:rotate(180deg);}
-.telvar-summary::-webkit-details-marker{display:none;}
-.telvar-summary-hint{font-size:0.52rem;color:#4a3820;letter-spacing:0.08em;}
-body.light .telvar-summary{color:#6e4a18;}
-body.light .telvar-summary-hint{color:#8a6030;}
 
 /* COMMAND CENTER ADDITIONS */
 .command-grid{display:grid;grid-template-columns:1.1fr 0.9fr;gap:12px;}
@@ -467,18 +458,18 @@ body.light .ddot.unknown{background:#715bd2;box-shadow:none;}
     display:grid;
     grid-template-columns:380px minmax(0,1fr);
     grid-template-areas:
-      "map      actions"
-      "telvar   nextup"
+      "map      nextup"
       "telvar   districts"
+      "telvar   actions"
       ".        reset";
     align-items:start;
     gap:14px;
   }
   .map-section{grid-area:map;}
   .telvar-details{grid-area:telvar;align-self:start;}
-  .action-strip{grid-area:actions;align-self:end;}
+  .action-strip{grid-area:actions;align-self:start;}
   .next-up{grid-area:nextup;}
-  .districts{grid-area:districts;}
+  .districts{grid-area:districts;align-self:start;}
   .reset-all{grid-area:reset;}
 
   .map-wrap{width:360px;height:360px;}
@@ -1108,7 +1099,6 @@ body.obs{background:transparent!important;min-height:auto!important;padding:6px!
 body.obs::before,body.obs::after{display:none!important;}
 body.light.obs{background:transparent!important;}
 body.obs .header,
-body.obs #themeBtn,
 body.obs #muteBtn,
 body.obs #helpBtn,
 body.obs #shortcutHint,
@@ -1167,7 +1157,6 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
   </div>
 </div>
 
-<button id="themeBtn" onclick="toggleTheme()">☀️ Light</button>
 <div id="shortcutHint" class="shortcut-hint">Keys: 1–6 kill · S+1–6 seen · G+1–6 guess · R+1–6 reset</div>
 <button id="muteBtn" onclick="toggleMute()">🔔 Sound On</button>
 <button id="helpBtn" onclick="openHelp()" title="How to use">? Help</button>
@@ -1253,9 +1242,8 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
     </div>
   </div>
 
-  <!-- TEL VAR — collapsible -->
-  <details class="telvar-details" id="telvarDetails">
-  <summary class="telvar-summary">🪙 Tel Var Estimator <span class="telvar-summary-hint">(tap to expand)</span></summary>
+  <!-- TEL VAR — always visible -->
+  <div class="telvar-details" id="telvarDetails">
   <div class="panel telvar-panel">
     <div class="panel-hd">🪙 Tel Var Estimator</div>
     <div class="tv-lbl" style="margin-bottom:8px">Quick presets</div>
@@ -1340,7 +1328,7 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
       </div>
     </div>
   </div>
-  </details>
+  </div>
 
 
   <!-- hidden sentinel elements for JS null-check compatibility -->
@@ -1355,14 +1343,6 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
   <div id="nextTargetReason" style="display:none"></div>
   <button id="killNextBtn" style="display:none"></button>
 
-  <!-- QUICK ACTIONS -->
-  <div class="action-strip">
-    <button class="qs-btn bank" onclick="bankTelVar()">🏦 Bank</button>
-    <button class="qs-btn gank" onclick="gankedTelVar()">☠ Ganked</button>
-    <button class="qs-btn undo" id="undoBtn" onclick="undoLastAction()">↶ Undo</button>
-    <button class="qs-btn sort" id="sortBtn" onclick="toggleSortByRespawn()">⇅ Sort</button>
-  </div>
-
   <!-- NEXT RESPAWN HERO -->
   <div class="next-up" id="nextUp">
     <div class="next-up-label">Next Respawn</div>
@@ -1372,16 +1352,21 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
     </div>
   </div>
 
-  <!-- BOSS TIMERS -->
-  <div class="district-section-hd">
-    <span class="district-section-hd-title">Boss Timers</span>
-  </div>
   <div class="districts" id="districts"></div>
+
+  <!-- QUICK ACTIONS -->
+  <div class="action-strip">
+    <button class="qs-btn bank" onclick="bankTelVar()">🏦 Bank</button>
+    <button class="qs-btn gank" onclick="gankedTelVar()">☠ Ganked</button>
+    <button class="qs-btn undo" id="undoBtn" onclick="undoLastAction()">↶ Undo</button>
+    <button class="qs-btn sort" id="sortBtn" onclick="toggleSortByRespawn()">⇅ Sort</button>
+  </div>
+
   <button class="reset-all" onclick="resetAll()">↺ Reset All Timers</button>
 
 </div>
 <div class="footer">15 min respawn · 1-min warning</div>
-<div class="credits">Credits: The Joker</div>
+<div class="credits">Built by JNVGaming (PSN) — send hate mail and gold</div>
 
 <script>
 const BASE_TV=1327,MULT=[1,2,3,4],RESPAWN=900,WARN_AT=60;
@@ -1545,9 +1530,6 @@ function getA(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext
 function playSpawn(){if(muted)return;try{const c=getA();[523.25,659.25,783.99,1046.5].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;const t=c.currentTime+i*0.18;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.35,t+0.04);g.gain.exponentialRampToValueAtTime(0.001,t+1.1);o.start(t);o.stop(t+1.2);});}catch(e){}}
 function playWarn(){if(muted)return;try{const c=getA();[392,523.25].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='triangle';o.frequency.value=f;const t=c.currentTime+i*0.22;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.25,t+0.03);g.gain.exponentialRampToValueAtTime(0.001,t+0.7);o.start(t);o.stop(t+0.8);});}catch(e){}}
 function toggleMute(){muted=!muted;const b=document.getElementById('muteBtn');b.textContent=muted?'🔕 Muted':'🔔 Sound On';b.className=muted?'muted':'';}
-function applyTheme(mode){const isLight=mode==='light';document.body.classList.toggle('light',isLight);const b=document.getElementById('themeBtn');if(b)b.textContent=isLight?'🌙 Dark':'☀️ Light';try{localStorage.setItem('ic-theme',mode);}catch(e){}}
-function toggleTheme(){applyTheme(document.body.classList.contains('light')?'dark':'light');}
-function loadTheme(){let mode='dark';try{mode=localStorage.getItem('ic-theme')||'dark';}catch(e){}applyTheme(mode);}
 function flash(type){const el=document.getElementById('flashOverlay');el.className='';void el.offsetWidth;el.className=`flash-${type}`;}
 function toast(name,type='info'){
   const bn=document.getElementById('alertBanner'),t=document.createElement('div');
@@ -2216,10 +2198,12 @@ function buildRows(){
       </div>
       <span class="dc-pill" id="dp${i}" style="display:none">DC</span>
       <div class="dtimer alive" id="dt${i}">ALIVE</div>
-      <button class="dbtn kill" onclick="killBoss(${i})">Killed</button>
-      <button class="dbtn guess" onclick="guessTimer(${i})">Guess</button>
-      <button class="dbtn scout" onclick="seenAlive(${i})">Seen Alive</button>
-      <button class="dbtn rst" onclick="rstBoss(${i})">Reset</button>`;
+      <div class="drow-actions">
+        <button class="dbtn kill" onclick="killBoss(${i})">Killed</button>
+        <button class="dbtn guess" onclick="guessTimer(${i})">Guess</button>
+        <button class="dbtn scout" onclick="seenAlive(${i})">Seen Alive</button>
+        <button class="dbtn rst" onclick="rstBoss(${i})">Reset</button>
+      </div>`;
     wrap.appendChild(row);
   });
 }
@@ -2388,7 +2372,6 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeHelp();});
 
 function init(){
   if(isObsMode())document.body.classList.add('obs');
-  loadTheme();
   const savedAlliance=localStorage.getItem('ic-alliance');
   buildGear();buildMap();buildRows();
   try{JSON.parse(localStorage.getItem('ic-dcHeld')||'[]').forEach(i=>{if(i>=0&&i<DISTRICTS.length)dcHeld.add(i);});}catch(e){}
