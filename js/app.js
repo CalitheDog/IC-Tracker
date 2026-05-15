@@ -818,9 +818,16 @@ function buildRows(){
 
 function seenAlive(i){
   pushUndo('Scout check');
+  const staleRem=(timers[i].running&&timers[i].end)?Math.max(0,Math.round((timers[i].end-Date.now())/1000)):0;
+  const clearedStale=staleRem>30;
   timers[i].end=null;timers[i].running=false;timers[i].wasRunning=false;timers[i].warnFired=false;timers[i].unknown=false;timers[i].unknownAt=null;timers[i].seenAt=Date.now();
-  logEvent(`Scout check: ${DISTRICTS[i].name} (${bossNamesForDistrict(i)}) seen alive.`);
-  toast(`${DISTRICTS[i].name} seen alive`,'success');
+  if(clearedStale){
+    logEvent(`Scout check: ${DISTRICTS[i].name} (${bossNamesForDistrict(i)}) seen alive — cleared stale ${fmt(staleRem)} timer.`);
+    toast(`${DISTRICTS[i].name} seen alive — stale timer cleared`,'success');
+  } else {
+    logEvent(`Scout check: ${DISTRICTS[i].name} (${bossNamesForDistrict(i)}) seen alive.`);
+    toast(`${DISTRICTS[i].name} seen alive`,'success');
+  }
   updateTV();
 }
 
@@ -953,18 +960,38 @@ function tick(){
   buildSkulls();
   updateTV();
   updateNextUp();
+  updateWakeLock();
 }
+
+let wakeLock=null,lastWakeLockState=false;
+async function acquireWakeLock(){
+  if(wakeLock||!('wakeLock' in navigator))return;
+  try{wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>{wakeLock=null;});}catch(e){}
+}
+async function releaseWakeLock(){
+  if(!wakeLock)return;
+  try{await wakeLock.release();}catch(e){}
+  wakeLock=null;
+}
+function updateWakeLock(){
+  const anyRunning=timers.some(t=>t.running);
+  if(anyRunning===lastWakeLockState)return;
+  lastWakeLockState=anyRunning;
+  if(anyRunning)acquireWakeLock();else releaseWakeLock();
+}
+function isObsMode(){return new URLSearchParams(location.search).get('obs')==='1';}
 
 function openHelp(){const o=document.getElementById('helpOverlay');if(o)o.style.display='flex';}
 function closeHelp(){const o=document.getElementById('helpOverlay');if(o)o.style.display='none';}
 function maybeCloseHelp(e){if(e&&e.target===e.currentTarget)closeHelp();}
 
 function init(){
+  if(isObsMode())document.body.classList.add('obs');
   loadTheme();
   const savedAlliance=localStorage.getItem('ic-alliance');
   setAlliance(savedAlliance&&ALLIANCES[savedAlliance]?savedAlliance:'dc');
   buildGear();buildMap();buildRows();buildDCToggles();buildSkulls();updateTV();
-  if(!localStorage.getItem('ic-help-seen')){openHelp();localStorage.setItem('ic-help-seen','1');}
+  if(!isObsMode()&&!localStorage.getItem('ic-help-seen')){openHelp();localStorage.setItem('ic-help-seen','1');}
   tick();setInterval(tick,500);
   setInterval(saveSession,15000);
   checkSavedSession();
