@@ -116,17 +116,20 @@ svg.map text{pointer-events:none;user-select:none;-webkit-user-select:none;}
 .preset-btn.streakah:hover{background:linear-gradient(135deg,rgba(150,12,12,0.58),rgba(30,20,20,0.52));color:#ff8a70;box-shadow:0 0 24px rgba(220,30,20,0.28);}
 .preset-btn.active{outline:1px solid rgba(255,220,120,0.8);box-shadow:0 0 24px rgba(255,190,70,0.28);}
 .alliance-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
-.alliance-btn{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.1em;padding:8px 10px;border-radius:6px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;opacity:0.72;}
-.alliance-btn.ep{background:rgba(160,30,25,0.32);border:1px solid rgba(200,50,40,0.55);color:#e04a3a;}
-.alliance-btn.ep:hover{background:rgba(180,35,28,0.46);color:#ff6a58;opacity:0.9;}
-.alliance-btn.dc{background:rgba(30,60,160,0.32);border:1px solid rgba(60,110,220,0.55);color:#5aa0e8;}
-.alliance-btn.dc:hover{background:rgba(35,70,180,0.46);color:#78b8ff;opacity:0.9;}
-.alliance-btn.ald{background:rgba(160,140,20,0.32);border:1px solid rgba(200,180,40,0.55);color:#d4c030;}
-.alliance-btn.ald:hover{background:rgba(180,160,28,0.46);color:#f0e040;opacity:0.9;}
-.alliance-btn.sel{opacity:1;}
-.alliance-btn.ep.sel{background:rgba(200,45,35,0.55);border:2px solid rgba(220,60,50,0.9);color:#ff7a68;box-shadow:0 0 24px rgba(200,40,30,0.45),inset 0 0 12px rgba(200,40,30,0.15);}
-.alliance-btn.dc.sel{background:rgba(35,80,220,0.55);border:2px solid rgba(80,140,240,0.9);color:#88ccff;box-shadow:0 0 24px rgba(50,100,220,0.45),inset 0 0 12px rgba(50,100,220,0.15);}
-.alliance-btn.ald.sel{background:rgba(180,155,0,0.55);border:2px solid rgba(230,205,40,0.9);color:#ffe84a;box-shadow:0 0 24px rgba(200,175,0,0.45),inset 0 0 12px rgba(200,175,0,0.15);}
+.alliance-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:'Cinzel',serif;padding:10px 6px 9px;border-radius:7px;cursor:pointer;transition:all 0.2s;opacity:0.7;}
+.alliance-btn .alliance-short{font-family:'Cinzel Decorative','Cinzel',serif;font-size:1.35rem;font-weight:700;letter-spacing:0.06em;line-height:1;}
+.alliance-btn .alliance-name{font-size:0.5rem;letter-spacing:0.11em;text-transform:uppercase;opacity:0.85;line-height:1.1;}
+.alliance-btn.ep{background:linear-gradient(180deg,rgba(160,30,25,0.32),rgba(80,15,10,0.18));border:1px solid rgba(200,50,40,0.55);color:#e04a3a;}
+.alliance-btn.ep:hover{background:linear-gradient(180deg,rgba(180,35,28,0.46),rgba(100,20,12,0.26));color:#ff6a58;opacity:0.9;}
+.alliance-btn.dc{background:linear-gradient(180deg,rgba(30,60,160,0.32),rgba(15,30,90,0.18));border:1px solid rgba(60,110,220,0.55);color:#5aa0e8;}
+.alliance-btn.dc:hover{background:linear-gradient(180deg,rgba(35,70,180,0.46),rgba(18,38,100,0.26));color:#78b8ff;opacity:0.9;}
+.alliance-btn.ald{background:linear-gradient(180deg,rgba(160,140,20,0.32),rgba(80,68,10,0.18));border:1px solid rgba(200,180,40,0.55);color:#d4c030;}
+.alliance-btn.ald:hover{background:linear-gradient(180deg,rgba(180,160,28,0.46),rgba(96,80,16,0.26));color:#f0e040;opacity:0.9;}
+.alliance-btn.sel{opacity:1;transform:translateY(-1px);}
+.alliance-btn.ep.sel{background:linear-gradient(180deg,rgba(200,45,35,0.62),rgba(100,18,12,0.42));border:2px solid rgba(220,60,50,0.95);color:#ff7a68;box-shadow:0 0 28px rgba(200,40,30,0.5),inset 0 0 14px rgba(200,40,30,0.2);}
+.alliance-btn.dc.sel{background:linear-gradient(180deg,rgba(35,80,220,0.62),rgba(20,40,120,0.42));border:2px solid rgba(80,140,240,0.95);color:#88ccff;box-shadow:0 0 28px rgba(50,100,220,0.5),inset 0 0 14px rgba(50,100,220,0.2);}
+.alliance-btn.ald.sel{background:linear-gradient(180deg,rgba(180,155,0,0.62),rgba(100,80,0,0.42));border:2px solid rgba(230,205,40,0.95);color:#ffe84a;box-shadow:0 0 28px rgba(200,175,0,0.5),inset 0 0 14px rgba(200,175,0,0.2);}
+.alliance-btn.sel .alliance-short{text-shadow:0 0 18px currentColor;}
 .preset-note{font-size:0.55rem;letter-spacing:0.1em;color:#8a3020;text-transform:uppercase;margin:-6px 0 10px;display:none;}
 .preset-note.show{display:block;}
 .seg{font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.04em;padding:6px 11px;border-radius:4px;cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(201,168,76,0.14);color:#4a3a20;transition:all 0.15s;white-space:nowrap;}
@@ -221,9 +224,9 @@ body.light .tv-adj-item-label{color:#6e4a18;}
 .drow.dead .dbosses{color:#6a5020;}
 .drow.warn .dbosses{color:#8a7020;}
 
-.dc-pill{font-family:'Cinzel',serif;font-size:0.46rem;letter-spacing:0.1em;padding:1px 6px;border-radius:3px;background:rgba(30,70,160,0.28);border:1px solid rgba(70,130,230,0.4);color:#6ab0e0;text-transform:uppercase;flex-shrink:0;}
-body.alliance-ep .dc-pill{background:rgba(120,20,20,0.28);border-color:rgba(200,50,40,0.4);color:#e07060;}
-body.alliance-ad .dc-pill{background:rgba(100,80,0,0.28);border-color:rgba(200,170,0,0.4);color:#d4b830;}
+.dc-pill{font-family:'Cinzel',serif;font-size:0.55rem;font-weight:600;letter-spacing:0.14em;padding:2px 7px;border-radius:4px;background:rgba(30,70,160,0.32);border:1px solid rgba(70,130,230,0.55);color:#88c0ee;text-transform:uppercase;flex-shrink:0;box-shadow:0 0 10px rgba(70,130,230,0.18);}
+body.alliance-ep .dc-pill{background:rgba(140,25,20,0.32);border-color:rgba(220,55,40,0.55);color:#ff8878;box-shadow:0 0 10px rgba(200,50,40,0.2);}
+body.alliance-ad .dc-pill{background:rgba(120,95,0,0.32);border-color:rgba(220,180,0,0.55);color:#ffd848;box-shadow:0 0 10px rgba(200,170,0,0.2);}
 
 .dtimer{font-family:'Cinzel',serif;font-size:1.25rem;font-weight:700;min-width:64px;text-align:right;letter-spacing:0.04em;color:#3a2e0e;transition:color 0.3s;flex-shrink:0;}
 .dtimer.alive{color:#4c9960;}
@@ -1298,9 +1301,9 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
       <div class="preset-note" id="presetNote">The Streakah does not capture flags. District captures are locked off.</div>
       <div class="tv-lbl" style="margin-bottom:8px">Your alliance</div>
       <div class="alliance-grid" id="allianceEl">
-        <button class="alliance-btn ep" data-al="ep" onclick="setAlliance('ep')">Ebonheart Pact</button>
-        <button class="alliance-btn dc" data-al="dc" onclick="setAlliance('dc')">Daggerfall Covenant</button>
-        <button class="alliance-btn ald" data-al="ad" onclick="setAlliance('ad')">Aldmeri Dominion</button>
+        <button class="alliance-btn ep" data-al="ep" onclick="setAlliance('ep')"><span class="alliance-short">EP</span><span class="alliance-name">Ebonheart Pact</span></button>
+        <button class="alliance-btn dc" data-al="dc" onclick="setAlliance('dc')"><span class="alliance-short">DC</span><span class="alliance-name">Daggerfall Covenant</span></button>
+        <button class="alliance-btn ald" data-al="ad" onclick="setAlliance('ad')"><span class="alliance-short">AD</span><span class="alliance-name">Aldmeri Dominion</span></button>
       </div>
       <div class="tv-grid">
         <div class="tv-row">
