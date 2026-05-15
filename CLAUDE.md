@@ -85,7 +85,7 @@ There is **no** CSS Grid named-area layout anymore; do not reintroduce `grid-tem
 
 ## PWA
 
-`manifest.json`, `sw.js`, and `icon.svg` make the app installable. The service worker uses `CACHE = 'ic-tracker-vN'` — **bump the version** in `sw.js` when shipping CSS/HTML changes you want users to pick up promptly. Installed-PWA users will otherwise serve from the cached version until they hard-refresh.
+`manifest.json`, `sw.js`, and the `assets/*.png` images make the app installable. The favicon / PWA icon is `assets/stone.png` (a Tel Var stone image); `assets/bag-of-telvar.png` is the help-modal hero. The service worker uses `CACHE = 'ic-tracker-vN'` — **bump the version** in `sw.js` when shipping CSS/HTML/asset changes you want users to pick up promptly. Installed-PWA users will otherwise serve from the cached version until they hard-refresh.
 
 ## Dead code worth knowing about
 
