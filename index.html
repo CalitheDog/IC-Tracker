@@ -456,22 +456,13 @@ body.light .ddot.unknown{background:#715bd2;box-shadow:none;}
   .layout{
     max-width:1180px;
     padding:0 16px;
-    display:grid;
-    grid-template-columns:380px minmax(0,1fr);
-    grid-template-areas:
-      "map      nextup"
-      "telvar   districts"
-      "telvar   actions"
-      ".        reset";
-    align-items:start;
+    display:flex;
+    flex-direction:row;
+    align-items:flex-start;
     gap:14px;
   }
-  .map-section{grid-area:map;}
-  .telvar-details{grid-area:telvar;align-self:start;}
-  .action-strip{grid-area:actions;align-self:start;}
-  .next-up{grid-area:nextup;}
-  .districts{grid-area:districts;align-self:start;}
-  .reset-all{grid-area:reset;}
+  .left-col{width:380px;flex-shrink:0;display:flex;flex-direction:column;gap:14px;}
+  .right-col{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;}
 
   .map-wrap{width:360px;height:360px;}
   svg.map{width:360px;height:360px;}
@@ -1105,6 +1096,7 @@ body.obs #helpBtn,
 body.obs #shortcutHint,
 body.obs #helpOverlay,
 body.obs .map-section,
+body.obs .left-col,
 body.obs .telvar-details,
 body.obs .action-strip,
 body.obs .reset-all,
@@ -1213,6 +1205,7 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
 </div>
 
 <div class="layout">
+  <div class="left-col">
   <div class="map-section">
     <div class="map-toolbar">
       <span class="map-hint">Tap slice = <em id="mapHintAlliance">DC control</em> · Hover skull = boss pic</span>
@@ -1330,7 +1323,9 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
     </div>
   </div>
   </div>
+  </div><!-- /.left-col -->
 
+  <div class="right-col">
 
   <!-- hidden sentinel elements for JS null-check compatibility -->
   <div id="netSessionTv" style="display:none"></div>
@@ -1365,6 +1360,7 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
 
   <button class="reset-all" onclick="resetAll()">↺ Reset All Timers</button>
 
+  </div><!-- /.right-col -->
 </div>
 <div class="footer">15 min respawn · 1-min warning</div>
 <div class="credits">Built by JNVGaming (PSN) — send hate mail and gold</div>
