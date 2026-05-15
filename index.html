@@ -158,7 +158,7 @@ body.light .formula-summary{color:#6e4a18;}
 
 .panel-sep{border:none;border-top:1px solid rgba(201,168,76,0.08);margin:14px 0;}
 
-.tv-adj-group{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding-top:12px;border-top:1px solid rgba(201,168,76,0.08);overflow:hidden;}
+.tv-adj-group{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding-top:12px;border-top:1px solid rgba(201,168,76,0.08);overflow:hidden;}
 .tv-adj-item{display:flex;flex-direction:column;gap:4px;min-width:0;overflow:hidden;}
 .tv-adj-item-label{font-size:0.53rem;letter-spacing:0.11em;text-transform:uppercase;color:#4a3820;}
 body.light .tv-adj-item-label{color:#6e4a18;}
@@ -1331,6 +1331,14 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
         <summary class="formula-summary">Per-kill formula</summary>
         <div class="formula" id="formula"></div>
       </details>
+      <hr class="panel-sep">
+      <div class="tv-adj-item">
+        <span class="tv-adj-item-label">Risk Limit</span>
+        <div class="tv-adj-line">
+          <input type="number" class="tv-adj-input" id="tvRiskInput" placeholder="Limit" min="1" step="1000" onkeydown="if(event.key==='Enter')setRiskTolerance()">
+          <button class="tv-adj-btn tgt" onclick="setRiskTolerance()">Set</button>
+        </div>
+      </div>
     </div>
     <div class="telvar-col">
       <div class="tv-lbl" style="margin-bottom:8px" id="dcLabel">DC-held districts (tap to toggle)</div>
@@ -1367,13 +1375,6 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
           <div class="tv-adj-line">
             <input type="number" class="tv-adj-input" id="tvTargetInput" placeholder="Target" min="1" step="1000" onkeydown="if(event.key==='Enter')setTelvarTarget()">
             <button class="tv-adj-btn tgt" onclick="setTelvarTarget()">Set</button>
-          </div>
-        </div>
-        <div class="tv-adj-item">
-          <span class="tv-adj-item-label">Risk Limit</span>
-          <div class="tv-adj-line">
-            <input type="number" class="tv-adj-input" id="tvRiskInput" placeholder="Limit" min="1" step="1000" onkeydown="if(event.key==='Enter')setRiskTolerance()">
-            <button class="tv-adj-btn tgt" onclick="setRiskTolerance()">Set</button>
           </div>
         </div>
       </div>
