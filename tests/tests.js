@@ -1451,6 +1451,7 @@ describe('Cleanup', () => {
     localStorage.removeItem('ic-alliance');
     localStorage.removeItem('ic-telvar-target');
     localStorage.removeItem('ic-risk-tolerance');
+    localStorage.removeItem('ic-help-seen');
     assert.ok(true);
   });
 });

@@ -53,7 +53,7 @@ perKill = round(1327 × MULT[stI] × (1 + dcHeld.size × 0.33) / grSz)
 
 ## localStorage keys
 
-`ic-alliance`, `ic-theme`, `ic-dcHeld`, `ic-telvar-target`, `ic-risk-tolerance`, `esoIcSession`, `esoIcBestStreak`
+`ic-alliance`, `ic-theme`, `ic-dcHeld`, `ic-telvar-target`, `ic-risk-tolerance`, `ic-help-seen`, `esoIcSession`, `esoIcBestStreak`
 
 ## Desktop layout (CSS grid)
 
