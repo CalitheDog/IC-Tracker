@@ -8,13 +8,17 @@
       <stop offset="0%" stop-color="#e0c878"/>
       <stop offset="100%" stop-color="#a08038"/>
     </linearGradient>
+    <linearGradient id="stoneBlue" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#9ed0f5"/>
+      <stop offset="100%" stop-color="#3a6cad"/>
+    </linearGradient>
   </defs>
   <rect width="512" height="512" rx="90" fill="url(#bg)"/>
   <circle cx="256" cy="256" r="200" fill="none" stroke="url(#gold)" stroke-width="6" opacity="0.55"/>
   <circle cx="256" cy="256" r="170" fill="none" stroke="#c9a84c" stroke-width="2" opacity="0.32"/>
 
   <!-- Tel Var Stone -->
-  <g transform="translate(256 256)" stroke="url(#gold)" fill="none" stroke-width="10" stroke-linejoin="round" stroke-linecap="round">
+  <g transform="translate(256 256)" stroke="url(#stoneBlue)" fill="none" stroke-width="10" stroke-linejoin="round" stroke-linecap="round">
     <!-- Hexagon (pointy-top), radius ~130 -->
     <polygon points="0,-130 113,-65 113,65 0,130 -113,65 -113,-65"/>
     <!-- Upper rhombus -->
