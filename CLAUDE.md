@@ -8,24 +8,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 python -m http.server 5173
 ```
 
-App: `http://localhost:5173`  
-Tests: `http://localhost:5173/tests/`
+- App: `http://localhost:5173`
+- Tests: `http://localhost:5173/tests/`
+- OBS overlay mode: `http://localhost:5173/?obs=1`
 
 No build step, no npm, no bundler.
 
 ## Running tests
 
-Open `http://localhost:5173/tests/` in the browser after starting the server. Results render on the page. There is no CLI test runner.
+Open `http://localhost:5173/tests/` after starting the server. Results render on the page; there is no CLI test runner.
+
+When you edit `tests/tests.js`, `js/app.js`, or `tests/runner.js`, **bump the `?v=N` cache-busting query in `tests/index.html`'s script tags** — the browser cache for these files is sticky and will otherwise serve stale copies and produce misleading FAILs against names that no longer exist.
 
 ## Critical architecture: two copies of JS
 
-**`index.html`** is the live app — all HTML, CSS, and JS are inline in one file.
+- **`index.html`** is the live app — all HTML, CSS, and JS inline.
+- **`js/app.js`** is a separate copy of the JS, loaded by `tests/index.html` so tests can import functions without the live DOM.
 
-**`js/app.js`** is a separate copy of the JS logic only, loaded by `tests/index.html` so tests can import the functions without a browser DOM. **These two files must be kept in sync manually.** When adding or changing any JS function, update both files.
+**The two files must be kept in sync manually.** When adding or changing a function, update both. The two files have drifted in places (some functions in `js/app.js` reference state shapes that don't exist live, e.g. `state.timers[i]`); only edit the parts of `js/app.js` that the tests actually call, and prefer mirroring the live `index.html` implementation.
 
 ## Duplicate function definitions in index.html
 
-`index.html` contains multiple definitions of several functions (`tick`, `killBoss`, `resetAll`, `updateTV`, `setAlliance`). JavaScript uses the **last** definition. Earlier definitions are dead code from previous versions that were never removed. When editing these functions, always target the last occurrence in the file.
+`index.html` contains multiple definitions of `tick`, `killBoss`, `resetAll`, `updateTV`, `setAlliance`, and `buildRows`. JavaScript uses the **last** definition; earlier ones are dead code from previous versions. When editing one of these, always target the last occurrence. For shared blocks that exist verbatim in multiple definitions (e.g. the `tvTime`/`tvTGT` stat updates inside both `updateTV`s), `replace_all` is fine and updates them together.
 
 ## Key globals (module-level, no framework)
 
@@ -34,14 +38,15 @@ Open `http://localhost:5173/tests/` in the browser after starting the server. Re
 | `stI` | Stones multiplier index (0–3 → ×1/×2/×3/×4) |
 | `grSz` | Group size (1–4) |
 | `alliance` | Active alliance: `'ep'`, `'dc'`, or `'ad'` |
-| `dcHeld` | `Set` of district indices (0–5) held by the enemy |
+| `dcHeld` | `Set` of district indices (0–5) held by the *enemy*. Name is legacy — it doesn't change when the player picks EP or AD. |
 | `timers[]` | Array of 6 timer objects `{end, running, wasRunning, warnFired, unknown, unknownAt, seenAt}` |
-| `currentTelVar` | Tel Var currently being carried |
+| `currentTelVar` | Tel Var currently being carried. Updated via the `setManualTelvar()` input (which **sets**, not adds — see below). |
 | `bankedTelVar` | Tel Var banked this session |
 | `lostTelVar` | Tel Var lost to ganks |
 | `riskTolerance` | Carrying limit for the risk warning (0 = off) |
-| `telvarTarget` | Session target for the progress bar (0 = off) |
+| `telvarTarget` | Session target. Shown in the progress bar **and** the always-visible "Session Target" stat (`#tvTGT`). |
 | `actionStack[]` | Undo stack — each entry is a full snapshot via `snapshot()` |
+| `wakeLock`, `lastWakeLockState` | Screen Wake Lock — re-acquired in `updateWakeLock()` whenever any timer is running, released when none are |
 
 ## Tel Var formula
 
@@ -55,25 +60,45 @@ perKill = round(1327 × MULT[stI] × (1 + dcHeld.size × 0.33) / grSz)
 
 `ic-alliance`, `ic-dcHeld`, `ic-telvar-target`, `ic-risk-tolerance`, `ic-help-seen`, `esoIcSession`, `esoIcBestStreak`
 
-## Desktop layout (CSS grid)
+## Layout structure
 
-Named grid areas on ≥980px viewports:
+Three top-level blocks under `<body>` (other than the corner chrome buttons and overlays):
 
-```
-"map      actions"
-"telvar   nextup"
-"telvar   districts"
-".        reset"
-```
+1. **`.layout`** — flex row at ≥980px (flex column on mobile).
+   - **`.left-col`** — fixed width, just the map.
+   - **`.right-col`** — flex:1; contains the JS sentinel divs (`display:none`), `.next-up` hero card, `.districts` grid, `.action-strip`, `.reset-all`.
+2. **`.telvar-details`** — full-width section *after* `.layout`. Its `.telvar-panel` body wraps two `.telvar-col` divs in a `1fr 1fr` grid at ≥980px, flex column on mobile. Columns are hand-balanced (DC-toggles live in the right column to even the heights).
+3. **`.footer`** + **`.credits`**.
 
-`telvar` is a `<details>` element (`grid-area: telvar`) that spans rows 2–3 of the left column. **Grid items inside the telvar panel need `min-width: 0`** or they will overflow into the right column.
+There is **no** CSS Grid named-area layout anymore; do not reintroduce `grid-template-areas`.
+
+### `.districts` boss-card grid
+
+`display:grid; grid-template-columns:repeat(2,minmax(0,1fr));` at ≥480px, single column below. Each `.drow` is `display:flex; flex-wrap:wrap;` with its four action buttons wrapped in a `.drow-actions` child whose `width:100%` forces them onto a new visual row inside the card.
+
+## Map SVG footgun
+
+`svg.map text { pointer-events: none; user-select: none; }` is intentional — without it, clicking a district label selects the word instead of toggling the slice underneath. If you touch map CSS, keep this rule.
+
+## OBS overlay mode
+
+`isObsMode()` checks `?obs=1` and adds `body.obs` early in `init()`. A single block of `body.obs ... { display: none !important; }` rules hides everything except `.next-up` and `.districts`, makes the background transparent, and compresses the layout to ~380px. The first-visit help modal is also suppressed in OBS mode.
+
+## PWA
+
+`manifest.json`, `sw.js`, and `icon.svg` make the app installable. The service worker uses `CACHE = 'ic-tracker-vN'` — **bump the version** in `sw.js` when shipping CSS/HTML changes you want users to pick up promptly. Installed-PWA users will otherwise serve from the cached version until they hard-refresh.
+
+## Dead code worth knowing about
+
+- **`.unknown` timer state**: Rendering for purple/UNKNOWN exists and is exercised by tests, but no production code path sets `timers[i].unknown = true`. Don't promise this in user-facing copy.
+- **`body.light *` CSS**: Light mode was removed (no toggle, no `loadTheme/applyTheme/toggleTheme`, no `ic-theme` localStorage). The CSS overrides still live in the stylesheet — harmless because the `body.light` class is never applied. Don't be confused by them; don't bother removing them either unless explicitly asked.
 
 ## Test structure
 
-`tests/tests.js` uses `describe` / `it` / `assert` from `tests/runner.js`. Each suite calls `resetState()` before tests to restore all globals to a clean baseline. `resetState()` must be updated whenever new module-level state variables are added.
+`tests/tests.js` uses `describe` / `it` / `assert` from `tests/runner.js`. Each suite calls `resetState()` first to restore globals to a clean baseline — keep `resetState()` updated whenever new module-level state is added.
 
-Tests run against `js/app.js` with a mock DOM in `tests/index.html`. Hidden `<div>` sentinel elements (matching the IDs in the live app) are required so JS null-checks don't throw.
+Tests run against `js/app.js` with a mock DOM in `tests/index.html`. Hidden `<div>` sentinel elements (matching live-app IDs) are required so JS null-checks don't throw. When adding a new live-app element with an `id` referenced in JS, also add a hidden sentinel for it here.
 
 ## What NOT to add
 
-The app is intentionally a focused second-monitor tool. Avoid adding panels, stats displays, or logging features — the design principle is that timers are the primary content and everything else is secondary or collapsible.
+The app is intentionally a focused second-monitor tool. Avoid adding panels, stats grids, or logging features — timers are the primary content. The Tel Var Estimator was deliberately made permanent (not collapsible) at user request; don't collapse it back. The map text labels are intentionally non-interactive; clicks should always toggle the slice underneath, never select text.
