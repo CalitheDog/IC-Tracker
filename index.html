@@ -39,7 +39,7 @@ body::before{content:'';position:absolute;inset:0;background:radial-gradient(ell
 #muteBtn:hover{background:rgba(255,255,255,0.08);color:#8a7040;}
 #muteBtn.muted{color:#c02020;border-color:rgba(200,40,20,0.35);}
 
-#helpBtn{position:fixed;bottom:92px;right:20px;font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.12em;padding:7px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.2);color:#8a7040;border-radius:5px;cursor:pointer;z-index:100;text-transform:uppercase;transition:all 0.15s;}
+#helpBtn{position:fixed;bottom:56px;right:20px;font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.12em;padding:7px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.2);color:#8a7040;border-radius:5px;cursor:pointer;z-index:100;text-transform:uppercase;transition:all 0.15s;}
 #helpBtn:hover{background:rgba(255,255,255,0.08);color:#c9a84c;}
 
 .help-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
@@ -66,6 +66,7 @@ body::before{content:'';position:absolute;inset:0;background:radial-gradient(ell
 .help-got-it:hover{background:rgba(201,168,76,0.25);color:#e0c878;}
 .help-credit{font-size:0.74rem;color:#7a5a25;text-align:center;margin-top:1.3rem;padding-top:0.9rem;border-top:1px solid rgba(201,168,76,0.15);font-style:italic;}
 .help-credit b{color:#c9a84c;font-style:normal;letter-spacing:0.04em;}
+.help-shortcuts kbd{display:inline-block;font-family:'Cinzel',serif;font-size:0.7rem;font-weight:600;letter-spacing:0.04em;padding:1px 6px;margin:0 1px;border-radius:3px;background:rgba(201,168,76,0.16);border:1px solid rgba(201,168,76,0.45);color:#e0c878;box-shadow:0 1px 0 rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,220,130,0.10);line-height:1.25;}
 
 .header{text-align:center;margin-bottom:0.8rem;}
 .eyebrow{font-size:0.56rem;letter-spacing:0.32em;color:#5a4018;text-transform:uppercase;margin-bottom:0.3rem;}
@@ -245,7 +246,7 @@ body.alliance-ad .dc-pill{background:rgba(100,80,0,0.28);border-color:rgba(200,1
 .reset-all:hover{background:rgba(140,30,12,0.35);color:#c06040;border-color:rgba(200,70,30,0.5);}
 
 .footer{margin-top:1.2rem;font-size:0.64rem;letter-spacing:0.12em;color:#9a7838;text-transform:uppercase;text-align:center;text-shadow:0 0 14px rgba(201,168,76,0.22);}
-.credits{margin-top:0.45rem;font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.16em;color:#6f5524;text-transform:uppercase;text-align:center;text-shadow:0 0 12px rgba(201,168,76,0.18);}
+.credits{margin-top:0.55rem;font-family:'Cinzel',serif;font-size:0.7rem;font-weight:700;letter-spacing:0.18em;color:#c9a84c;text-transform:uppercase;text-align:center;text-shadow:0 0 18px rgba(201,168,76,0.32);}
 body.light{background:#efe5ce;color:#3a2814;}
 body.light::before{background:radial-gradient(ellipse 80% 60% at 50% 20%,rgba(160,110,20,0.13) 0%,transparent 65%);}
 body.light .eyebrow,body.light .panel-hd,body.light .map-hint,body.light .tv-lbl,body.light .tv-sl{color:#6e4a18;}
@@ -675,8 +676,8 @@ svg.map{filter:drop-shadow(0 10px 26px rgba(0,0,0,0.55));}
 .log-row{border-radius:8px;background:rgba(255,255,255,0.025);border-color:rgba(201,168,76,0.10);}
 .log-empty{border-radius:8px;background:rgba(0,0,0,0.14);border:1px dashed rgba(201,168,76,0.14);padding:12px;text-align:center;}
 
-.footer,.credits{color:#8d6b30;text-shadow:0 0 18px rgba(201,168,76,0.10);}
-.credits{border-top:1px solid rgba(201,168,76,0.12);padding-top:7px;}
+.footer{color:#8d6b30;text-shadow:0 0 18px rgba(201,168,76,0.10);}
+.credits{color:#c9a84c;text-shadow:0 0 18px rgba(201,168,76,0.32);border-top:1px solid rgba(201,168,76,0.18);padding-top:7px;}
 
 @media (min-width:980px){
   .layout{max-width:1220px;gap:16px;}
@@ -1153,7 +1154,7 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
   </div>
 </div>
 
-<div id="shortcutHint" class="shortcut-hint">Keys: 1–6 kill · S+1–6 seen · G+1–6 guess · R+1–6 reset</div>
+<div id="shortcutHint" class="shortcut-hint" style="display:none">Keys: 1–6 kill · S+1–6 seen · G+1–6 guess · R+1–6 reset</div>
 <button id="muteBtn" onclick="toggleMute()">🔔 Sound On</button>
 <button id="helpBtn" onclick="openHelp()" title="How to use">? Help</button>
 
@@ -1186,6 +1187,15 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
       <li><b>Guess</b> — find a dead boss? Estimate how many minutes ago it died.</li>
       <li><b>Seen Alive</b> — mark a boss up without claiming the kill.</li>
       <li><b>Risk Limit</b> — set a carrying cap; warns when you're carrying too much.</li>
+    </ul>
+
+    <h3 class="help-sec">Keyboard shortcuts</h3>
+    <ul class="help-list help-list-ul help-shortcuts">
+      <li><kbd>1</kbd>–<kbd>6</kbd> — Killed (district 1–6)</li>
+      <li><kbd>S</kbd> then <kbd>1</kbd>–<kbd>6</kbd> — Seen Alive</li>
+      <li><kbd>G</kbd> then <kbd>1</kbd>–<kbd>6</kbd> — Guess timer</li>
+      <li><kbd>R</kbd> then <kbd>1</kbd>–<kbd>6</kbd> — Reset timer</li>
+      <li><kbd>B</kbd> — Bank · <kbd>X</kbd> — Ganked · <kbd>U</kbd> — Undo</li>
     </ul>
 
     <div class="help-credit">Built by <b>JNVGaming</b> (PSN) — send hate mail and gold.</div>
