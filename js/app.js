@@ -825,7 +825,9 @@ function seenAlive(i){
 }
 
 function guessTimer(i) {
-  const minutesAgo = Number(prompt("How many minutes ago do you think it died? Enter 1-14."));
+  const response = prompt("How many minutes ago do you think it died? Enter 1-14.");
+  if (response === null) return;
+  const minutesAgo = Number(response);
   if (Number.isNaN(minutesAgo) || minutesAgo < 1 || minutesAgo > 14) {
     showNotice("Invalid guess. Enter a number from 1 to 14.");
     return;

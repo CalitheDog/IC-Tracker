@@ -1147,7 +1147,6 @@ body.light .tv-adj-input::placeholder{color:#a08040;}
       <li><span class="hd hd-respawn"></span> Gold countdown — respawning</li>
       <li><span class="hd hd-amber"></span> Amber pulse — under 1 minute</li>
       <li><span class="hd hd-red"></span> Red pulse — under 15 seconds</li>
-      <li><span class="hd hd-unknown"></span> Purple / UNKNOWN — estimated from Guess</li>
     </ul>
 
     <h3 class="help-sec">Tips</h3>
@@ -2185,7 +2184,9 @@ function seenAlive(i){
 }
 
 function guessTimer(i) {
-  const minutesAgo = Number(prompt("How many minutes ago do you think it died? Enter 1-14."));
+  const response = prompt("How many minutes ago do you think it died? Enter 1-14.");
+  if (response === null) return;
+  const minutesAgo = Number(response);
   if (Number.isNaN(minutesAgo) || minutesAgo < 1 || minutesAgo > 14) {
     toast("Invalid guess. Enter a number from 1 to 14.", "error");
     return;
@@ -2430,6 +2431,13 @@ function setShortcutPrefix(prefix) {
 function handleTrackerShortcut(event) {
   const tag = (event.target && event.target.tagName || "").toLowerCase();
   if (tag === "input" || tag === "textarea" || tag === "select" || event.target?.isContentEditable) {
+    return;
+  }
+  if (event.ctrlKey || event.metaKey || event.altKey) {
+    return;
+  }
+  const helpOverlay = document.getElementById('helpOverlay');
+  if (helpOverlay && helpOverlay.style.display === 'flex') {
     return;
   }
 
