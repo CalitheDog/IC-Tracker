@@ -458,9 +458,10 @@ body.light .ddot.unknown{background:#715bd2;box-shadow:none;}
     display:grid;
     grid-template-columns:380px minmax(0,1fr);
     grid-template-areas:
-      "map      nextup"
+      "map      districts"
       "telvar   districts"
       "telvar   actions"
+      ".        nextup"
       ".        reset";
     align-items:start;
     gap:14px;
@@ -1343,15 +1344,6 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
   <div id="nextTargetReason" style="display:none"></div>
   <button id="killNextBtn" style="display:none"></button>
 
-  <!-- NEXT RESPAWN HERO -->
-  <div class="next-up" id="nextUp">
-    <div class="next-up-label">Next Respawn</div>
-    <div class="next-up-body">
-      <div class="next-up-name" id="nextUpName">—</div>
-      <div class="next-up-timer" id="nextUpCountdown">—</div>
-    </div>
-  </div>
-
   <div class="districts" id="districts"></div>
 
   <!-- QUICK ACTIONS -->
@@ -1360,6 +1352,15 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
     <button class="qs-btn gank" onclick="gankedTelVar()">☠ Ganked</button>
     <button class="qs-btn undo" id="undoBtn" onclick="undoLastAction()">↶ Undo</button>
     <button class="qs-btn sort" id="sortBtn" onclick="toggleSortByRespawn()">⇅ Sort</button>
+  </div>
+
+  <!-- NEXT RESPAWN HERO -->
+  <div class="next-up" id="nextUp">
+    <div class="next-up-label">Next Respawn</div>
+    <div class="next-up-body">
+      <div class="next-up-name" id="nextUpName">—</div>
+      <div class="next-up-timer" id="nextUpCountdown">—</div>
+    </div>
   </div>
 
   <button class="reset-all" onclick="resetAll()">↺ Reset All Timers</button>
