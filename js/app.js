@@ -176,7 +176,7 @@ function drawSkull(g,sk,idx){
   grp.addEventListener('mouseenter',(ev)=>showSkullTooltip(ev,sk));
   grp.addEventListener('mousemove',(ev)=>moveSkullTooltip(ev));
   grp.addEventListener('mouseleave',hideSkullTooltip);
-  grp.addEventListener('click',()=>openBossModal(sk.di,typeof sk.bi==='number'?sk.bi:0));
+  grp.addEventListener('click',()=>openBossModal(sk.di,typeof sk.bi==='number'?sk.bi:null));
   const h=ns('circle');h.setAttribute('cy',`${-sz*0.15}`);h.setAttribute('r',`${sz*0.4}`);h.setAttribute('fill',col);grp.appendChild(h);
   [-1,1].forEach(s=>{const e=ns('circle');e.setAttribute('cx',`${s*sz*0.13}`);e.setAttribute('cy',`${-sz*0.21}`);e.setAttribute('r',`${sz*0.09}`);e.setAttribute('fill','rgba(0,0,0,0.78)');grp.appendChild(e);});
   const n=ns('polygon');n.setAttribute('points',`0,${-sz*0.06} ${-sz*0.055},${sz*0.04} ${sz*0.055},${sz*0.04}`);n.setAttribute('fill','rgba(0,0,0,0.62)');grp.appendChild(n);
@@ -268,16 +268,23 @@ function districtStatusHtml(i){
 }
 
 function openBossModal(di,bi){
-  const boss=DISTRICTS[di].bosses[bi],district=DISTRICTS[di].name,img=BOSS_IMAGES[boss];
-  const modal=document.getElementById('bossModal'),imgEl=document.getElementById('bossModalImg'),miss=document.getElementById('bossModalMissing');
-  document.getElementById('bossModalDistrict').textContent=`${district} District`;
-  document.getElementById('bossModalTitle').textContent=boss;
-  document.getElementById('bossModalMeta').innerHTML=`Status: ${districtStatusHtml(di)}<br>Estimated Tel Var if killed now: <span class="alive">${perKill().toLocaleString()}</span><br>${dcHeld.has(di)?'DC bonus active for this district.':'No DC bonus on this district.'}`;
-  if(img){
-    imgEl.src=img;imgEl.alt=boss;imgEl.style.display='block';miss.style.display='none';
-  }else{
-    imgEl.removeAttribute('src');imgEl.alt='';imgEl.style.display='none';miss.style.display='flex';
+  const district=DISTRICTS[di];
+  const bossNames=(typeof bi==='number')?[district.bosses[bi]]:district.bosses;
+  const modal=document.getElementById('bossModal');
+  const imagesEl=document.getElementById('bossModalImages');
+  if(imagesEl){
+    imagesEl.innerHTML=bossNames.map(name=>{
+      const img=BOSS_IMAGES[name];
+      const visual=img
+        ? `<img class="boss-modal-image" src="${img}" alt="${name}">`
+        : `<div class="boss-modal-image boss-placeholder">?</div>`;
+      return `<div class="boss-modal-image-slot"><div class="boss-modal-image-wrap">${visual}</div><div class="boss-modal-image-name">${name}</div></div>`;
+    }).join('');
+    imagesEl.dataset.count=bossNames.length;
   }
+  document.getElementById('bossModalDistrict').textContent=`${district.name} District`;
+  document.getElementById('bossModalTitle').textContent=bossNames.length>1?bossNames.join(' & '):bossNames[0];
+  document.getElementById('bossModalMeta').innerHTML=`Status: ${districtStatusHtml(di)}<br>Estimated Tel Var if killed now: <span class="alive">${perKill().toLocaleString()}</span><br>${dcHeld.has(di)?'Alliance bonus active for this district.':'No alliance bonus on this district.'}`;
   document.getElementById('bossModalKillBtn').onclick=()=>{killBoss(di);closeBossModal();};
   modal.classList.add('show');
 }

@@ -302,8 +302,15 @@ body.light .reset-all{background:rgba(160,80,40,0.12);color:#744020;}
 .boss-modal.show{display:flex;}
 .boss-modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.78);backdrop-filter:blur(3px);}
 .boss-modal-card{position:relative;width:min(520px,94vw);overflow:hidden;border-radius:14px;background:#0b0905;border:1px solid rgba(201,168,76,0.28);box-shadow:0 18px 70px rgba(0,0,0,0.88);}
-.boss-modal-img{display:block;width:100%;max-height:390px;object-fit:cover;object-position:center;background:#050403;border-bottom:1px solid rgba(201,168,76,0.18);}
-.boss-modal-missing{display:none;min-height:220px;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);color:#6a5020;font-family:'Cinzel',serif;letter-spacing:0.12em;text-transform:uppercase;border-bottom:1px solid rgba(201,168,76,0.12);}
+.boss-modal-images{display:flex;background:#050403;border-bottom:1px solid rgba(201,168,76,0.18);}
+.boss-modal-image-slot{flex:1 1 0;min-width:0;display:flex;flex-direction:column;border-right:1px solid rgba(201,168,76,0.18);}
+.boss-modal-image-slot:last-child{border-right:none;}
+.boss-modal-image-wrap{width:100%;aspect-ratio:1/1;background:#050403;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.boss-modal-images[data-count="1"] .boss-modal-image-wrap{aspect-ratio:auto;max-height:380px;}
+.boss-modal-image{width:100%;height:100%;object-fit:cover;object-position:center;}
+.boss-modal-image.boss-placeholder{font-family:'Cinzel',serif;font-size:1.6rem;color:#6a5020;background:rgba(0,0,0,0.35);}
+.boss-modal-image-name{padding:7px 10px;text-align:center;font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:#d4b060;background:rgba(0,0,0,0.45);border-top:1px solid rgba(201,168,76,0.14);}
+.boss-modal-images[data-count="1"] .boss-modal-image-name{display:none;}
 .boss-modal-body{padding:16px 18px 18px;}
 .boss-modal-kicker{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.18em;color:#6a501f;text-transform:uppercase;margin-bottom:6px;}
 .boss-modal-title{font-family:'Cinzel',serif;font-size:1.2rem;letter-spacing:0.06em;color:#d4b060;text-transform:uppercase;margin-bottom:8px;}
@@ -1140,8 +1147,7 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
   <div class="boss-modal-backdrop"></div>
   <div class="boss-modal-card" onclick="event.stopPropagation()">
     <button class="boss-modal-close" onclick="closeBossModal()">×</button>
-    <img id="bossModalImg" class="boss-modal-img" alt="">
-    <div id="bossModalMissing" class="boss-modal-missing">No image uploaded yet</div>
+    <div id="bossModalImages" class="boss-modal-images"></div>
     <div class="boss-modal-body">
       <div class="boss-modal-kicker" id="bossModalDistrict"></div>
       <div class="boss-modal-title" id="bossModalTitle"></div>
@@ -1569,7 +1575,7 @@ function drawSkull(g,sk,idx){
   grp.addEventListener('mouseenter',(ev)=>showSkullTooltip(ev,sk));
   grp.addEventListener('mousemove',(ev)=>moveSkullTooltip(ev));
   grp.addEventListener('mouseleave',hideSkullTooltip);
-  grp.addEventListener('click',()=>openBossModal(sk.di,typeof sk.bi==='number'?sk.bi:0));
+  grp.addEventListener('click',()=>openBossModal(sk.di,typeof sk.bi==='number'?sk.bi:null));
   const h=ns('circle');h.setAttribute('cy',`${-sz*0.15}`);h.setAttribute('r',`${sz*0.4}`);h.setAttribute('fill',col);grp.appendChild(h);
   [-1,1].forEach(s=>{const e=ns('circle');e.setAttribute('cx',`${s*sz*0.13}`);e.setAttribute('cy',`${-sz*0.21}`);e.setAttribute('r',`${sz*0.09}`);e.setAttribute('fill','rgba(0,0,0,0.78)');grp.appendChild(e);});
   const n=ns('polygon');n.setAttribute('points',`0,${-sz*0.06} ${-sz*0.055},${sz*0.04} ${sz*0.055},${sz*0.04}`);n.setAttribute('fill','rgba(0,0,0,0.62)');grp.appendChild(n);
@@ -1661,16 +1667,21 @@ function districtStatusHtml(i){
 }
 
 function openBossModal(di,bi){
-  const boss=DISTRICTS[di].bosses[bi],district=DISTRICTS[di].name,img=BOSS_IMAGES[boss];
-  const modal=document.getElementById('bossModal'),imgEl=document.getElementById('bossModalImg'),miss=document.getElementById('bossModalMissing');
-  document.getElementById('bossModalDistrict').textContent=`${district} District`;
-  document.getElementById('bossModalTitle').textContent=boss;
-  document.getElementById('bossModalMeta').innerHTML=`Status: ${districtStatusHtml(di)}<br>Estimated Tel Var if killed now: <span class="alive">${perKill().toLocaleString()}</span><br>${dcHeld.has(di)?'DC bonus active for this district.':'No DC bonus on this district.'}`;
-  if(img){
-    imgEl.src=img;imgEl.alt=boss;imgEl.style.display='block';miss.style.display='none';
-  }else{
-    imgEl.removeAttribute('src');imgEl.alt='';imgEl.style.display='none';miss.style.display='flex';
-  }
+  const district=DISTRICTS[di];
+  const bossNames=(typeof bi==='number')?[district.bosses[bi]]:district.bosses;
+  const modal=document.getElementById('bossModal');
+  const imagesEl=document.getElementById('bossModalImages');
+  imagesEl.innerHTML=bossNames.map(name=>{
+    const img=BOSS_IMAGES[name];
+    const visual=img
+      ? `<img class="boss-modal-image" src="${img}" alt="${name}">`
+      : `<div class="boss-modal-image boss-placeholder">?</div>`;
+    return `<div class="boss-modal-image-slot"><div class="boss-modal-image-wrap">${visual}</div><div class="boss-modal-image-name">${name}</div></div>`;
+  }).join('');
+  imagesEl.dataset.count=bossNames.length;
+  document.getElementById('bossModalDistrict').textContent=`${district.name} District`;
+  document.getElementById('bossModalTitle').textContent=bossNames.length>1?bossNames.join(' & '):bossNames[0];
+  document.getElementById('bossModalMeta').innerHTML=`Status: ${districtStatusHtml(di)}<br>Estimated Tel Var if killed now: <span class="alive">${perKill().toLocaleString()}</span><br>${dcHeld.has(di)?'Alliance bonus active for this district.':'No alliance bonus on this district.'}`;
   document.getElementById('bossModalKillBtn').onclick=()=>{killBoss(di);closeBossModal();};
   modal.classList.add('show');
 }
