@@ -368,19 +368,22 @@ body.light .qs-btn.gank{background:rgba(220,40,20,0.16);border-color:rgba(180,30
 body.light .qs-btn.undo{background:rgba(90,70,180,0.14);border-color:rgba(90,70,180,0.34);color:#513c9c;}
 
 /* NEXT RESPAWN HERO */
-.next-up{background:linear-gradient(180deg,rgba(28,20,9,0.86),rgba(9,7,4,0.80));border:1px solid rgba(201,168,76,0.28);border-radius:12px;padding:18px 22px 22px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;box-shadow:0 14px 44px rgba(0,0,0,0.34),inset 0 1px 0 rgba(255,220,130,0.10);position:relative;overflow:hidden;}
+.next-up{background:linear-gradient(180deg,rgba(28,20,9,0.86),rgba(9,7,4,0.80));border:1px solid rgba(201,168,76,0.28);border-radius:12px;padding:12px 22px 14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;box-shadow:0 14px 44px rgba(0,0,0,0.34),inset 0 1px 0 rgba(255,220,130,0.10);position:relative;overflow:hidden;}
 .next-up::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 0%,rgba(201,168,76,0.10) 0%,transparent 70%);pointer-events:none;}
-.next-up-label{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.32em;text-transform:uppercase;color:#7a5a25;white-space:nowrap;position:relative;}
-.next-up-body{display:flex;flex-direction:column;align-items:center;gap:4px;position:relative;}
-.next-up-name{font-family:'Cinzel',serif;font-size:1.08rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#c9a84c;}
-.next-up-timer{font-family:'Cinzel',serif;font-size:2.4rem;font-weight:700;letter-spacing:0.04em;color:#ffd060;font-variant-numeric:tabular-nums;text-shadow:0 0 40px rgba(201,168,76,0.38);line-height:1.05;}
+.next-up-label{font-family:'Cinzel',serif;font-size:0.56rem;letter-spacing:0.32em;text-transform:uppercase;color:#7a5a25;white-space:nowrap;position:relative;}
+.next-up-body{display:flex;flex-direction:column;align-items:center;gap:2px;position:relative;}
+.next-up-name{font-family:'Cinzel',serif;font-size:0.95rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#c9a84c;}
+.next-up-timer{font-family:'Cinzel',serif;font-size:1.9rem;font-weight:700;letter-spacing:0.04em;color:#ffd060;font-variant-numeric:tabular-nums;text-shadow:0 0 40px rgba(201,168,76,0.38);line-height:1.05;}
 .next-up-timer.alive{color:#5cc870;text-shadow:0 0 36px rgba(76,200,100,0.42);}
 body.light .next-up{background:linear-gradient(180deg,rgba(255,250,238,0.88),rgba(230,214,178,0.72));border-color:rgba(122,86,24,0.20);}
 body.light .next-up-name{color:#704c12;}
 body.light .next-up-timer{color:#704c12;text-shadow:none;}
 
 /* TELVAR DETAILS WRAPPER */
-.telvar-details{width:100%;}
+.telvar-details{width:100%;max-width:1180px;margin:14px auto 0;padding:0 14px;}
+.telvar-cols{display:flex;flex-direction:column;gap:10px;}
+@media (min-width:980px){.telvar-cols{display:grid;grid-template-columns:1fr 1fr;column-gap:18px;align-items:start;}}
+.telvar-col{display:flex;flex-direction:column;gap:10px;min-width:0;}
 
 /* COMMAND CENTER ADDITIONS */
 .command-grid{display:grid;grid-template-columns:1.1fr 0.9fr;gap:12px;}
@@ -675,16 +678,15 @@ svg.map{filter:drop-shadow(0 10px 26px rgba(0,0,0,0.55));}
 .credits{border-top:1px solid rgba(201,168,76,0.12);padding-top:7px;}
 
 @media (min-width:980px){
-  .layout{max-width:1220px;grid-template-columns:405px minmax(0,1fr);gap:16px;}
-  .map-wrap,svg.map{width:382px;height:382px;}
-  .panel{padding:16px 18px;}
+  .layout{max-width:1220px;gap:16px;}
+  .map-wrap,svg.map{width:340px;height:340px;}
+  .panel{padding:14px 16px;}
   .tv-stats{grid-template-columns:repeat(4,minmax(0,1fr));}
   .districts{gap:10px;}
 }
 
 @media (min-width:1180px){
-  .layout{grid-template-columns:420px minmax(0,1fr);}
-  .map-wrap,svg.map{width:392px;height:392px;}
+  .map-wrap,svg.map{width:350px;height:350px;}
 }
 
 body.light{
@@ -1235,94 +1237,6 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
       </svg>
     </div>
   </div>
-
-  <!-- TEL VAR — always visible -->
-  <div class="telvar-details" id="telvarDetails">
-  <div class="panel telvar-panel">
-    <div class="panel-hd">🪙 Tel Var Estimator</div>
-    <div class="tv-lbl" style="margin-bottom:8px">Quick presets</div>
-    <div class="preset-grid">
-      <button class="preset-btn chud" id="presetChud" onclick="applyPreset('chud')">🛡 Chud Mode<br><span style="font-size:0.5rem;letter-spacing:0.08em">×2 · Solo</span></button>
-      <button class="preset-btn chad" id="presetChad" onclick="applyPreset('chad')">⚔ Chad Mode<br><span style="font-size:0.5rem;letter-spacing:0.08em">×4 · Group 2</span></button>
-      <button class="preset-btn streakah" id="presetStreakah" onclick="applyPreset('streakah')">🕯 The Streakah<br><span style="font-size:0.5rem;letter-spacing:0.08em">×4 · Solo · No Flags</span></button>
-    </div>
-    <div class="preset-note" id="presetNote">The Streakah does not capture flags. District captures are locked off.</div>
-    <div class="tv-lbl" style="margin-bottom:8px">Your alliance</div>
-    <div class="alliance-grid" id="allianceEl">
-      <button class="alliance-btn ep" data-al="ep" onclick="setAlliance('ep')">Ebonheart Pact</button>
-      <button class="alliance-btn dc" data-al="dc" onclick="setAlliance('dc')">Daggerfall Covenant</button>
-      <button class="alliance-btn ald" data-al="ad" onclick="setAlliance('ad')">Aldmeri Dominion</button>
-    </div>
-    <div class="tv-grid">
-      <div class="tv-row">
-        <div class="tv-lbl">Stones carrying (multiplier)</div>
-        <div class="segs" id="stonesEl">
-          <button class="seg sel" onclick="setSt(0)">0–99 &nbsp;×1</button>
-          <button class="seg" onclick="setSt(1)">100+ &nbsp;×2</button>
-          <button class="seg" onclick="setSt(2)">1k+ &nbsp;×3</button>
-          <button class="seg" onclick="setSt(3)">10k+ &nbsp;×4</button>
-        </div>
-      </div>
-      <div class="tv-row">
-        <div class="tv-lbl">Group size</div>
-        <div class="segs" id="groupEl">
-          <button class="seg sel" onclick="setGr(1)">Solo</button>
-          <button class="seg" onclick="setGr(2)">2</button>
-          <button class="seg" onclick="setGr(3)">3</button>
-          <button class="seg" onclick="setGr(4)">4</button>
-        </div>
-      </div>
-    </div>
-    <hr class="panel-sep">
-    <div class="tv-lbl" style="margin-bottom:8px" id="dcLabel">DC-held districts (tap to toggle)</div>
-    <div class="dc-grid" id="dcToggles"></div>
-    <details class="formula-details">
-      <summary class="formula-summary">Per-kill formula</summary>
-      <div class="formula" id="formula"></div>
-    </details>
-    <div class="tv-stats">
-      <div class="tv-stat"><div class="tv-sv" id="tvK">0</div><div class="tv-sl">Boss Kills</div></div>
-      <div class="tv-stat"><div class="tv-sv gold" id="tvT">0</div><div class="tv-sl">Tel Var Est.</div></div>
-      <div class="tv-stat"><div class="tv-sv gold" id="tvB">0</div><div class="tv-sl">Session Banked</div></div>
-      <div class="tv-stat"><div class="tv-sv lost" id="tvL">0</div><div class="tv-sl">Tel Var Lost</div></div>
-      <div class="tv-stat"><div class="tv-sv" id="tvH">—</div><div class="tv-sl">Per Hour</div></div>
-      <div class="tv-stat"><div class="tv-sv" id="tvPK">—</div><div class="tv-sl">Per Kill</div></div>
-      <div class="tv-stat"><div class="tv-sv" id="tvTime">00:00:00</div><div class="tv-sl">Farm Time</div></div>
-    </div>
-    <div class="tv-target-wrap" id="tvTargetWrap" style="display:none">
-      <div class="tv-target-bar-label"><span id="tvTargetText">0 / 0</span><span id="tvTargetPct">0%</span></div>
-      <div class="tv-target-bar"><div class="tv-target-fill" id="tvTargetFill" style="width:0%"></div></div>
-    </div>
-    <div class="tv-actions">
-      <button class="tv-action start" id="farmStartBtn" onclick="startFarm()">▶ Start Farming</button>
-      <button class="tv-action end" id="farmEndBtn" onclick="endFarm()" disabled>■ End Farming</button>
-    </div>
-    <div class="risk-warn" id="riskWarn">⚠ Bank Now — Carrying over your risk limit</div>
-    <div class="tv-adj-group">
-      <div class="tv-adj-item">
-        <span class="tv-adj-item-label">Add Tel Var</span>
-        <div class="tv-adj-line">
-          <input type="number" class="tv-adj-input" id="tvAdjustInput" placeholder="Amount" min="1" step="100" onkeydown="if(event.key==='Enter')addManualTelvar()">
-          <button class="tv-adj-btn add" onclick="addManualTelvar()">+Add</button>
-        </div>
-      </div>
-      <div class="tv-adj-item">
-        <span class="tv-adj-item-label">Session Target</span>
-        <div class="tv-adj-line">
-          <input type="number" class="tv-adj-input" id="tvTargetInput" placeholder="Target" min="1" step="1000" onkeydown="if(event.key==='Enter')setTelvarTarget()">
-          <button class="tv-adj-btn tgt" onclick="setTelvarTarget()">Set</button>
-        </div>
-      </div>
-      <div class="tv-adj-item">
-        <span class="tv-adj-item-label">Risk Limit</span>
-        <div class="tv-adj-line">
-          <input type="number" class="tv-adj-input" id="tvRiskInput" placeholder="Limit" min="1" step="1000" onkeydown="if(event.key==='Enter')setRiskTolerance()">
-          <button class="tv-adj-btn tgt" onclick="setRiskTolerance()">Set</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  </div>
   </div><!-- /.left-col -->
 
   <div class="right-col">
@@ -1362,6 +1276,100 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
 
   </div><!-- /.right-col -->
 </div>
+
+<!-- TEL VAR — always visible, full-width below layout, internal 2 columns -->
+<div class="telvar-details" id="telvarDetails">
+<div class="panel telvar-panel">
+  <div class="panel-hd">🪙 Tel Var Estimator</div>
+  <div class="telvar-cols">
+    <div class="telvar-col">
+      <div class="tv-lbl" style="margin-bottom:8px">Quick presets</div>
+      <div class="preset-grid">
+        <button class="preset-btn chud" id="presetChud" onclick="applyPreset('chud')">🛡 Chud Mode<br><span style="font-size:0.5rem;letter-spacing:0.08em">×2 · Solo</span></button>
+        <button class="preset-btn chad" id="presetChad" onclick="applyPreset('chad')">⚔ Chad Mode<br><span style="font-size:0.5rem;letter-spacing:0.08em">×4 · Group 2</span></button>
+        <button class="preset-btn streakah" id="presetStreakah" onclick="applyPreset('streakah')">🕯 The Streakah<br><span style="font-size:0.5rem;letter-spacing:0.08em">×4 · Solo · No Flags</span></button>
+      </div>
+      <div class="preset-note" id="presetNote">The Streakah does not capture flags. District captures are locked off.</div>
+      <div class="tv-lbl" style="margin-bottom:8px">Your alliance</div>
+      <div class="alliance-grid" id="allianceEl">
+        <button class="alliance-btn ep" data-al="ep" onclick="setAlliance('ep')">Ebonheart Pact</button>
+        <button class="alliance-btn dc" data-al="dc" onclick="setAlliance('dc')">Daggerfall Covenant</button>
+        <button class="alliance-btn ald" data-al="ad" onclick="setAlliance('ad')">Aldmeri Dominion</button>
+      </div>
+      <div class="tv-grid">
+        <div class="tv-row">
+          <div class="tv-lbl">Stones carrying (multiplier)</div>
+          <div class="segs" id="stonesEl">
+            <button class="seg sel" onclick="setSt(0)">0–99 &nbsp;×1</button>
+            <button class="seg" onclick="setSt(1)">100+ &nbsp;×2</button>
+            <button class="seg" onclick="setSt(2)">1k+ &nbsp;×3</button>
+            <button class="seg" onclick="setSt(3)">10k+ &nbsp;×4</button>
+          </div>
+        </div>
+        <div class="tv-row">
+          <div class="tv-lbl">Group size</div>
+          <div class="segs" id="groupEl">
+            <button class="seg sel" onclick="setGr(1)">Solo</button>
+            <button class="seg" onclick="setGr(2)">2</button>
+            <button class="seg" onclick="setGr(3)">3</button>
+            <button class="seg" onclick="setGr(4)">4</button>
+          </div>
+        </div>
+      </div>
+      <details class="formula-details">
+        <summary class="formula-summary">Per-kill formula</summary>
+        <div class="formula" id="formula"></div>
+      </details>
+    </div>
+    <div class="telvar-col">
+      <div class="tv-lbl" style="margin-bottom:8px" id="dcLabel">DC-held districts (tap to toggle)</div>
+      <div class="dc-grid" id="dcToggles"></div>
+      <div class="tv-stats">
+        <div class="tv-stat"><div class="tv-sv" id="tvK">0</div><div class="tv-sl">Boss Kills</div></div>
+        <div class="tv-stat"><div class="tv-sv gold" id="tvT">0</div><div class="tv-sl">Tel Var Est.</div></div>
+        <div class="tv-stat"><div class="tv-sv gold" id="tvB">0</div><div class="tv-sl">Session Banked</div></div>
+        <div class="tv-stat"><div class="tv-sv lost" id="tvL">0</div><div class="tv-sl">Tel Var Lost</div></div>
+        <div class="tv-stat"><div class="tv-sv" id="tvH">—</div><div class="tv-sl">Per Hour</div></div>
+        <div class="tv-stat"><div class="tv-sv" id="tvPK">—</div><div class="tv-sl">Per Kill</div></div>
+        <div class="tv-stat"><div class="tv-sv" id="tvTime">00:00:00</div><div class="tv-sl">Farm Time</div></div>
+      </div>
+      <div class="tv-target-wrap" id="tvTargetWrap" style="display:none">
+        <div class="tv-target-bar-label"><span id="tvTargetText">0 / 0</span><span id="tvTargetPct">0%</span></div>
+        <div class="tv-target-bar"><div class="tv-target-fill" id="tvTargetFill" style="width:0%"></div></div>
+      </div>
+      <div class="tv-actions">
+        <button class="tv-action start" id="farmStartBtn" onclick="startFarm()">▶ Start Farming</button>
+        <button class="tv-action end" id="farmEndBtn" onclick="endFarm()" disabled>■ End Farming</button>
+      </div>
+      <div class="risk-warn" id="riskWarn">⚠ Bank Now — Carrying over your risk limit</div>
+      <div class="tv-adj-group">
+        <div class="tv-adj-item">
+          <span class="tv-adj-item-label">Add Tel Var</span>
+          <div class="tv-adj-line">
+            <input type="number" class="tv-adj-input" id="tvAdjustInput" placeholder="Amount" min="1" step="100" onkeydown="if(event.key==='Enter')addManualTelvar()">
+            <button class="tv-adj-btn add" onclick="addManualTelvar()">+Add</button>
+          </div>
+        </div>
+        <div class="tv-adj-item">
+          <span class="tv-adj-item-label">Session Target</span>
+          <div class="tv-adj-line">
+            <input type="number" class="tv-adj-input" id="tvTargetInput" placeholder="Target" min="1" step="1000" onkeydown="if(event.key==='Enter')setTelvarTarget()">
+            <button class="tv-adj-btn tgt" onclick="setTelvarTarget()">Set</button>
+          </div>
+        </div>
+        <div class="tv-adj-item">
+          <span class="tv-adj-item-label">Risk Limit</span>
+          <div class="tv-adj-line">
+            <input type="number" class="tv-adj-input" id="tvRiskInput" placeholder="Limit" min="1" step="1000" onkeydown="if(event.key==='Enter')setRiskTolerance()">
+            <button class="tv-adj-btn tgt" onclick="setRiskTolerance()">Set</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
 <div class="footer">15 min respawn · 1-min warning</div>
 <div class="credits">Built by JNVGaming (PSN) — send hate mail and gold</div>
 
