@@ -27,10 +27,6 @@ When you edit `tests/tests.js`, `js/app.js`, or `tests/runner.js`, **bump the `?
 
 **The two files must be kept in sync manually.** When adding or changing a function, update both. The two files have drifted in places (some functions in `js/app.js` reference state shapes that don't exist live, e.g. `state.timers[i]`); only edit the parts of `js/app.js` that the tests actually call, and prefer mirroring the live `index.html` implementation.
 
-## Duplicate function definitions in index.html
-
-`index.html` contains multiple definitions of `tick`, `killBoss`, `resetAll`, `updateTV`, `setAlliance`, and `buildRows`. JavaScript uses the **last** definition; earlier ones are dead code from previous versions. When editing one of these, always target the last occurrence. For shared blocks that exist verbatim in multiple definitions (e.g. the `tvTime`/`tvTGT` stat updates inside both `updateTV`s), `replace_all` is fine and updates them together.
-
 ## Key globals (module-level, no framework)
 
 | Variable | Purpose |
@@ -90,7 +86,7 @@ There is **no** CSS Grid named-area layout anymore; do not reintroduce `grid-tem
 ## Dead code worth knowing about
 
 - **`.unknown` timer state**: Rendering for purple/UNKNOWN exists and is exercised by tests, but no production code path sets `timers[i].unknown = true`. Don't promise this in user-facing copy.
-- **`body.light *` CSS**: Light mode was removed (no toggle, no `loadTheme/applyTheme/toggleTheme`, no `ic-theme` localStorage). The CSS overrides still live in the stylesheet — harmless because the `body.light` class is never applied. Don't be confused by them; don't bother removing them either unless explicitly asked.
+- **`#netSessionTv` / `#grossSessionTv` / `#effSessionTv` / `#sessionLog` / `#districtStatusSummary` / `#nextTargetTitle` / `#nextTargetReason` / `#killNextBtn` / `#projectedNote` / `#copyPill`**: hidden sentinel divs in `.right-col` only exist so legacy `updateCommandCenter()`-style code paths don't throw on `getElementById(...).textContent`. The functions writing to them are never rendered. If you remove either the elements or the functions, remove both together.
 
 ## Test structure
 
