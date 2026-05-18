@@ -590,6 +590,7 @@ function updateTV(){
     }
   }
   updateCommandCenter();
+  if(typeof updateNextUp==='function')updateNextUp();
 }
 
 function setSt(i,skipUndo=false){
@@ -854,7 +855,7 @@ function seenAlive(i){
     logEvent(`Scout check: ${DISTRICTS[i].name} (${bossNamesForDistrict(i)}) seen alive.`);
     toast(`${DISTRICTS[i].name} seen alive`,'success');
   }
-  updateTV();
+  if(typeof tick==='function')tick(); else updateTV();
 }
 
 function guessTimer(i) {
@@ -890,7 +891,7 @@ function setTimerGuess(i,minsAgo){
     timers[i].end=Date.now()+(RESPAWN-elapsed)*1000;timers[i].running=true;timers[i].wasRunning=true;
     logEvent(`Timer guess: ${DISTRICTS[i].name} died about ${minsAgo} min ago. Estimated respawn in ${fmt(RESPAWN-elapsed)}.`);
   }
-  updateTV();
+  if(typeof tick==='function')tick(); else updateTV();
 }
 
 function killBoss(i){
@@ -901,7 +902,7 @@ function killBoss(i){
   bumpStreak();
   logEvent(`Killed ${DISTRICTS[i].name} boss (${bossNamesForDistrict(i)}) — +${gain.toLocaleString()} Tel Var.`);
   saveSession();
-  updateTV();
+  if(typeof tick==='function')tick(); else updateTV();
 }
 
 function rstBoss(i){
@@ -909,14 +910,14 @@ function rstBoss(i){
   timers[i].end=null;timers[i].running=false;timers[i].wasRunning=false;timers[i].warnFired=false;timers[i].unknown=false;timers[i].unknownAt=null;timers[i].seenAt=null;
   logEvent(`Reset ${DISTRICTS[i].name} timer.`);
   saveSession();
-  updateTV();
+  if(typeof tick==='function')tick(); else updateTV();
 }
 
 function resetAll(){
   pushUndo('Reset all timers');
   DISTRICTS.forEach((_,i)=>{timers[i].end=null;timers[i].running=false;timers[i].wasRunning=false;timers[i].warnFired=false;timers[i].unknown=false;timers[i].unknownAt=null;timers[i].seenAt=null;});
   logEvent('Reset all boss timers.');
-  updateTV();
+  if(typeof tick==='function')tick(); else updateTV();
 }
 
 function getNextTarget(){

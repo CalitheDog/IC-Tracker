@@ -1017,13 +1017,21 @@ body.obs #presetNote,
 body.obs .restore-bar,
 body.obs .streak-badge,
 body.obs #flashOverlay,
-body.obs #alertBanner{display:none!important;}
+body.obs #alertBanner,
+body.obs .footer,
+body.obs .credits{display:none!important;}
 body.obs .layout{max-width:380px!important;padding:0!important;display:flex!important;flex-direction:column!important;gap:8px!important;grid-template-areas:none!important;}
 body.obs .panel,body.obs .drow,body.obs .next-up{background:rgba(8,5,2,0.78)!important;border-color:rgba(201,168,76,0.55)!important;}
-body.obs .next-up{padding:10px 14px!important;}
-body.obs .next-up-label{font-size:0.55rem!important;letter-spacing:0.3em!important;}
-body.obs .next-up-name{font-size:1rem!important;}
-body.obs .next-up-timer{font-size:1.4rem!important;}
+body.obs .next-up{padding:9px 12px!important;}
+body.obs .next-up-label{font-size:0.55rem!important;letter-spacing:0.3em!important;margin-bottom:6px!important;}
+body.obs .next-up-content{gap:9px!important;}
+body.obs .next-up-portrait{width:54px!important;height:54px!important;}
+body.obs .next-up-portrait .corner{width:7px!important;height:7px!important;}
+body.obs .next-up-name{font-size:0.95rem!important;letter-spacing:0.1em!important;}
+body.obs .next-up-bosses{font-size:0.62rem!important;}
+body.obs .next-up-timer{font-size:1.25rem!important;}
+body.obs .next-up-tv{font-size:0.6rem!important;}
+body.obs .next-up-tv img{width:0.75rem!important;height:0.75rem!important;}
 body.obs .districts{gap:4px!important;}
 body.obs .drow{padding:6px 10px!important;display:grid!important;grid-template-columns:auto 1fr auto!important;gap:8px!important;align-items:center!important;}
 body.obs .dinfo .dbosses,body.obs .dc-pill,body.obs .dbtn{display:none!important;}
@@ -1819,6 +1827,9 @@ function updateTV(){
     }
   }
   updateCommandCenter();
+  // Keep the Next Respawn card's Tel Var estimate in sync with every state change
+  // (was previously only refreshed on the 500ms tick — caused a visible lag).
+  if(typeof updateNextUp==='function')updateNextUp();
 }
 
 function setSt(i,skipUndo=false){
@@ -2052,7 +2063,7 @@ function seenAlive(i){
     logEvent(`Scout check: ${DISTRICTS[i].name} (${bossNamesForDistrict(i)}) seen alive.`);
     toast(`${DISTRICTS[i].name} seen alive`,'success');
   }
-  updateTV();
+  tick();
 }
 
 function guessTimer(i) {
@@ -2079,7 +2090,7 @@ function setTimerGuess(i,minsAgo){
     timers[i].end=Date.now()+(RESPAWN-elapsed)*1000;timers[i].running=true;timers[i].wasRunning=true;
     logEvent(`Timer guess: ${DISTRICTS[i].name} died about ${minsAgo} min ago. Estimated respawn in ${fmt(RESPAWN-elapsed)}.`);
   }
-  updateTV();
+  tick();
 }
 
 function killBoss(i){
@@ -2088,21 +2099,21 @@ function killBoss(i){
   timers[i].end=Date.now()+RESPAWN*1000;timers[i].running=true;timers[i].wasRunning=true;timers[i].warnFired=false;timers[i].unknown=false;timers[i].unknownAt=null;timers[i].seenAt=null;
   totalKills++;currentTelVar+=gain;
   logEvent(`Killed ${DISTRICTS[i].name} boss (${bossNamesForDistrict(i)}) — +${gain.toLocaleString()} Tel Var.`);
-  updateTV();
+  tick();
 }
 
 function rstBoss(i){
   pushUndo('Reset boss timer');
   timers[i].end=null;timers[i].running=false;timers[i].wasRunning=false;timers[i].warnFired=false;timers[i].unknown=false;timers[i].unknownAt=null;timers[i].seenAt=null;
   logEvent(`Reset ${DISTRICTS[i].name} timer.`);
-  updateTV();
+  tick();
 }
 
 function resetAll(){
   pushUndo('Reset all timers');
   DISTRICTS.forEach((_,i)=>{timers[i].end=null;timers[i].running=false;timers[i].wasRunning=false;timers[i].warnFired=false;timers[i].unknown=false;timers[i].unknownAt=null;timers[i].seenAt=null;});
   logEvent('Reset all boss timers.');
-  updateTV();
+  tick();
 }
 
 function getNextTarget(){

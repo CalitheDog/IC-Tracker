@@ -1311,24 +1311,36 @@ describe('Respawn Sort — applyRespawnSort()', () => {
    21. ALLIANCE MAP HINT
    ═══════════════════════════════════════════ */
 describe('Alliance Map Hint', () => {
+  // Hint now renders an inline alliance badge <img> + " control" text.
+  // We assert the badge image src + the trailing text instead of plain textContent.
+  function hintImgSrc(){
+    const img = document.querySelector('#mapHintAlliance img');
+    return img ? img.getAttribute('src') : null;
+  }
+  function hintTrailingText(){
+    return document.getElementById('mapHintAlliance').textContent.trim();
+  }
 
-  it('EP alliance sets hint text to "EP control"', () => {
+  it('EP alliance renders the EP badge image in the hint', () => {
     resetState();
     setAlliance('ep');
-    assert.equal(document.getElementById('mapHintAlliance').textContent, 'EP control');
+    assert.equal(hintImgSrc(), ALLIANCE_IMG_FULL.ep);
+    assert.equal(hintTrailingText(), 'control');
     setAlliance('dc');
   });
 
-  it('DC alliance sets hint text to "DC control"', () => {
+  it('DC alliance renders the DC badge image in the hint', () => {
     resetState();
     setAlliance('dc');
-    assert.equal(document.getElementById('mapHintAlliance').textContent, 'DC control');
+    assert.equal(hintImgSrc(), ALLIANCE_IMG_FULL.dc);
+    assert.equal(hintTrailingText(), 'control');
   });
 
-  it('AD alliance sets hint text to "AD control"', () => {
+  it('AD alliance renders the AD badge image in the hint', () => {
     resetState();
     setAlliance('ad');
-    assert.equal(document.getElementById('mapHintAlliance').textContent, 'AD control');
+    assert.equal(hintImgSrc(), ALLIANCE_IMG_FULL.ad);
+    assert.equal(hintTrailingText(), 'control');
     setAlliance('dc');
   });
 
@@ -1352,14 +1364,14 @@ describe('Alliance Map Hint', () => {
     setAlliance('dc');
   });
 
-  it('Hint updates immediately on every alliance switch', () => {
+  it('Hint badge updates immediately on every alliance switch', () => {
     resetState();
     setAlliance('ep');
-    assert.equal(document.getElementById('mapHintAlliance').textContent, 'EP control');
+    assert.equal(hintImgSrc(), ALLIANCE_IMG_FULL.ep);
     setAlliance('ad');
-    assert.equal(document.getElementById('mapHintAlliance').textContent, 'AD control');
+    assert.equal(hintImgSrc(), ALLIANCE_IMG_FULL.ad);
     setAlliance('dc');
-    assert.equal(document.getElementById('mapHintAlliance').textContent, 'DC control');
+    assert.equal(hintImgSrc(), ALLIANCE_IMG_FULL.dc);
   });
 });
 
