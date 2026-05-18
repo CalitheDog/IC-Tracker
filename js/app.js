@@ -59,6 +59,7 @@ const dcHeld=new Set();
 let muted=true,actx=null,stI=0,grSz=1,totalKills=0,currentTelVar=0,bankedTelVar=0,lostTelVar=0,farmStart=null,farmEnd=null,farmRunning=false,activePreset=null,sortByRespawn=false,telvarTarget=0;
 let alliance='dc';
 const ALLIANCES={ep:{name:'Ebonheart Pact',short:'EP',color:'#e04a3a'},dc:{name:'Daggerfall Covenant',short:'DC',color:'#5aa0e8'},ad:{name:'Aldmeri Dominion',short:'AD',color:'#d4c030'}};
+const ALLIANCE_IMG={ep:'assets/alliance-ep.png',dc:'assets/alliance-dc.png',ad:'assets/alliance-ad.jpg'};
 const skulls=DEFAULT_SKULLS;
 
 function ns(t){return document.createElementNS('http://www.w3.org/2000/svg',t);}
@@ -74,7 +75,7 @@ function textC(i){const h=dcHeld.has(i),t=timers[i],HT=heldTX();let rem=0,up=tru
 
 function districtCapturesLocked(){return activePreset==='streakah';}
 function toggleDC(i){if(districtCapturesLocked())return;dcHeld.has(i)?dcHeld.delete(i):dcHeld.add(i);refreshSlice(i);refreshRow(i);buildDCToggles();updateTV();}
-function refreshSlice(i){const c=sliceC(i),p=document.getElementById(`sl${i}`);if(p){p.setAttribute('fill',c.f);p.setAttribute('stroke',c.s);p.classList.toggle('locked',districtCapturesLocked());}const t=document.getElementById(`st${i}`);if(t)t.setAttribute('fill',textC(i));}
+function refreshSlice(i){const c=sliceC(i),p=document.getElementById(`sl${i}`);if(p){p.setAttribute('fill',c.f);p.setAttribute('stroke',c.s);p.classList.toggle('locked',districtCapturesLocked());}const t=document.getElementById(`st${i}`);if(t)t.setAttribute('fill',textC(i));const cr=document.getElementById(`crest${i}`);if(cr){if(dcHeld.has(i)){const src=ALLIANCE_IMG[alliance]||ALLIANCE_IMG.dc;cr.setAttributeNS('http://www.w3.org/1999/xlink','href',src);cr.setAttribute('href',src);cr.style.display='';}else{cr.style.display='none';}}}
 function refreshRow(i){const row=document.getElementById(`dr${i}`),pill=document.getElementById(`dp${i}`);if(!row)return;const h=dcHeld.has(i);if(pill)pill.style.display=h?'':'none';h?row.classList.add('dc-held'):row.classList.remove('dc-held');}
 
 function buildDCToggles(){
@@ -228,10 +229,11 @@ function buildSkulls(){const g=document.getElementById('skulls');g.innerHTML='';
 function buildGear(){const g=document.getElementById('gear');for(let i=0;i<24;i++){const a1=i*15,a2=a1+9;const[x1,y1]=pol(a1,58),[x2,y2]=pol(a2,58),[x3,y3]=pol(a2,65),[x4,y4]=pol(a1,65);const p=ns('path');p.setAttribute('d',`M${x1} ${y1} L${x2} ${y2} L${x3} ${y3} L${x4} ${y4}Z`);p.setAttribute('fill','#120e05');p.setAttribute('stroke','rgba(201,168,76,0.28)');p.setAttribute('stroke-width','0.5');g.appendChild(p);}}
 
 function buildMap(){
-  const sG=document.getElementById('slices'),spG=document.getElementById('spokes'),nG=document.getElementById('nodes'),lG=document.getElementById('labels');
+  const sG=document.getElementById('slices'),spG=document.getElementById('spokes'),nG=document.getElementById('nodes'),lG=document.getElementById('labels'),crG=document.getElementById('crests');
   DISTRICTS.forEach((d,i)=>{
     const ang=d.angle;
     const path=ns('path');path.setAttribute('d',slP(ang,OR,IR,SPAN));path.setAttribute('fill',C.nA.f);path.setAttribute('stroke',C.nA.s);path.setAttribute('stroke-width','1.5');path.id=`sl${i}`;path.classList.add('sc');path.addEventListener('click',()=>toggleDC(i));sG.appendChild(path);
+    if(crG){const sz=26,[cx,cy]=pol(ang,86);const cr=ns('image');cr.setAttribute('x',cx-sz/2);cr.setAttribute('y',cy-sz/2);cr.setAttribute('width',sz);cr.setAttribute('height',sz);cr.setAttribute('preserveAspectRatio','xMidYMid meet');cr.id=`crest${i}`;cr.style.display='none';cr.style.pointerEvents='none';cr.style.opacity='0.92';crG.appendChild(cr);}
     const sa=ang+30,[bx1,by1]=pol(sa,IR),[bx2,by2]=pol(sa,OR);
     const l1=ns('line');l1.setAttribute('x1',bx1);l1.setAttribute('y1',by1);l1.setAttribute('x2',bx2);l1.setAttribute('y2',by2);l1.setAttribute('stroke','#090805');l1.setAttribute('stroke-width','8');spG.appendChild(l1);
     const l2=ns('line');l2.setAttribute('x1',bx1);l2.setAttribute('y1',by1);l2.setAttribute('x2',bx2);l2.setAttribute('y2',by2);l2.setAttribute('stroke','rgba(201,168,76,0.28)');l2.setAttribute('stroke-width','1');spG.appendChild(l2);
