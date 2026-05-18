@@ -38,9 +38,9 @@ When you edit `tests/tests.js`, `js/app.js`, or `tests/runner.js`, **bump the `?
 | `stI` | Stones multiplier index (0–3 → ×1/×2/×3/×4) |
 | `grSz` | Group size (1–4) |
 | `alliance` | Active alliance: `'ep'`, `'dc'`, or `'ad'` |
-| `dcHeld` | `Set` of district indices (0–5) held by the *enemy*. Name is legacy — it doesn't change when the player picks EP or AD. |
+| `dcHeld` | `Set` of district indices (0–5) held by the **player's currently-selected alliance**. Variable name is legacy (the app was DC-only before alliance support was added); the Tel Var formula adds `0.33 × dcHeld.size` to the multiplier because ESO's mechanic rewards YOUR alliance's district control. The label, `.dc-pill` text, and color all update with `setAlliance()` to reflect the player's faction, not an enemy. |
 | `timers[]` | Array of 6 timer objects `{end, running, wasRunning, warnFired, unknown, unknownAt, seenAt}` |
-| `currentTelVar` | Tel Var currently being carried. Updated via the `setManualTelvar()` input (which **sets**, not adds — see below). |
+| `currentTelVar` | Tel Var currently being carried. Updated via `setManualTelvar()` — which **sets** the absolute carry total (renamed from the older `addManualTelvar`; if you see that name in old commits or PRs, it's the same function with the previous "add to current" semantics). |
 | `bankedTelVar` | Tel Var banked this session |
 | `lostTelVar` | Tel Var lost to ganks |
 | `telvarTarget` | Session target. Shown in the progress bar **and** the always-visible "Session Target" stat (`#tvTGT`). |
@@ -66,7 +66,7 @@ Three top-level blocks under `<body>` (other than the corner chrome buttons and 
 1. **`.layout`** — flex row at ≥980px (flex column on mobile).
    - **`.left-col`** — fixed width, just the map.
    - **`.right-col`** — flex:1; contains the JS sentinel divs (`display:none`), `.next-up` hero card, `.districts` grid, `.action-strip`, `.reset-all`.
-2. **`.telvar-details`** — full-width section *after* `.layout`. Its `.telvar-panel` body wraps two `.telvar-col` divs in a `1fr 1fr` grid at ≥980px, flex column on mobile. Columns are hand-balanced (DC-toggles live in the right column to even the heights).
+2. **`.telvar-details`** — full-width section *after* `.layout`. Its `.telvar-panel` body wraps two `.telvar-col` divs in a `1fr 1fr` grid at ≥980px, flex column on mobile. Columns are hand-balanced (alliance-controlled district toggles live in the right column to even the heights). The left column ends with a permanent `.formula-card` (rendered as a multi-row breakdown by `updateTV()`) — **don't re-wrap it in `<details>`/`<summary>`**; the user explicitly wanted the formula always visible.
 3. **`.footer`** + **`.credits`**.
 
 There is **no** CSS Grid named-area layout anymore; do not reintroduce `grid-template-areas`.
