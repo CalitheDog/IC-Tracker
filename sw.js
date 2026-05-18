@@ -1,4 +1,4 @@
-const CACHE = 'ic-tracker-v8';
+const CACHE = 'ic-tracker-v11';
 const ASSETS = [
   './',
   './index.html',
@@ -8,6 +8,13 @@ const ASSETS = [
   './assets/alliance-ep.png',
   './assets/alliance-dc.png',
   './assets/alliance-ad.jpg',
+  './assets/alliance-ep-crest.png',
+  './assets/alliance-dc-crest.png',
+  './assets/alliance-ad-crest.png',
+  './assets/boss-skull.png',
+  './assets/chud.webp',
+  './assets/chad.webp',
+  './assets/streak.png',
   './js/app.js'
 ];
 

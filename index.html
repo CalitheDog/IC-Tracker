@@ -87,6 +87,7 @@ body::before{content:'';position:absolute;inset:0;background:radial-gradient(ell
 .map-hint{font-size:0.6rem;letter-spacing:0.13em;color:#3e3018;text-transform:uppercase;flex:1;}
 .map-hint em{color:#3a5a8a;font-style:normal;}
 .map-hint .eh{color:#a08840;font-style:normal;}
+.map-hint .hint-alliance-img{display:inline-block;width:14px;height:14px;object-fit:cover;border-radius:3px;vertical-align:-3px;margin:0 3px 0 1px;box-shadow:0 0 0 1px rgba(201,168,76,0.35);}
 .tbtn{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.09em;padding:5px 12px;border-radius:4px;cursor:pointer;border:1px solid rgba(201,168,76,0.22);background:rgba(255,255,255,0.03);color:#5a4a30;text-transform:uppercase;transition:all 0.15s;white-space:nowrap;}
 .tbtn:hover{color:#a08040;border-color:rgba(201,168,76,0.5);}
 .tbtn.on{background:rgba(201,168,76,0.14);border-color:rgba(201,168,76,0.65);color:#c9a84c;}
@@ -114,7 +115,9 @@ svg.map text{pointer-events:none;user-select:none;-webkit-user-select:none;}
 .segs{display:flex;gap:4px;flex-wrap:wrap;}
 
 .preset-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:14px;}
-.preset-btn{font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.1em;padding:9px 12px;border-radius:6px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;}
+.preset-btn{font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.1em;padding:9px 12px;border-radius:6px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
+.preset-icon{width:32px;height:32px;object-fit:contain;display:block;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.55));flex-shrink:0;}
+.preset-btn .preset-label{display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1.15;}
 .preset-btn.chud{background:rgba(90,55,10,0.24);border:1px solid rgba(201,168,76,0.38);color:#c9a84c;}
 .preset-btn.chud:hover{background:rgba(110,70,15,0.38);color:#ffd060;}
 .preset-btn.chad{background:linear-gradient(135deg,rgba(80,20,120,0.35),rgba(201,168,76,0.20));border:1px solid rgba(201,168,76,0.55);color:#ffd060;box-shadow:0 0 18px rgba(201,168,76,0.15);}
@@ -160,6 +163,8 @@ body.alliance-ad .dc-toggle.held{background:rgba(160,140,20,0.22);border-color:r
 .formula-row .lbl{color:#b09050;}
 .formula-row .val{color:#e0c878;font-family:'Cinzel',serif;font-weight:600;}
 .formula-row .val.dc{color:#88c0ee;}
+body.alliance-ep .formula-row .val.dc{color:#ff8878;}
+body.alliance-ad .formula-row .val.dc{color:#ffd848;}
 .formula-row .val em{font-style:normal;color:#7a5a25;font-size:0.78em;letter-spacing:0.04em;}
 .formula-result{display:flex;justify-content:space-between;align-items:center;margin-top:7px;padding-top:8px;border-top:1px solid rgba(201,168,76,0.32);}
 .formula-result .lbl{font-family:'Cinzel',serif;font-size:0.66rem;letter-spacing:0.18em;text-transform:uppercase;color:#b09050;}
@@ -208,8 +213,9 @@ body.alliance-ad .dc-toggle.held{background:rgba(160,140,20,0.22);border-color:r
 @keyframes wP{0%,100%{opacity:1}50%{opacity:0.2}}
 .drow.just-up{border-color:rgba(76,200,100,0.85)!important;background:rgba(20,80,35,0.18)!important;animation:rP 0.9s ease-in-out 4;}
 @keyframes rP{0%,100%{box-shadow:none}50%{box-shadow:0 0 20px rgba(60,200,90,0.45)}}
-.drow.dc-held.alive::before{background:#2a6aaa;}
-.drow.dc-held.alive{border-color:rgba(60,130,220,0.35);}
+/* Alliance bonus active — gold "premium" accent that layers OVER the status colors instead of replacing them */
+.drow.dc-held{box-shadow:inset 0 0 0 1px rgba(201,168,76,0.32), 0 0 18px rgba(201,168,76,0.10);}
+.drow.dc-held.alive{box-shadow:inset 0 0 0 1px rgba(201,168,76,0.38), 0 0 22px rgba(201,168,76,0.14);}
 
 .ddot{width:11px;height:11px;border-radius:50%;flex-shrink:0;transition:all 0.3s;}
 .ddot.alive{background:#4c9960;box-shadow:0 0 9px rgba(76,153,96,0.7);}
@@ -221,13 +227,14 @@ body.alliance-ad .dc-toggle.held{background:rgba(160,140,20,0.22);border-color:r
 .dname{font-family:'Cinzel',serif;font-size:0.74rem;font-weight:600;letter-spacing:0.08em;color:#b09050;text-transform:uppercase;margin-bottom:2px;}
 .drow.alive .dname{color:#5cb870;}
 .drow.warn .dname{color:#c9a84c;}
-.drow.dc-held .dname{color:#5ab0e0;}
+/* Boss name follows status color (green-alive / gold-warn / dim-dead) — pill chip already signals alliance */
 .dbosses{font-size:0.82rem;color:#4a3820;line-height:1.5;}
 .drow.alive .dbosses{color:#2d6a38;}
 .drow.dead .dbosses{color:#6a5020;}
 .drow.warn .dbosses{color:#8a7020;}
 
-.dc-pill{font-family:'Cinzel',serif;font-size:0.55rem;font-weight:600;letter-spacing:0.14em;padding:2px 7px;border-radius:4px;background:rgba(30,70,160,0.32);border:1px solid rgba(70,130,230,0.55);color:#88c0ee;text-transform:uppercase;flex-shrink:0;box-shadow:0 0 10px rgba(70,130,230,0.18);}
+.dc-pill{font-family:'Cinzel',serif;font-size:0.55rem;font-weight:600;letter-spacing:0.14em;padding:2px 5px;border-radius:4px;background:rgba(30,70,160,0.32);border:1px solid rgba(70,130,230,0.55);color:#88c0ee;text-transform:uppercase;flex-shrink:0;box-shadow:0 0 10px rgba(70,130,230,0.18);display:inline-flex;align-items:center;justify-content:center;min-height:18px;}
+.dc-pill img{display:block;width:14px;height:14px;object-fit:cover;border-radius:2px;}
 body.alliance-ep .dc-pill{background:rgba(140,25,20,0.32);border-color:rgba(220,55,40,0.55);color:#ff8878;box-shadow:0 0 10px rgba(200,50,40,0.2);}
 body.alliance-ad .dc-pill{background:rgba(120,95,0,0.32);border-color:rgba(220,180,0,0.55);color:#ffd848;box-shadow:0 0 10px rgba(200,170,0,0.2);}
 
@@ -585,6 +592,7 @@ svg.map{filter:drop-shadow(0 10px 26px rgba(0,0,0,0.55));}
   box-shadow:0 10px 28px rgba(0,0,0,0.18),inset 0 1px 0 rgba(255,220,130,0.05);
 }
 .drow:hover{transform:translateY(-1px);border-color:rgba(201,168,76,0.28);box-shadow:0 14px 34px rgba(0,0,0,0.25),0 0 18px rgba(201,168,76,0.05);}
+.drow.dc-held:hover{box-shadow:inset 0 0 0 1px rgba(201,168,76,0.50), 0 14px 34px rgba(0,0,0,0.25), 0 0 26px rgba(201,168,76,0.18);}
 .dname{color:var(--gold2);letter-spacing:0.12em;}
 .dbosses{color:#b8944a;}
 .boss-chip{
@@ -1101,7 +1109,7 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
   <div class="left-col">
   <div class="map-section">
     <div class="map-toolbar">
-      <span class="map-hint">Tap slice = <em id="mapHintAlliance">DC control</em> · Hover skull = boss pic</span>
+      <span class="map-hint">Tap slice = <em id="mapHintAlliance"><img class="hint-alliance-img" id="mapHintImg" src="assets/alliance-dc.png" alt=""> control</em> · Hover skull = boss pic</span>
     </div>
     <div class="map-wrap">
       <svg id="map" class="map" viewBox="0 0 360 360" xmlns="http://www.w3.org/2000/svg">
@@ -1177,9 +1185,9 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
     <div class="telvar-col">
       <div class="tv-lbl" style="margin-bottom:8px">Quick presets</div>
       <div class="preset-grid">
-        <button class="preset-btn chud" id="presetChud" onclick="applyPreset('chud')">🛡 Chud Mode<br><span style="font-size:0.5rem;letter-spacing:0.08em">×2 · Solo</span></button>
-        <button class="preset-btn chad" id="presetChad" onclick="applyPreset('chad')">⚔ Chad Mode<br><span style="font-size:0.5rem;letter-spacing:0.08em">×4 · Group 2</span></button>
-        <button class="preset-btn streakah" id="presetStreakah" onclick="applyPreset('streakah')">🕯 The Streakah<br><span style="font-size:0.5rem;letter-spacing:0.08em">×4 · Solo · No Flags</span></button>
+        <button class="preset-btn chud" id="presetChud" onclick="applyPreset('chud')"><img class="preset-icon" src="assets/chud.webp" alt="" aria-hidden="true"><span class="preset-label">Chud Mode<span style="font-size:0.5rem;letter-spacing:0.08em">×2 · Solo</span></span></button>
+        <button class="preset-btn chad" id="presetChad" onclick="applyPreset('chad')"><img class="preset-icon" src="assets/chad.webp" alt="" aria-hidden="true"><span class="preset-label">Chad Mode<span style="font-size:0.5rem;letter-spacing:0.08em">×4 · Group 2</span></span></button>
+        <button class="preset-btn streakah" id="presetStreakah" onclick="applyPreset('streakah')"><img class="preset-icon" src="assets/streak.png" alt="" aria-hidden="true"><span class="preset-label">The Streakah<span style="font-size:0.5rem;letter-spacing:0.08em">×4 · Solo · No Flags</span></span></button>
       </div>
       <div class="preset-note" id="presetNote">The Streakah does not capture flags. District captures are locked off.</div>
       <div class="tv-lbl" style="margin-bottom:8px">Your alliance</div>
@@ -1319,7 +1327,8 @@ const dcHeld=new Set();
 let muted=true,actx=null,stI=0,grSz=1,totalKills=0,currentTelVar=0,bankedTelVar=0,lostTelVar=0,farmStart=null,farmEnd=null,farmRunning=false,activePreset=null,sortByRespawn=false,telvarTarget=0;
 let alliance='dc';
 const ALLIANCES={ep:{name:'Ebonheart Pact',short:'EP',color:'#e04a3a'},dc:{name:'Daggerfall Covenant',short:'DC',color:'#5aa0e8'},ad:{name:'Aldmeri Dominion',short:'AD',color:'#d4c030'}};
-const ALLIANCE_IMG={ep:'assets/alliance-ep.png',dc:'assets/alliance-dc.png',ad:'assets/alliance-ad.jpg'};
+const ALLIANCE_IMG={ep:'assets/alliance-ep-crest.png',dc:'assets/alliance-dc-crest.png',ad:'assets/alliance-ad-crest.png'};
+const ALLIANCE_IMG_FULL={ep:'assets/alliance-ep.png',dc:'assets/alliance-dc.png',ad:'assets/alliance-ad.jpg'};
 const skulls=DEFAULT_SKULLS;
 
 function ns(t){return document.createElementNS('http://www.w3.org/2000/svg',t);}
@@ -1402,17 +1411,21 @@ function toast(name,type='info'){
 
 function drawSkull(g,sk,idx){
   const tmr=timers[sk.di];const alive=!tmr.unknown&&(!tmr.running||!tmr.end||(tmr.end-Date.now())<=0);
-  const col=alive?'rgba(255,255,255,0.88)':'rgba(255,65,25,0.92)';
-  const sz=11;
+  const sz=16;
   const grp=ns('g');grp.setAttribute('transform',`translate(${sk.x},${sk.y})`);grp.classList.add('skull-hit');
   grp.addEventListener('mouseenter',(ev)=>showSkullTooltip(ev,sk));
   grp.addEventListener('mousemove',(ev)=>moveSkullTooltip(ev));
   grp.addEventListener('mouseleave',hideSkullTooltip);
   grp.addEventListener('click',()=>openBossModal(sk.di,typeof sk.bi==='number'?sk.bi:null));
-  const h=ns('circle');h.setAttribute('cy',`${-sz*0.15}`);h.setAttribute('r',`${sz*0.4}`);h.setAttribute('fill',col);grp.appendChild(h);
-  [-1,1].forEach(s=>{const e=ns('circle');e.setAttribute('cx',`${s*sz*0.13}`);e.setAttribute('cy',`${-sz*0.21}`);e.setAttribute('r',`${sz*0.09}`);e.setAttribute('fill','rgba(0,0,0,0.78)');grp.appendChild(e);});
-  const n=ns('polygon');n.setAttribute('points',`0,${-sz*0.06} ${-sz*0.055},${sz*0.04} ${sz*0.055},${sz*0.04}`);n.setAttribute('fill','rgba(0,0,0,0.62)');grp.appendChild(n);
-  [['-0.43','0.22','0.43','0.54'],['0.43','0.22','-0.43','0.54']].forEach(([x1,y1,x2,y2])=>{const l=ns('line');l.setAttribute('x1',`${sz*x1}`);l.setAttribute('y1',`${sz*y1}`);l.setAttribute('x2',`${sz*x2}`);l.setAttribute('y2',`${sz*y2}`);l.setAttribute('stroke',col);l.setAttribute('stroke-width',`${sz*0.15}`);l.setAttribute('stroke-linecap','round');grp.appendChild(l);});
+  const im=ns('image');
+  im.setAttribute('x',-sz/2);im.setAttribute('y',-sz/2);
+  im.setAttribute('width',sz);im.setAttribute('height',sz);
+  im.setAttribute('preserveAspectRatio','xMidYMid meet');
+  im.setAttribute('href','assets/boss-skull.png');
+  im.setAttributeNS('http://www.w3.org/1999/xlink','href','assets/boss-skull.png');
+  im.style.opacity=alive?'0.92':'1';
+  if(!alive)im.style.filter='brightness(0.55) sepia(1) saturate(22) hue-rotate(-32deg) brightness(1.35)';
+  grp.appendChild(im);
   const ti=ns('title');ti.textContent=sk.label;grp.appendChild(ti);
   g.appendChild(grp);
 }
@@ -1463,7 +1476,7 @@ function buildMap(){
   DISTRICTS.forEach((d,i)=>{
     const ang=d.angle;
     const path=ns('path');path.setAttribute('d',slP(ang,OR,IR,SPAN));path.setAttribute('fill',C.nA.f);path.setAttribute('stroke',C.nA.s);path.setAttribute('stroke-width','1.5');path.id=`sl${i}`;path.classList.add('sc');path.addEventListener('click',()=>toggleDC(i));sG.appendChild(path);
-    if(crG){const sz=26,[cx,cy]=pol(ang,86);const cr=ns('image');cr.setAttribute('x',cx-sz/2);cr.setAttribute('y',cy-sz/2);cr.setAttribute('width',sz);cr.setAttribute('height',sz);cr.setAttribute('preserveAspectRatio','xMidYMid meet');cr.id=`crest${i}`;cr.style.display='none';cr.style.pointerEvents='none';cr.style.opacity='0.92';crG.appendChild(cr);}
+    if(crG){const sz=48,[cx,cy]=pol(ang,108);const cr=ns('image');cr.setAttribute('x',cx-sz/2);cr.setAttribute('y',cy-sz/2);cr.setAttribute('width',sz);cr.setAttribute('height',sz);cr.setAttribute('preserveAspectRatio','xMidYMid meet');cr.id=`crest${i}`;cr.style.display='none';cr.style.pointerEvents='none';cr.style.opacity='0.55';crG.appendChild(cr);}
     const sa=ang+30,[bx1,by1]=pol(sa,IR),[bx2,by2]=pol(sa,OR);
     const l1=ns('line');l1.setAttribute('x1',bx1);l1.setAttribute('y1',by1);l1.setAttribute('x2',bx2);l1.setAttribute('y2',by2);l1.setAttribute('stroke','#090805');l1.setAttribute('stroke-width','8');spG.appendChild(l1);
     const l2=ns('line');l2.setAttribute('x1',bx1);l2.setAttribute('y1',by1);l2.setAttribute('x2',bx2);l2.setAttribute('y2',by2);l2.setAttribute('stroke','rgba(201,168,76,0.28)');l2.setAttribute('stroke-width','1');spG.appendChild(l2);
@@ -1784,9 +1797,10 @@ function setAlliance(a){
   document.querySelectorAll('#allianceEl .alliance-btn').forEach(b=>b.classList.toggle('sel',b.dataset.al===a));
   const lbl=document.getElementById('dcLabel');
   if(lbl)lbl.textContent=`${ALLIANCES[a].short}-held districts (tap to toggle)`;
-  document.querySelectorAll('.dc-pill').forEach(p=>p.textContent=ALLIANCES[a].short);
+  const pillImg=ALLIANCE_IMG_FULL[a]||ALLIANCE_IMG_FULL.dc;
+  document.querySelectorAll('.dc-pill').forEach(p=>{const im=p.querySelector('img');if(im){im.src=pillImg;}else{p.innerHTML=`<img src="${pillImg}" alt="">`;}p.setAttribute('aria-label',`${ALLIANCES[a].name} bonus`);});
   const hint=document.getElementById('mapHintAlliance');
-  if(hint){hint.textContent=`${ALLIANCES[a].short} control`;hint.style.color=ALLIANCES[a].color;}
+  if(hint){const img=ALLIANCE_IMG_FULL[a]||ALLIANCE_IMG_FULL.dc;hint.innerHTML=`<img class="hint-alliance-img" id="mapHintImg" src="${img}" alt=""> control`;hint.style.color=ALLIANCES[a].color;}
   document.body.classList.remove('alliance-ep','alliance-dc','alliance-ad');
   document.body.classList.add('alliance-'+a);
   try{localStorage.setItem('ic-alliance',a);}catch(e){}
@@ -1966,7 +1980,7 @@ function buildRows(){
         <div class="dname">${d.name}</div>
         <div class="dbosses boss-chips">${chips}</div>
       </div>
-      <span class="dc-pill" id="dp${i}" style="display:none">DC</span>
+      <span class="dc-pill" id="dp${i}" style="display:none" aria-label="Alliance bonus"><img src="${ALLIANCE_IMG_FULL[alliance]||ALLIANCE_IMG_FULL.dc}" alt=""></span>
       <div class="dtimer alive" id="dt${i}">ALIVE</div>
       <div class="drow-actions">
         <button class="dbtn kill" onclick="killBoss(${i})">Killed</button>

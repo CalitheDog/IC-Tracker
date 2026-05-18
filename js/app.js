@@ -59,7 +59,8 @@ const dcHeld=new Set();
 let muted=true,actx=null,stI=0,grSz=1,totalKills=0,currentTelVar=0,bankedTelVar=0,lostTelVar=0,farmStart=null,farmEnd=null,farmRunning=false,activePreset=null,sortByRespawn=false,telvarTarget=0;
 let alliance='dc';
 const ALLIANCES={ep:{name:'Ebonheart Pact',short:'EP',color:'#e04a3a'},dc:{name:'Daggerfall Covenant',short:'DC',color:'#5aa0e8'},ad:{name:'Aldmeri Dominion',short:'AD',color:'#d4c030'}};
-const ALLIANCE_IMG={ep:'assets/alliance-ep.png',dc:'assets/alliance-dc.png',ad:'assets/alliance-ad.jpg'};
+const ALLIANCE_IMG={ep:'assets/alliance-ep-crest.png',dc:'assets/alliance-dc-crest.png',ad:'assets/alliance-ad-crest.png'};
+const ALLIANCE_IMG_FULL={ep:'assets/alliance-ep.png',dc:'assets/alliance-dc.png',ad:'assets/alliance-ad.jpg'};
 const skulls=DEFAULT_SKULLS;
 
 function ns(t){return document.createElementNS('http://www.w3.org/2000/svg',t);}
@@ -171,17 +172,21 @@ function toast(name,type='info'){
 
 function drawSkull(g,sk,idx){
   const tmr=timers[sk.di];const alive=!tmr.unknown&&(!tmr.running||!tmr.end||(tmr.end-Date.now())<=0);
-  const col=alive?'rgba(255,255,255,0.88)':'rgba(255,65,25,0.92)';
-  const sz=11;
+  const sz=16;
   const grp=ns('g');grp.setAttribute('transform',`translate(${sk.x},${sk.y})`);grp.classList.add('skull-hit');
   grp.addEventListener('mouseenter',(ev)=>showSkullTooltip(ev,sk));
   grp.addEventListener('mousemove',(ev)=>moveSkullTooltip(ev));
   grp.addEventListener('mouseleave',hideSkullTooltip);
   grp.addEventListener('click',()=>openBossModal(sk.di,typeof sk.bi==='number'?sk.bi:null));
-  const h=ns('circle');h.setAttribute('cy',`${-sz*0.15}`);h.setAttribute('r',`${sz*0.4}`);h.setAttribute('fill',col);grp.appendChild(h);
-  [-1,1].forEach(s=>{const e=ns('circle');e.setAttribute('cx',`${s*sz*0.13}`);e.setAttribute('cy',`${-sz*0.21}`);e.setAttribute('r',`${sz*0.09}`);e.setAttribute('fill','rgba(0,0,0,0.78)');grp.appendChild(e);});
-  const n=ns('polygon');n.setAttribute('points',`0,${-sz*0.06} ${-sz*0.055},${sz*0.04} ${sz*0.055},${sz*0.04}`);n.setAttribute('fill','rgba(0,0,0,0.62)');grp.appendChild(n);
-  [['-0.43','0.22','0.43','0.54'],['0.43','0.22','-0.43','0.54']].forEach(([x1,y1,x2,y2])=>{const l=ns('line');l.setAttribute('x1',`${sz*x1}`);l.setAttribute('y1',`${sz*y1}`);l.setAttribute('x2',`${sz*x2}`);l.setAttribute('y2',`${sz*y2}`);l.setAttribute('stroke',col);l.setAttribute('stroke-width',`${sz*0.15}`);l.setAttribute('stroke-linecap','round');grp.appendChild(l);});
+  const im=ns('image');
+  im.setAttribute('x',-sz/2);im.setAttribute('y',-sz/2);
+  im.setAttribute('width',sz);im.setAttribute('height',sz);
+  im.setAttribute('preserveAspectRatio','xMidYMid meet');
+  im.setAttribute('href','assets/boss-skull.png');
+  im.setAttributeNS('http://www.w3.org/1999/xlink','href','assets/boss-skull.png');
+  im.style.opacity=alive?'0.92':'1';
+  if(!alive)im.style.filter='brightness(0.55) sepia(1) saturate(22) hue-rotate(-32deg) brightness(1.35)';
+  grp.appendChild(im);
   const ti=ns('title');ti.textContent=sk.label;grp.appendChild(ti);
   g.appendChild(grp);
 }
@@ -233,7 +238,7 @@ function buildMap(){
   DISTRICTS.forEach((d,i)=>{
     const ang=d.angle;
     const path=ns('path');path.setAttribute('d',slP(ang,OR,IR,SPAN));path.setAttribute('fill',C.nA.f);path.setAttribute('stroke',C.nA.s);path.setAttribute('stroke-width','1.5');path.id=`sl${i}`;path.classList.add('sc');path.addEventListener('click',()=>toggleDC(i));sG.appendChild(path);
-    if(crG){const sz=26,[cx,cy]=pol(ang,86);const cr=ns('image');cr.setAttribute('x',cx-sz/2);cr.setAttribute('y',cy-sz/2);cr.setAttribute('width',sz);cr.setAttribute('height',sz);cr.setAttribute('preserveAspectRatio','xMidYMid meet');cr.id=`crest${i}`;cr.style.display='none';cr.style.pointerEvents='none';cr.style.opacity='0.92';crG.appendChild(cr);}
+    if(crG){const sz=48,[cx,cy]=pol(ang,108);const cr=ns('image');cr.setAttribute('x',cx-sz/2);cr.setAttribute('y',cy-sz/2);cr.setAttribute('width',sz);cr.setAttribute('height',sz);cr.setAttribute('preserveAspectRatio','xMidYMid meet');cr.id=`crest${i}`;cr.style.display='none';cr.style.pointerEvents='none';cr.style.opacity='0.55';crG.appendChild(cr);}
     const sa=ang+30,[bx1,by1]=pol(sa,IR),[bx2,by2]=pol(sa,OR);
     const l1=ns('line');l1.setAttribute('x1',bx1);l1.setAttribute('y1',by1);l1.setAttribute('x2',bx2);l1.setAttribute('y2',by2);l1.setAttribute('stroke','#090805');l1.setAttribute('stroke-width','8');spG.appendChild(l1);
     const l2=ns('line');l2.setAttribute('x1',bx1);l2.setAttribute('y1',by1);l2.setAttribute('x2',bx2);l2.setAttribute('y2',by2);l2.setAttribute('stroke','rgba(201,168,76,0.28)');l2.setAttribute('stroke-width','1');spG.appendChild(l2);
@@ -307,7 +312,7 @@ function buildRows(){
         <div class="dname">${d.name}</div>
         <div class="dbosses boss-chips">${chips}</div>
       </div>
-      <span class="dc-pill" id="dp${i}" style="display:none">DC</span>
+      <span class="dc-pill" id="dp${i}" style="display:none" aria-label="Alliance bonus"><img src="${ALLIANCE_IMG_FULL[alliance]||ALLIANCE_IMG_FULL.dc}" alt=""></span>
       <div class="dtimer alive" id="dt${i}">ALIVE</div>
       <button class="dbtn kill" onclick="killBoss(${i})">Killed</button>
       <button class="dbtn rst" onclick="rstBoss(${i})">Reset</button>`;
@@ -601,7 +606,7 @@ function setAlliance(a){
   const lbl=document.getElementById('dcLabel');
   if(lbl)lbl.textContent=`${ALLIANCES[a].short}-held districts (tap to toggle)`;
   const hint=document.getElementById('mapHintAlliance');
-  if(hint){hint.textContent=`${ALLIANCES[a].short} control`;hint.style.color=ALLIANCES[a].color;}
+  if(hint){const img=ALLIANCE_IMG_FULL[a]||ALLIANCE_IMG_FULL.dc;hint.innerHTML=`<img class="hint-alliance-img" id="mapHintImg" src="${img}" alt=""> control`;hint.style.color=ALLIANCES[a].color;}
   document.body.classList.remove('alliance-ep','alliance-dc','alliance-ad');
   document.body.classList.add('alliance-'+a);
   try{localStorage.setItem('ic-alliance',a);}catch(e){}
@@ -814,7 +819,7 @@ function buildRows(){
         <div class="dname">${d.name}</div>
         <div class="dbosses boss-chips">${chips}</div>
       </div>
-      <span class="dc-pill" id="dp${i}" style="display:none">DC</span>
+      <span class="dc-pill" id="dp${i}" style="display:none" aria-label="Alliance bonus"><img src="${ALLIANCE_IMG_FULL[alliance]||ALLIANCE_IMG_FULL.dc}" alt=""></span>
       <div class="dtimer alive" id="dt${i}">ALIVE</div>
       <div class="drow-actions">
         <button class="dbtn kill" onclick="killBoss(${i})">Killed</button>
