@@ -1,10 +1,12 @@
-const CACHE = 'ic-tracker-v11';
+const CACHE = 'ic-tracker-v13';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './assets/stone.png',
   './assets/bag-of-telvar.png',
+  './assets/telvar.png',
+  './assets/map-bg.png',
   './assets/alliance-ep.png',
   './assets/alliance-dc.png',
   './assets/alliance-ad.jpg',
