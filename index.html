@@ -102,8 +102,17 @@ body::before{content:'';position:absolute;inset:0;background:radial-gradient(ell
 svg.map{width:360px;height:360px;}
 svg.map text{pointer-events:none;user-select:none;-webkit-user-select:none;}
 
-.sc{cursor:pointer;opacity:0.55;transition:opacity 0.18s;}
-.sc:hover{opacity:0.72;}
+/* Slice opacity by state — alive lets the city map dominate, warn/dead lift the alliance/status color forward.
+   No CSS transition on opacity here: Chromium has a quirk where SVG paths with a running opacity
+   transition can get stuck on the old value when the class changes. Snap instantly instead. */
+.sc{cursor:pointer;}
+.sc.s-alive{opacity:0.22;}
+.sc.s-alive.s-held{opacity:0.40;}
+.sc.s-dead{opacity:0.55;}
+.sc.s-warn{opacity:0.75;}
+.sc.s-unknown{opacity:0.55;}
+.sc:hover{opacity:0.78;}
+.sc.s-warn:hover{opacity:0.92;}
 
 /* TEL VAR — now full width */
 .panel{background:rgba(255,255,255,0.025);border:1px solid rgba(201,168,76,0.18);border-radius:10px;padding:16px 20px;}
@@ -1386,7 +1395,8 @@ function textC(i){const h=dcHeld.has(i),t=timers[i],HT=heldTX();let rem=0,up=tru
 
 function districtCapturesLocked(){return activePreset==='streakah';}
 function toggleDC(i){if(districtCapturesLocked())return;dcHeld.has(i)?dcHeld.delete(i):dcHeld.add(i);refreshSlice(i);refreshRow(i);buildDCToggles();updateTV();}
-function refreshSlice(i){const c=sliceC(i),p=document.getElementById(`sl${i}`);if(p){p.setAttribute('fill',c.f);p.setAttribute('stroke',c.s);p.classList.toggle('locked',districtCapturesLocked());}const t=document.getElementById(`st${i}`);if(t)t.setAttribute('fill',textC(i));const cr=document.getElementById(`crest${i}`);if(cr){if(dcHeld.has(i)){const src=ALLIANCE_IMG[alliance]||ALLIANCE_IMG.dc;cr.setAttributeNS('http://www.w3.org/1999/xlink','href',src);cr.setAttribute('href',src);cr.style.display='';}else{cr.style.display='none';}}}
+function sliceState(i){const t=timers[i];if(t.unknown)return 'unknown';if(t.running&&t.end){const rem=Math.max(0,(t.end-Date.now())/1000);if(rem<=0)return 'alive';return rem<=WARN_AT?'warn':'dead';}return 'alive';}
+function refreshSlice(i){const c=sliceC(i),p=document.getElementById(`sl${i}`);if(p){p.setAttribute('fill',c.f);p.setAttribute('stroke',c.s);const st=sliceState(i);const wantCls='s-'+st;if(!p.classList.contains(wantCls)){p.classList.remove('s-alive','s-dead','s-warn','s-unknown');p.classList.add(wantCls);}p.classList.toggle('s-held',dcHeld.has(i));p.classList.toggle('locked',districtCapturesLocked());}const t=document.getElementById(`st${i}`);if(t)t.setAttribute('fill',textC(i));const cr=document.getElementById(`crest${i}`);if(cr){if(dcHeld.has(i)){const src=ALLIANCE_IMG[alliance]||ALLIANCE_IMG.dc;cr.setAttributeNS('http://www.w3.org/1999/xlink','href',src);cr.setAttribute('href',src);cr.style.display='';}else{cr.style.display='none';}}}
 function refreshRow(i){const row=document.getElementById(`dr${i}`),pill=document.getElementById(`dp${i}`);if(!row)return;const h=dcHeld.has(i);if(pill)pill.style.display=h?'':'none';h?row.classList.add('dc-held'):row.classList.remove('dc-held');}
 
 function buildDCToggles(){
