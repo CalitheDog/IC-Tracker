@@ -518,21 +518,32 @@ function windowAlert(name,type){
 
 function updateNextUp(){
   const now=Date.now();
-  let bestName='—',bestTimer='—',bestIsAlive=false;
+  let bestName='—',bestTimer='—',bestIsAlive=false,bestIdx=-1;
   let bestRem=Infinity;
   DISTRICTS.forEach((d,i)=>{
     const t=timers[i];
     if(t.unknown)return;
-    if(!t.running||!t.end){bestIsAlive=true;bestName=d.name;bestTimer='ALIVE';bestRem=-1;return;}
+    if(!t.running||!t.end){if(!bestIsAlive){bestIsAlive=true;bestName=d.name;bestTimer='ALIVE';bestRem=-1;bestIdx=i;}return;}
+    if(bestIsAlive)return;
     const rem=Math.max(0,(t.end-now)/1000);
-    if(rem<bestRem){bestRem=rem;bestName=d.name;bestTimer=fmt(rem);bestIsAlive=false;}
+    if(rem<bestRem){bestRem=rem;bestName=d.name;bestTimer=fmt(rem);bestIsAlive=false;bestIdx=i;}
   });
-  if(bestRem===-1){
-    DISTRICTS.forEach((d,i)=>{if(!timers[i].running&&!timers[i].unknown){bestName=d.name;bestTimer='ALIVE';}});
-  }
-  const nameEl=document.getElementById('nextUpName'),timerEl=document.getElementById('nextUpCountdown');
+  const card=document.getElementById('nextUp');
+  const nameEl=document.getElementById('nextUpName');
+  const bossesEl=document.getElementById('nextUpBosses');
+  const timerEl=document.getElementById('nextUpCountdown');
+  const tvEl=document.getElementById('nextUpTV');
+  const imgEl=document.getElementById('nextUpImg');
   if(nameEl)nameEl.textContent=bestName;
   if(timerEl){timerEl.textContent=bestTimer;timerEl.className='next-up-timer'+(bestIsAlive||bestTimer==='ALIVE'?' alive':'');}
+  if(card)card.classList.toggle('alive',bestIsAlive||bestTimer==='ALIVE');
+  if(bossesEl){bossesEl.textContent=bestIdx>=0?DISTRICTS[bestIdx].bosses.join(' · '):'—';}
+  if(tvEl)tvEl.textContent=perKill().toLocaleString();
+  if(imgEl&&bestIdx>=0){
+    const firstBoss=DISTRICTS[bestIdx].bosses[0];
+    const src=(typeof BOSS_IMAGES!=='undefined'&&BOSS_IMAGES[firstBoss])||'assets/boss-skull.png';
+    if(imgEl.dataset.boss!==firstBoss){imgEl.dataset.boss=firstBoss;imgEl.src=src;}
+  }
 }
 
 function perKill(){return Math.round(BASE_TV*MULT[stI]*(1+dcHeld.size*0.33)/grSz);}
