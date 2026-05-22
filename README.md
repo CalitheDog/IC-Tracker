@@ -57,20 +57,10 @@ No build step, no dependencies, no npm. It's a single HTML file.
 
 ```
 index.html        — the entire app (HTML + CSS + JS, single file)
-js/app.js         — copy of the JS logic used by the test runner
-tests/
-  index.html      — test harness (loads app.js + tests)
-  runner.js       — minimal describe/it/assert test runner
-  tests.js        — 154 tests covering all core logic
+assets/           — boss portraits, alliance crests, icons, textures
+manifest.json     — PWA manifest
+sw.js             — service worker (offline caching)
 ```
-
-## Running tests
-
-```bash
-python -m http.server 5173
-```
-
-Open `http://localhost:5173/tests/` — results render in the browser.
 
 ## Districts and bosses
 

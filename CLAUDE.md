@@ -9,23 +9,13 @@ python -m http.server 5173
 ```
 
 - App: `http://localhost:5173`
-- Tests: `http://localhost:5173/tests/`
 - OBS overlay mode: `http://localhost:5173/?obs=1`
 
 No build step, no npm, no bundler.
 
-## Running tests
+## Architecture
 
-Open `http://localhost:5173/tests/` after starting the server. Results render on the page; there is no CLI test runner.
-
-When you edit `tests/tests.js`, `js/app.js`, or `tests/runner.js`, **bump the `?v=N` cache-busting query in `tests/index.html`'s script tags** — the browser cache for these files is sticky and will otherwise serve stale copies and produce misleading FAILs against names that no longer exist.
-
-## Critical architecture: two copies of JS
-
-- **`index.html`** is the live app — all HTML, CSS, and JS inline.
-- **`js/app.js`** is a separate copy of the JS, loaded by `tests/index.html` so tests can import functions without the live DOM.
-
-**The two files must be kept in sync manually.** When adding or changing a function, update both. The two files have drifted in places (some functions in `js/app.js` reference state shapes that don't exist live, e.g. `state.timers[i]`); only edit the parts of `js/app.js` that the tests actually call, and prefer mirroring the live `index.html` implementation.
+`index.html` is the entire app — all HTML, CSS, and JS inline. No modules, no separate source files.
 
 ## Key globals (module-level, no framework)
 
@@ -99,14 +89,8 @@ Base CSS is a 2-column grid; the redesign overrides `.districts` to `display:fle
 
 ## Dead code worth knowing about
 
-- **`.unknown` timer state**: Rendering for purple/UNKNOWN exists and is exercised by tests, but no production code path sets `timers[i].unknown = true`. Don't promise this in user-facing copy.
+- **`.unknown` timer state**: Rendering for purple/UNKNOWN exists, but no production code path sets `timers[i].unknown = true`. Don't promise this in user-facing copy.
 - **`#netSessionTv` / `#grossSessionTv` / `#effSessionTv` / `#sessionLog` / `#districtStatusSummary` / `#nextTargetTitle` / `#nextTargetReason` / `#killNextBtn` / `#projectedNote` / `#copyPill`**: hidden sentinel divs in `.right-col` only exist so legacy `updateCommandCenter()`-style code paths don't throw on `getElementById(...).textContent`. The functions writing to them are never rendered. If you remove either the elements or the functions, remove both together.
-
-## Test structure
-
-`tests/tests.js` uses `describe` / `it` / `assert` from `tests/runner.js`. Each suite calls `resetState()` first to restore globals to a clean baseline — keep `resetState()` updated whenever new module-level state is added.
-
-Tests run against `js/app.js` with a mock DOM in `tests/index.html`. Hidden `<div>` sentinel elements (matching live-app IDs) are required so JS null-checks don't throw. When adding a new live-app element with an `id` referenced in JS, also add a hidden sentinel for it here.
 
 ## What NOT to add
 

@@ -16,8 +16,7 @@ const ASSETS = [
   './assets/boss-skull.png',
   './assets/chud.webp',
   './assets/chad.webp',
-  './assets/streak.png',
-  './js/app.js'
+  './assets/streak.png'
 ];
 
 self.addEventListener('install', e => {
