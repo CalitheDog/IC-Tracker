@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>ESO Imperial City Tracker</title>
+<title>Tel Var Cycle — ESO Imperial City boss & farming optimizer</title>
 <meta name="description" content="Boss timers and Tel Var calculator for Elder Scrolls Online Imperial City — built for console players.">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" href="assets/stone.png">
@@ -11,8 +11,9 @@
 <meta name="theme-color" content="#c9a84c">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="IC Tracker">
+<meta name="apple-mobile-web-app-title" content="Tel Var Cycle">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#090805;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:1.5rem 0 3rem;font-family:'Crimson Text',Georgia,serif;position:relative;overflow-x:hidden;color:#d4c090;}
@@ -107,11 +108,14 @@ svg.map text{pointer-events:none;user-select:none;-webkit-user-select:none;}
    transition can get stuck on the old value when the class changes. Snap instantly instead. */
 .sc{cursor:pointer;}
 .sc.s-alive{opacity:0.22;}
-.sc.s-alive.s-held{opacity:0.40;}
+.sc.s-alive.s-held{opacity:0.85;}
 .sc.s-dead{opacity:0.55;}
+.sc.s-dead.s-held{opacity:0.80;}
 .sc.s-warn{opacity:0.75;}
+.sc.s-warn.s-held{opacity:0.90;}
 .sc.s-unknown{opacity:0.55;}
 .sc:hover{opacity:0.78;}
+.sc.s-held:hover{opacity:1;}
 .sc.s-warn:hover{opacity:0.92;}
 
 /* TEL VAR — now full width */
@@ -269,7 +273,8 @@ body.alliance-ad .dc-pill{background:rgba(120,95,0,0.32);border-color:rgba(220,1
 .footer{margin-top:1.2rem;font-size:0.74rem;font-weight:700;letter-spacing:0.16em;color:#c9a84c;text-transform:uppercase;text-align:center;text-shadow:0 0 16px rgba(201,168,76,0.28);}
 .credits{margin-top:0.55rem;font-family:'Cinzel',serif;font-size:0.7rem;font-weight:700;letter-spacing:0.18em;color:#c9a84c;text-transform:uppercase;text-align:center;text-shadow:0 0 18px rgba(201,168,76,0.32);}
 
-/* BOSS IMAGE CHIPS */
+  /* Boss-thumb default (mobile / narrow): hidden, chips already in row */
+  .drow .boss-thumbs{display:none;}
 .boss-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px;}
 .boss-chip{display:flex;align-items:center;gap:6px;min-width:0;max-width:100%;padding:3px 7px 3px 3px;border-radius:5px;background:rgba(0,0,0,0.28);border:1px solid rgba(201,168,76,0.16);color:#8a6a30;cursor:pointer;transition:all 0.15s;font-family:'Crimson Text',Georgia,serif;}
 .boss-chip:hover{border-color:rgba(201,168,76,0.55);background:rgba(201,168,76,0.08);color:#d4b060;transform:translateY(-1px);}
@@ -1048,6 +1053,1184 @@ body.obs .ddot{width:9px!important;height:9px!important;}
 body.obs .dname{font-size:0.85rem!important;}
 body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!important;}
 
+/* =====================================================================
+   COMMAND DECK — base reskin (May 2026)
+   Tactical HUD aesthetic. Hard geometric panels, mono numerics,
+   amber/cyan accents on dark navy. Theme variants & OBS mode still
+   override on specificity / !important.
+   ===================================================================== */
+:root{
+  --cd-bg:        #0a0d12;
+  --cd-bg2:       #0e1219;
+  --cd-panel:     #10151c;
+  --cd-panel2:    #141a23;
+  --cd-line:      #1d2530;
+  --cd-line2:     #2a3442;
+  --cd-line3:     #3a4554;
+  --cd-text:      #cbd5e1;
+  --cd-text-dim:  #94a3b8;
+  --cd-mute:      #5b6473;
+  --cd-dim:       #3d4350;
+  --cd-amber:     #f0a020;
+  --cd-amber-hi:  #ffb938;
+  --cd-amber-lo:  #6a4810;
+  --cd-cyan:      #4dd0e1;
+  --cd-cyan-hi:   #7dd3fc;
+  --cd-green:     #3ee07f;
+  --cd-green-hi:  #7af09b;
+  --cd-orange:    #ff8a3a;
+  --cd-red:       #ff4d4d;
+  --cd-red-hi:    #ff8a8a;
+  --cd-purple:    #a98cff;
+}
+
+/* ===== body / background ===== */
+body{
+  background:
+    radial-gradient(900px 520px at 20% -10%, rgba(240,160,32,0.04), transparent 70%),
+    radial-gradient(1000px 520px at 90% 110%, rgba(77,208,225,0.05), transparent 70%),
+    var(--cd-bg) !important;
+  color:var(--cd-text);
+  font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  padding:0 0 0;
+}
+body::before{
+  background:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0 1px, transparent 1px 3px);
+  opacity:0.5;
+}
+
+/* ===== topbar ===== */
+.cmd-topbar{
+  position:sticky;top:0;z-index:50;
+  width:100%;height:54px;
+  align-self:stretch;
+  display:grid;grid-template-columns:auto 1fr;align-items:stretch;
+  background:linear-gradient(180deg,var(--cd-bg2),var(--cd-bg));
+  border-bottom:1px solid var(--cd-line);
+  margin-bottom:18px;
+}
+.ctb-brand{
+  display:flex;align-items:center;gap:12px;
+  padding:0 22px;border-right:1px solid var(--cd-line);min-width:260px;
+}
+.ctb-mark{
+  width:28px;height:28px;flex-shrink:0;
+  object-fit:contain;
+  filter:drop-shadow(0 0 8px rgba(77,208,225,0.35));
+}
+.ctb-titleblock{line-height:1.1;}
+.ctb-title{
+  font-size:12px;letter-spacing:0.32em;text-transform:uppercase;
+  color:var(--cd-amber);font-weight:700;
+}
+.ctb-sub{font-size:9px;letter-spacing:0.22em;color:var(--cd-mute);text-transform:uppercase;margin-top:2px;}
+.ctb-strip{display:flex;align-items:stretch;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;}
+.ctb-strip::-webkit-scrollbar{display:none;}
+.ctb-cell{
+  display:flex;align-items:center;gap:10px;
+  padding:0 18px;border-right:1px solid var(--cd-line);white-space:nowrap;
+}
+.ctb-cell.ctb-last{border-right:0;margin-left:auto;}
+.ctb-k{font-size:9px;letter-spacing:0.22em;color:var(--cd-mute);text-transform:uppercase;}
+.ctb-v{
+  font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;
+  font-size:13px;letter-spacing:0.02em;color:var(--cd-text);
+  font-variant-numeric:tabular-nums;font-weight:500;
+}
+.ctb-v.ctb-amber{color:var(--cd-amber-hi);}
+.ctb-v.ctb-cyan{color:var(--cd-cyan-hi);}
+.ctb-pill{
+  font-family:'Inter',sans-serif;
+  font-size:10px;letter-spacing:0.18em;text-transform:uppercase;font-weight:600;
+  padding:4px 10px;border-radius:2px;
+}
+.ctb-pill.ep{background:rgba(255,77,77,0.10);border:1px solid rgba(255,77,77,0.45);color:#ff8a8a;}
+.ctb-pill.dc{background:rgba(77,208,225,0.10);border:1px solid rgba(77,208,225,0.45);color:#7dd3fc;}
+.ctb-pill.ad{background:rgba(240,160,32,0.10);border:1px solid rgba(240,160,32,0.45);color:var(--cd-amber-hi);}
+.ctb-pill:not(.ep):not(.dc):not(.ad):not(.ctb-session){
+  background:rgba(255,255,255,0.04);border:1px solid var(--cd-line2);color:var(--cd-text-dim);
+}
+.ctb-pill.ctb-session{
+  background:rgba(62,224,127,0.10);border:1px solid rgba(62,224,127,0.45);color:#5ce896;
+  display:inline-flex;align-items:center;gap:8px;
+}
+.ctb-pill.ctb-session.standby{
+  background:rgba(255,255,255,0.04);border-color:var(--cd-line2);color:var(--cd-mute);
+}
+.ctb-pill.ctb-session.live::before{
+  content:'';width:6px;height:6px;border-radius:50%;background:var(--cd-green);
+  box-shadow:0 0 8px rgba(62,224,127,0.8);
+  animation:cd-pulse 1.6s ease-in-out infinite;
+}
+@keyframes cd-pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+/* ===== layout — wider, hard-edged ===== */
+.layout{
+  width:100%;max-width:1320px;padding:18px;gap:18px;
+}
+@media (min-width:980px){
+  .layout{max-width:1320px;gap:18px;padding:20px 24px;}
+  .left-col{width:auto;flex-shrink:0;}
+  .map-wrap, svg.map{width:480px;height:480px;}
+}
+
+/* ===== map ===== */
+.map-section{gap:10px;align-items:stretch;}
+.map-toolbar{
+  border:1px solid var(--cd-line);background:var(--cd-panel);padding:6px 10px;
+  border-radius:0;
+}
+.map-hint{
+  font-family:'Inter',sans-serif;font-size:10px;letter-spacing:0.18em;
+  color:var(--cd-mute);text-transform:uppercase;
+}
+.map-hint em{color:var(--cd-cyan-hi);font-style:normal;}
+.map-hint .eh{color:var(--cd-amber-hi);font-style:normal;}
+.tbtn{
+  font-family:'Inter',sans-serif;font-size:10px;letter-spacing:0.16em;font-weight:600;
+  padding:6px 12px;border-radius:0;
+  background:transparent;border:1px solid var(--cd-line2);color:var(--cd-text-dim);
+  text-transform:uppercase;
+}
+.tbtn:hover{
+  color:var(--cd-amber-hi);border-color:var(--cd-line3);
+  background:rgba(240,160,32,0.06);transform:none;box-shadow:none;
+}
+.tbtn.on{
+  background:rgba(240,160,32,0.10);border-color:rgba(240,160,32,0.55);color:var(--cd-amber-hi);
+  box-shadow:none;
+}
+.tbtn.sv{background:rgba(62,224,127,0.10);border-color:rgba(62,224,127,0.45);color:#5ce896;}
+.tbtn.rs{background:rgba(255,77,77,0.08);border-color:rgba(255,77,77,0.40);color:var(--cd-red-hi);}
+.saved-pill{color:#5ce896;font-family:'Inter',sans-serif;font-weight:600;}
+
+.map-wrap{
+  filter:drop-shadow(0 8px 20px rgba(0,0,0,0.6));
+  border:1px solid var(--cd-line);background:var(--cd-bg2);
+  padding:0;
+  position:relative;
+  /* Tactical corner-bracket frame */
+  clip-path:polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
+}
+.map-wrap::before, .map-wrap::after{
+  content:'';position:absolute;width:12px;height:12px;border:1px solid var(--cd-amber);z-index:2;
+  pointer-events:none;
+}
+.map-wrap::before{top:6px;left:6px;border-right:0;border-bottom:0;}
+.map-wrap::after{bottom:6px;right:6px;border-left:0;border-top:0;}
+svg.map{display:block;}
+svg.map image{filter:saturate(0.6) brightness(0.85) hue-rotate(-15deg);}
+
+/* "Next" cell — compact replacement for the giant Next Respawn card */
+.ctb-cell.ctb-next{
+  gap:8px;
+  background:linear-gradient(90deg,rgba(255,138,58,0.10),transparent);
+  border-left:2px solid var(--cd-orange);
+  padding-left:14px;padding-right:16px;
+}
+.ctb-cell.ctb-next.alive{
+  background:linear-gradient(90deg,rgba(62,224,127,0.12),transparent);
+  border-left-color:var(--cd-green);
+}
+.ctb-cell.ctb-next.urgent{
+  background:linear-gradient(90deg,rgba(255,77,77,0.14),transparent);
+  border-left-color:var(--cd-red);
+}
+.ctb-next-name{
+  font-family:'Inter',sans-serif;font-weight:600;
+  font-size:11px;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--cd-text);
+}
+.ctb-next-time{
+  font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;
+  font-size:16px;font-weight:600;letter-spacing:0.02em;
+  color:var(--cd-orange);
+  text-shadow:0 0 12px rgba(255,138,58,0.30);
+}
+.ctb-cell.ctb-next.urgent .ctb-next-time{
+  color:var(--cd-red);
+  text-shadow:0 0 14px rgba(255,77,77,0.40);
+  animation:cd-pulse 0.7s ease-in-out infinite;
+}
+.ctb-cell.ctb-next.alive .ctb-next-time{
+  color:var(--cd-green);
+  font-family:'Inter',sans-serif;font-size:11px;letter-spacing:0.18em;font-weight:700;
+  text-shadow:0 0 10px rgba(62,224,127,0.30);
+}
+
+/* Hide the original Next Respawn card — it's redundant with the strip + topbar indicator */
+.next-up{display:none !important;}
+.next-up{
+  background:linear-gradient(180deg,var(--cd-panel),var(--cd-bg2)) !important;
+  border:1px solid var(--cd-line2) !important;
+  border-radius:0 !important;
+  padding:14px 16px !important;
+  box-shadow:none !important;
+  position:relative;
+}
+.next-up::before{
+  content:'' !important;
+  position:absolute !important;
+  inset:auto !important;
+  left:0 !important;top:0 !important;bottom:0 !important;width:3px !important;height:100% !important;
+  background:linear-gradient(180deg,var(--cd-orange),var(--cd-red)) !important;
+  border-radius:0 !important;
+}
+.next-up::after{display:none !important;}
+.next-up.alive::before{background:linear-gradient(180deg,var(--cd-green-hi),var(--cd-green)) !important;}
+.next-up.alive{
+  border-color:rgba(62,224,127,0.45) !important;
+  box-shadow:none !important;
+}
+.next-up-label{
+  font-family:'Inter',sans-serif !important;font-size:10px !important;
+  letter-spacing:0.32em !important;color:var(--cd-orange) !important;
+  text-transform:uppercase;font-weight:600;
+  display:flex;align-items:center;gap:10px;margin-bottom:10px;
+}
+.next-up-label::before, .next-up-label::after{
+  height:1px;background:linear-gradient(90deg,transparent,rgba(255,138,58,0.5),transparent) !important;
+  max-width:none !important;
+}
+.next-up.alive .next-up-label{color:#5ce896 !important;}
+.next-up-content{
+  display:grid !important;
+  grid-template-columns:auto 1fr auto !important;
+  gap:16px !important;align-items:center !important;
+}
+.next-up-portrait{
+  width:72px !important;height:72px !important;
+  border:1px solid var(--cd-line2) !important;border-radius:0 !important;
+  box-shadow:none !important;background:#000 !important;
+  position:relative;
+}
+.next-up-portrait::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,0.7));
+  pointer-events:none;
+}
+.next-up-img{filter:contrast(1.1) saturate(0.85) !important;}
+.next-up-portrait .corner{
+  width:9px !important;height:9px !important;
+  border:1.5px solid var(--cd-amber) !important;opacity:0.9 !important;
+}
+.next-up.alive .next-up-portrait{box-shadow:none !important;border-color:rgba(62,224,127,0.55) !important;}
+.next-up.alive .corner{border-color:var(--cd-green) !important;}
+.next-up-info{gap:4px !important;}
+.next-up-name{
+  font-family:'Inter',sans-serif !important;font-weight:600 !important;
+  font-size:20px !important;letter-spacing:0.12em !important;
+  text-transform:uppercase;color:var(--cd-text) !important;
+  text-shadow:none !important;line-height:1.05;
+}
+.next-up.alive .next-up-name{color:#7af09b !important;}
+.next-up-bosses{
+  font-family:'Inter',sans-serif !important;font-style:normal !important;
+  font-size:11px !important;color:var(--cd-mute) !important;letter-spacing:0.02em;
+}
+.next-up-meta{
+  flex-direction:column;align-items:flex-end !important;gap:2px !important;
+  justify-content:center !important;
+}
+.next-up-timer{
+  font-family:'JetBrains Mono','IBM Plex Mono',monospace !important;
+  font-variant-numeric:tabular-nums !important;font-weight:600 !important;
+  font-size:40px !important;letter-spacing:0.02em !important;
+  color:var(--cd-orange) !important;
+  text-shadow:0 0 18px rgba(255,138,58,0.25) !important;
+  line-height:0.95;
+}
+.next-up-timer.alive{
+  color:var(--cd-green) !important;
+  text-shadow:0 0 20px rgba(62,224,127,0.40) !important;
+  animation:cd-pulse 1.6s ease-in-out infinite;
+}
+.next-up-tv{
+  font-family:'JetBrains Mono',monospace !important;font-weight:600 !important;
+  font-size:12px !important;letter-spacing:0.04em !important;
+  color:var(--cd-amber-hi) !important;
+}
+
+/* ===== Districts — single column tactical strip ===== */
+.districts{display:flex !important;flex-direction:column !important;gap:5px !important;}
+.drow{
+  background:var(--cd-panel) !important;
+  border:1px solid var(--cd-line) !important;
+  border-radius:0 !important;
+  padding:11px 14px !important;
+  display:grid !important;
+  /* ddot | dinfo (sized to its content, with a comfortable minimum so chips don't wrap) | dtimer | empty 1fr — packs the status next to the bosses, leaving blank space on the right instead of between name and ALIVE */
+  grid-template-columns:auto minmax(280px,max-content) auto 1fr !important;
+  gap:14px !important;align-items:center !important;
+  box-shadow:none !important;
+  position:relative;overflow:hidden;
+}
+.drow::before{width:3px !important;border-radius:0 !important;}
+.drow.alive::before{background:linear-gradient(180deg,var(--cd-green-hi),var(--cd-green)) !important;}
+.drow.alive{
+  border-color:rgba(62,224,127,0.40) !important;
+  background:linear-gradient(90deg,rgba(62,224,127,0.06),var(--cd-panel) 35%) !important;
+}
+.drow.dead::before{background:var(--cd-amber-lo) !important;}
+.drow.dead{border-color:var(--cd-line2) !important;background:var(--cd-panel) !important;}
+.drow.warn::before{background:var(--cd-orange) !important;}
+.drow.warn{
+  border-color:rgba(255,138,58,0.55) !important;
+  background:linear-gradient(90deg,rgba(255,138,58,0.10),var(--cd-panel) 30%) !important;
+  box-shadow:0 0 12px rgba(255,138,58,0.10) !important;
+}
+.drow.dc-held.alive::before{background:var(--cd-cyan) !important;}
+.drow.dc-held.alive{border-color:rgba(125,211,252,0.40) !important;}
+.drow.just-up{
+  border-color:rgba(62,224,127,0.85) !important;
+  background:rgba(62,224,127,0.10) !important;
+}
+.ddot{
+  width:8px !important;height:8px !important;
+  border-radius:0 !important;flex-shrink:0;
+  transform:rotate(45deg);
+  background:var(--cd-amber-lo);
+}
+.ddot.alive{background:var(--cd-green) !important;box-shadow:0 0 8px rgba(62,224,127,0.8) !important;}
+.ddot.warn{background:var(--cd-orange) !important;box-shadow:0 0 8px rgba(255,138,58,0.6) !important;animation:cd-pulse 0.7s ease-in-out infinite !important;}
+.ddot.dead{background:var(--cd-amber-lo) !important;animation:cd-pulse 2s ease-in-out infinite !important;}
+.dname{
+  font-family:'Inter',sans-serif !important;font-weight:600 !important;
+  font-size:13px !important;letter-spacing:0.18em !important;
+  text-transform:uppercase;color:var(--cd-text) !important;
+  text-shadow:none !important;
+  margin-bottom:3px !important;
+}
+.drow.alive .dname{color:#7af09b !important;}
+.drow.warn .dname{color:var(--cd-orange) !important;text-shadow:0 0 12px rgba(255,138,58,0.30) !important;}
+.drow.dc-held .dname{color:var(--cd-cyan-hi) !important;}
+.dbosses{
+  font-family:'Inter',sans-serif !important;font-size:11px !important;
+  color:var(--cd-mute) !important;line-height:1.3;
+}
+.drow.alive .dbosses{color:#9ad8aa !important;}
+.drow.dead .dbosses{color:var(--cd-mute) !important;}
+.drow.warn .dbosses{color:#d4a070 !important;}
+.dc-pill{
+  font-family:'Inter',sans-serif !important;font-weight:600 !important;
+  font-size:9px !important;letter-spacing:0.18em !important;
+  padding:3px 8px !important;border-radius:0 !important;
+  background:rgba(77,208,225,0.10) !important;
+  border:1px solid rgba(77,208,225,0.45) !important;
+  color:var(--cd-cyan-hi) !important;
+}
+.dtimer{
+  font-family:'JetBrains Mono','IBM Plex Mono',monospace !important;
+  font-variant-numeric:tabular-nums !important;
+  font-size:22px !important;font-weight:500 !important;letter-spacing:0.02em !important;
+  min-width:90px !important;text-align:left !important;
+  color:var(--cd-amber-lo) !important;
+}
+.dtimer.dead{color:var(--cd-amber-hi) !important;text-shadow:none !important;}
+.dtimer.warn{color:var(--cd-orange) !important;text-shadow:0 0 12px rgba(255,138,58,0.35) !important;}
+.dtimer.urgent{color:var(--cd-red) !important;text-shadow:0 0 14px rgba(255,77,77,0.45) !important;animation:cd-pulse 0.7s ease-in-out infinite !important;}
+.dtimer.alive{
+  color:var(--cd-green) !important;font-size:13px !important;letter-spacing:0.20em !important;
+  font-family:'Inter',sans-serif !important;font-weight:700 !important;
+  text-shadow:0 0 10px rgba(62,224,127,0.30) !important;
+  animation:none !important;
+}
+.dbtn{
+  font-family:'Inter',sans-serif !important;font-weight:600 !important;
+  font-size:10px !important;letter-spacing:0.16em !important;
+  padding:8px 14px !important;border-radius:0 !important;
+  text-transform:uppercase;
+}
+.dbtn.kill{
+  background:rgba(255,77,77,0.10) !important;border:1px solid rgba(255,77,77,0.50) !important;
+  color:var(--cd-red-hi) !important;
+}
+.dbtn.kill:hover{
+  background:rgba(255,77,77,0.20) !important;color:#ffb8b8 !important;
+  transform:none !important;box-shadow:none !important;
+}
+.dbtn.rst{
+  background:transparent !important;border:1px solid var(--cd-line2) !important;
+  color:var(--cd-mute) !important;
+}
+.dbtn.rst:hover{
+  color:var(--cd-text-dim) !important;border-color:var(--cd-line3) !important;
+  transform:none !important;box-shadow:none !important;background:rgba(255,255,255,0.03) !important;
+}
+
+/* keep drow-actions on its own row */
+.drow .drow-actions{
+  grid-column:1 / -1;display:flex;gap:6px;justify-content:flex-end;
+  margin-top:6px;padding-top:8px;border-top:1px dashed var(--cd-line);
+}
+
+/* ===== Action strip ===== */
+.action-strip{
+  display:grid !important;
+  grid-template-columns:repeat(4,1fr) !important;gap:6px !important;
+}
+.qs-btn{
+  font-family:'Inter',sans-serif !important;font-weight:600 !important;
+  font-size:10px !important;letter-spacing:0.16em !important;
+  padding:10px 12px !important;border-radius:0 !important;
+  text-transform:uppercase;
+}
+.qs-btn.bank{
+  background:rgba(77,208,225,0.10) !important;border:1px solid rgba(77,208,225,0.45) !important;
+  color:var(--cd-cyan-hi) !important;
+}
+.qs-btn.gank{
+  background:rgba(255,77,77,0.10) !important;border:1px solid rgba(255,77,77,0.55) !important;
+  color:var(--cd-red-hi) !important;
+}
+.qs-btn.undo{
+  background:rgba(169,140,255,0.10) !important;border:1px solid rgba(169,140,255,0.42) !important;
+  color:var(--cd-purple) !important;
+}
+.qs-btn.sort{
+  background:rgba(255,255,255,0.03) !important;border:1px solid var(--cd-line2) !important;
+  color:var(--cd-text-dim) !important;
+}
+.qs-btn:hover{transform:none !important;box-shadow:none !important;color:#fff !important;}
+.reset-all{
+  border-radius:0 !important;
+  background:transparent !important;border:1px solid rgba(255,77,77,0.30) !important;
+  color:rgba(255,138,138,0.7) !important;
+  font-family:'Inter',sans-serif !important;font-weight:500 !important;
+  font-size:10px !important;letter-spacing:0.18em !important;text-transform:uppercase;
+  padding:8px !important;
+}
+.reset-all:hover{
+  background:rgba(255,77,77,0.08) !important;color:var(--cd-red-hi) !important;
+  border-color:rgba(255,77,77,0.55) !important;
+  transform:none !important;box-shadow:none !important;
+}
+
+/* ===== Tel Var panel ===== */
+/* Align Tel Var outer width with .layout so the panel extends to the same edges as the boss-card column */
+.telvar-details{max-width:1320px;padding:0 18px;}
+@media (min-width:980px){.telvar-details{padding:0 24px;}}
+.panel{
+  background:linear-gradient(180deg,var(--cd-panel),var(--cd-bg2)) !important;
+  border:1px solid var(--cd-line) !important;border-radius:0 !important;
+  padding:18px 20px !important;box-shadow:none !important;
+}
+.panel-hd{
+  font-family:'Inter',sans-serif !important;font-weight:600 !important;
+  font-size:11px !important;letter-spacing:0.32em !important;
+  color:var(--cd-amber-hi) !important;
+  border-bottom:1px solid var(--cd-line2) !important;padding-bottom:10px !important;
+  display:flex;align-items:center;gap:8px;
+}
+.panel-hd::after{display:none !important;}
+.tv-stone-icon{filter:saturate(1.1);}
+.tv-lbl{
+  font-family:'Inter',sans-serif !important;font-weight:600 !important;
+  font-size:10px !important;letter-spacing:0.22em !important;
+  color:var(--cd-mute) !important;text-transform:uppercase;
+}
+.seg{
+  font-family:'Inter',sans-serif !important;font-weight:600 !important;
+  font-size:11px !important;letter-spacing:0.10em !important;
+  padding:7px 12px !important;border-radius:0 !important;
+  background:rgba(255,255,255,0.02) !important;
+  border:1px solid var(--cd-line2) !important;color:var(--cd-text-dim) !important;
+}
+.seg:hover{color:var(--cd-amber-hi) !important;border-color:var(--cd-line3) !important;transform:none !important;box-shadow:none !important;}
+.seg.sel{
+  background:rgba(240,160,32,0.12) !important;border-color:rgba(240,160,32,0.55) !important;
+  color:var(--cd-amber-hi) !important;
+}
+.alliance-grid{gap:6px !important;}
+.alliance-btn{
+  font-family:'Inter',sans-serif !important;font-weight:600 !important;
+  font-size:11px !important;letter-spacing:0.18em !important;
+  padding:10px !important;border-radius:0 !important;
+}
+.alliance-btn.ep{
+  background:rgba(255,77,77,0.08) !important;border:1px solid rgba(255,77,77,0.40) !important;
+  color:var(--cd-red-hi) !important;
+}
+.alliance-btn.dc{
+  background:rgba(77,208,225,0.08) !important;border:1px solid rgba(77,208,225,0.40) !important;
+  color:var(--cd-cyan-hi) !important;
+}
+.alliance-btn.ad{
+  background:rgba(240,160,32,0.08) !important;border:1px solid rgba(240,160,32,0.40) !important;
+  color:var(--cd-amber-hi) !important;
+}
+.alliance-btn.sel{outline:0 !important;box-shadow:0 0 0 2px rgba(240,160,32,0.20) !important;}
+.alliance-btn.ep.sel{box-shadow:0 0 0 2px rgba(255,77,77,0.25) !important;background:rgba(255,77,77,0.18) !important;}
+.alliance-btn.dc.sel{box-shadow:0 0 0 2px rgba(77,208,225,0.25) !important;background:rgba(77,208,225,0.18) !important;}
+.alliance-btn.ad.sel{box-shadow:0 0 0 2px rgba(240,160,32,0.25) !important;background:rgba(240,160,32,0.18) !important;}
+.preset-grid{gap:6px !important;}
+.preset-btn{
+  font-family:'Inter',sans-serif !important;font-weight:600 !important;
+  font-size:10px !important;letter-spacing:0.14em !important;
+  padding:10px !important;border-radius:0 !important;
+}
+.preset-btn.chud,.preset-btn.chad,.preset-btn.streakah{box-shadow:none !important;}
+.preset-btn.chud{background:rgba(255,255,255,0.02) !important;border:1px solid var(--cd-line2) !important;color:var(--cd-text-dim) !important;}
+.preset-btn.chad{background:rgba(240,160,32,0.10) !important;border:1px solid rgba(240,160,32,0.50) !important;color:var(--cd-amber-hi) !important;}
+.preset-btn.streakah{background:rgba(255,77,77,0.10) !important;border:1px solid rgba(255,77,77,0.55) !important;color:var(--cd-red-hi) !important;}
+.preset-btn.active{outline:0 !important;box-shadow:0 0 0 2px rgba(255,255,255,0.10) !important;}
+.preset-note{color:var(--cd-red-hi) !important;}
+.dc-grid{gap:5px !important;}
+.dc-toggle{
+  font-family:'Inter',sans-serif !important;font-weight:600 !important;
+  font-size:10px !important;letter-spacing:0.14em !important;
+  padding:6px 8px !important;border-radius:0 !important;
+  background:rgba(255,255,255,0.02) !important;border:1px solid var(--cd-line2) !important;
+  color:var(--cd-mute) !important;
+}
+.dc-toggle:hover{color:var(--cd-text-dim) !important;border-color:var(--cd-line3) !important;}
+.dc-toggle.held{
+  background:rgba(77,208,225,0.14) !important;border-color:rgba(77,208,225,0.55) !important;
+  color:var(--cd-cyan-hi) !important;
+}
+body.alliance-ep .dc-toggle.held{
+  background:rgba(255,77,77,0.14) !important;border-color:rgba(255,77,77,0.55) !important;
+  color:var(--cd-red-hi) !important;
+}
+body.alliance-ad .dc-toggle.held{
+  background:rgba(240,160,32,0.14) !important;border-color:rgba(240,160,32,0.55) !important;
+  color:var(--cd-amber-hi) !important;
+}
+.formula{
+  background:rgba(0,0,0,0.35) !important;border:1px solid var(--cd-line2) !important;
+  border-radius:0 !important;padding:10px 12px !important;
+  font-family:'JetBrains Mono',monospace !important;font-size:11px !important;
+  color:var(--cd-text-dim) !important;
+}
+.formula .hl{color:var(--cd-amber-hi) !important;font-family:'JetBrains Mono',monospace !important;font-weight:600 !important;}
+.formula .hlb{color:var(--cd-cyan-hi) !important;font-family:'JetBrains Mono',monospace !important;font-weight:600 !important;}
+.formula .res{
+  color:var(--cd-amber-hi) !important;font-family:'JetBrains Mono',monospace !important;
+  font-weight:600 !important;font-size:16px !important;
+}
+.tv-stats{gap:6px !important;}
+.tv-stat{
+  background:var(--cd-panel) !important;
+  border:1px solid var(--cd-line) !important;border-radius:0 !important;
+  padding:10px 8px !important;
+}
+.tv-sv{
+  font-family:'JetBrains Mono',monospace !important;font-weight:600 !important;
+  font-size:18px !important;color:var(--cd-text) !important;font-variant-numeric:tabular-nums;
+}
+.tv-sv.gold{color:var(--cd-amber-hi) !important;}
+.tv-sv.lost{color:var(--cd-red) !important;text-shadow:none !important;}
+.tv-sl{
+  font-family:'Inter',sans-serif !important;font-weight:500 !important;
+  font-size:9px !important;letter-spacing:0.20em !important;
+  color:var(--cd-mute) !important;text-transform:uppercase;
+}
+.tv-actions{gap:6px !important;}
+.tv-action{
+  font-family:'Inter',sans-serif !important;font-weight:600 !important;
+  font-size:10px !important;letter-spacing:0.18em !important;
+  padding:9px 12px !important;border-radius:0 !important;
+}
+.tv-action.start{background:rgba(62,224,127,0.10) !important;border:1px solid rgba(62,224,127,0.45) !important;color:#5ce896 !important;}
+.tv-action.end{background:rgba(255,255,255,0.04) !important;border:1px solid var(--cd-line2) !important;color:var(--cd-text-dim) !important;}
+.tv-action.bank{background:rgba(77,208,225,0.10) !important;border:1px solid rgba(77,208,225,0.45) !important;color:var(--cd-cyan-hi) !important;}
+.tv-action.gank{background:rgba(255,77,77,0.10) !important;border:1px solid rgba(255,77,77,0.55) !important;color:var(--cd-red-hi) !important;box-shadow:none !important;}
+.tv-action:hover{transform:none !important;box-shadow:none !important;color:#fff !important;}
+
+/* progress bar */
+.tv-target-bar{
+  border-radius:0 !important;height:8px !important;background:rgba(0,0,0,0.4) !important;
+  border:1px solid var(--cd-line2) !important;
+}
+.tv-target-fill{border-radius:0 !important;background:linear-gradient(90deg,var(--cd-amber-lo),var(--cd-amber-hi)) !important;}
+.tv-target-fill.done{background:linear-gradient(90deg,#1e7830,var(--cd-green)) !important;}
+.tv-target-bar-label{
+  font-family:'Inter',sans-serif !important;font-weight:600 !important;
+  font-size:10px !important;letter-spacing:0.18em !important;
+  color:var(--cd-mute) !important;
+}
+.tv-adj-input{
+  background:rgba(0,0,0,0.45) !important;border:1px solid var(--cd-line2) !important;
+  color:var(--cd-amber-hi) !important;border-radius:0 !important;
+  font-family:'JetBrains Mono',monospace !important;
+}
+
+/* ===== Sort button ===== */
+.sort-btn{
+  font-family:'Inter',sans-serif !important;font-weight:600 !important;
+  font-size:10px !important;letter-spacing:0.16em !important;
+  padding:6px 12px !important;border-radius:0 !important;
+  background:rgba(255,255,255,0.03) !important;border:1px solid var(--cd-line2) !important;
+  color:var(--cd-text-dim) !important;
+}
+.sort-btn.active{
+  background:rgba(240,160,32,0.10) !important;border-color:rgba(240,160,32,0.55) !important;
+  color:var(--cd-amber-hi) !important;
+}
+.sort-btn:hover{transform:none !important;box-shadow:none !important;}
+
+/* ===== Footer / credits ===== */
+.footer{
+  font-family:'Inter',sans-serif;font-weight:500;font-size:10px;letter-spacing:0.24em;
+  color:var(--cd-mute);text-shadow:none;text-transform:uppercase;
+  border-top:1px solid var(--cd-line);padding-top:14px;margin-top:8px;
+}
+.credits{
+  font-family:'Inter',sans-serif;font-weight:400;font-size:9px;letter-spacing:0.22em;
+  color:var(--cd-dim);text-shadow:none;text-transform:uppercase;
+}
+
+/* ===== Chrome buttons (theme/mute) ===== */
+#themeBtn{
+  background:var(--cd-panel) !important;
+  border:1px solid var(--cd-line2) !important;
+  border-radius:0 !important;
+  color:var(--cd-text-dim) !important;
+  font-family:'Inter',sans-serif !important;font-weight:600 !important;
+  font-size:10px !important;letter-spacing:0.16em !important;
+  padding:8px 14px !important;
+}
+#themeBtn:hover{color:var(--cd-amber-hi) !important;border-color:var(--cd-line3) !important;}
+.shortcut-hint{
+  background:var(--cd-panel);border:1px solid var(--cd-line2);
+  border-radius:0;color:var(--cd-mute);
+  font-family:'Inter',sans-serif;font-weight:500;
+  letter-spacing:0.14em;
+}
+
+/* ===== boss chips & modal ===== */
+.boss-chip{
+  background:rgba(255,255,255,0.02) !important;
+  border:1px solid var(--cd-line2) !important;border-radius:0 !important;
+  color:var(--cd-text-dim) !important;
+  font-family:'Inter',sans-serif !important;
+}
+.boss-chip:hover{
+  background:rgba(240,160,32,0.06) !important;border-color:rgba(240,160,32,0.45) !important;
+  color:var(--cd-amber-hi) !important;transform:none !important;
+}
+.boss-thumb{border-radius:0 !important;border:1px solid var(--cd-line2) !important;box-shadow:none !important;}
+.boss-modal-card{border-radius:0 !important;border:1px solid var(--cd-line2) !important;background:var(--cd-bg) !important;}
+.boss-modal-title{font-family:'Inter',sans-serif !important;color:var(--cd-amber-hi) !important;}
+.boss-modal-kicker{font-family:'Inter',sans-serif !important;color:var(--cd-mute) !important;}
+.boss-modal-kill{border-radius:0 !important;font-family:'Inter',sans-serif !important;font-weight:600 !important;}
+.boss-modal-close-bottom{border-radius:0 !important;font-family:'Inter',sans-serif !important;}
+
+/* ===== alerts ===== */
+.alert-toast{border-radius:0 !important;font-family:'Inter',sans-serif !important;}
+.toast-label{font-family:'Inter',sans-serif !important;}
+.toast-name{font-family:'Inter',sans-serif !important;color:var(--cd-text) !important;}
+
+/* drow.warn timer (legacy `.dtimer.warn` already styled, but ensure) */
+.drow-actions .dbtn{border-radius:0 !important;}
+
+/* =====================================================================
+   WIDE-SCREEN 3-COLUMN LAYOUT: map | districts | Tel Var sidebar
+   Fits everything above the fold so no scroll required at ≥1280px.
+   ===================================================================== */
+@media (min-width:1280px){
+  html, body{height:100%;}
+  body{
+    display:grid !important;
+    grid-template-columns: minmax(360px, 400px) 1fr minmax(360px, 400px);
+    grid-template-rows: auto 1fr auto auto;
+    grid-template-areas:
+      "topbar  topbar    topbar"
+      "map     districts telvar"
+      "actions actions   actions"
+      "footer  footer    footer";
+    column-gap:18px;row-gap:10px;
+    padding:0 24px 8px !important;
+    max-width:1560px;
+    margin:0 auto;
+    height:100vh;
+    overflow:hidden;
+  }
+  body > .cmd-topbar{
+    grid-area:topbar;
+    align-self:start;
+    margin:0 -24px 0;
+    width:calc(100% + 48px);
+  }
+  body > .layout{display:contents !important;padding:0 !important;}
+  .layout .left-col{
+    grid-area:map;width:100%;
+    align-self:stretch;
+    display:flex;flex-direction:column;gap:10px;
+    min-height:0;
+    height:100%;
+  }
+  .layout .right-col{
+    grid-area:districts;min-width:0;min-height:0;
+    align-self:stretch;
+    display:flex;flex-direction:column;gap:8px;
+    overflow-y:auto;
+    height:100%;
+    scrollbar-width:thin;
+    scrollbar-color:var(--cd-line2) transparent;
+  }
+  .layout .right-col::-webkit-scrollbar{width:5px;}
+  .layout .right-col::-webkit-scrollbar-thumb{background:var(--cd-line2);}
+  body > .telvar-details{
+    grid-area:telvar;
+    padding:0 !important;max-width:none !important;margin:0 !important;
+    align-self:start;
+    min-height:0;
+    max-height:100%;
+    overflow-y:auto;
+    scrollbar-width:thin;
+    scrollbar-color:var(--cd-line2) transparent;
+  }
+  body > .telvar-details::-webkit-scrollbar{width:5px;}
+  body > .telvar-details::-webkit-scrollbar-thumb{background:var(--cd-line2);}
+  body > .footer{grid-area:footer;align-self:start;margin-top:4px !important;padding-top:6px !important;}
+  body > .credits{display:none !important;}
+
+  /* Map shrinks to fit the column. Keep the SVG viewBox uniform so the
+     circular backdrop the SVG draws stays centered no matter the column. */
+  .map-section{align-items:center !important;}
+  .map-wrap{
+    width:380px !important;max-width:100% !important;height:380px !important;
+    aspect-ratio:1/1;align-self:center;
+  }
+  svg.map{width:380px !important;height:380px !important;}
+  @media (min-width:1560px){
+    .map-wrap{width:420px !important;height:420px !important;}
+    svg.map{width:420px !important;height:420px !important;}
+  }
+
+  /* Tel Var panel: single column, dense */
+  .telvar-panel{padding:14px 14px !important;position:sticky;top:64px;}
+  .panel-hd{font-size:10px !important;letter-spacing:0.26em !important;padding-bottom:8px !important;margin-bottom:8px !important;}
+  .telvar-cols{
+    display:flex !important;flex-direction:column !important;
+    grid-template-columns:none !important;gap:12px !important;align-items:stretch !important;
+  }
+  .telvar-col{gap:8px !important;}
+  .telvar-col > .tv-lbl{font-size:9px !important;margin-bottom:4px !important;}
+
+  /* Presets: 3 in a row, tighter */
+  .preset-grid{grid-template-columns:repeat(3,1fr) !important;gap:4px !important;margin-bottom:6px !important;}
+  .preset-btn{font-size:9px !important;padding:6px 4px !important;}
+  .preset-icon{width:14px !important;height:14px !important;}
+
+  /* Alliance: tighter */
+  .alliance-grid{gap:4px !important;margin-bottom:8px !important;}
+  .alliance-btn{font-size:10px !important;padding:7px 4px !important;letter-spacing:0.14em !important;}
+
+  /* Stones + Group: tighter */
+  .tv-grid{gap:6px !important;margin-bottom:6px !important;}
+  .seg{font-size:10px !important;padding:5px 8px !important;}
+
+  /* Held districts: 3-wide grid stays, tighter */
+  .dc-grid{gap:3px !important;margin-bottom:6px !important;}
+  .dc-toggle{font-size:9px !important;padding:5px 3px !important;letter-spacing:0.10em !important;}
+
+  /* Formula: smaller */
+  .formula{font-size:10px !important;padding:7px 9px !important;margin-bottom:6px !important;}
+  .formula .res{font-size:13px !important;}
+
+  /* Stats: 2-wide grid (was 3+), only unique-to-panel ones visible */
+  .tv-stats{grid-template-columns:1fr 1fr !important;gap:4px !important;}
+  .tv-stat{padding:7px 5px !important;}
+  .tv-sv{font-size:14px !important;}
+  .tv-sv-row .tv-sv{font-size:13px !important;}
+  .tv-sv-icon{width:11px !important;height:11px !important;}
+  .tv-sl{font-size:8px !important;letter-spacing:0.16em !important;margin-top:2px !important;}
+
+  /* Hide the 4 stats already pinned to the topbar */
+  .telvar-details .tv-stat:has(#tvT),
+  .telvar-details .tv-stat:has(#tvB),
+  .telvar-details .tv-stat:has(#tvPK),
+  .telvar-details .tv-stat:has(#tvTime){display:none !important;}
+
+  /* Tel Var target bar */
+  .tv-target-wrap{margin:5px 0 !important;}
+  .tv-target-bar{height:6px !important;}
+  .tv-target-bar-label{font-size:9px !important;}
+
+  /* Action buttons in panel */
+  .tv-action{font-size:9px !important;padding:7px 6px !important;min-width:0 !important;flex:1 1 0 !important;letter-spacing:0.14em !important;}
+  .tv-actions{gap:4px !important;margin-top:4px !important;}
+
+  /* Adjust inputs row */
+  .tv-adj-row{gap:4px !important;margin-top:6px !important;}
+  .tv-adj-input{font-size:11px !important;padding:5px 8px !important;}
+  .tv-adj-btn{font-size:9px !important;padding:5px 9px !important;letter-spacing:0.1em !important;}
+  .tv-adj-item-label{font-size:9px !important;letter-spacing:0.14em !important;}
+
+  /* Action strip below districts: still 4 across, slimmer */
+  .action-strip{gap:5px !important;}
+  .qs-btn{font-size:9px !important;padding:8px 10px !important;letter-spacing:0.14em !important;}
+
+  /* Reset-all: tiny utility */
+  .reset-all{font-size:9px !important;padding:6px !important;letter-spacing:0.20em !important;}
+
+  /* District rows: PORTRAITS + tight flex layout */
+  .layout .right-col{
+    justify-content:flex-start;
+  }
+  /* Districts container: rows are fixed-height, gap between (no flex:1 stretch) */
+  .districts{
+    flex:0 0 auto !important;
+    display:flex !important;flex-direction:column !important;
+    gap:8px !important;
+  }
+  .districts .drow{flex:0 0 110px !important;}
+
+  .drow{
+    display:grid !important;
+    grid-template-columns:auto auto 1fr auto auto auto !important;
+    align-items:stretch !important;
+    gap:0 !important;
+    padding:0 14px 0 0 !important;
+    flex-wrap:nowrap !important;
+    overflow:hidden;
+    min-height:0;
+    height:110px;
+    max-height:110px;
+  }
+  .drow .ddot{order:0;align-self:center;margin:0 12px 0 14px;}
+  .drow .boss-thumbs{
+    order:1;display:flex;align-items:stretch;flex-shrink:0;
+    height:110px;align-self:stretch;
+    position:relative;
+    margin-right:14px;
+  }
+  .drow .boss-thumbs img,
+  .drow .boss-thumbs .boss-thumb-ph{
+    width:110px;height:110px;
+    object-fit:cover;object-position:center 18%;
+    border:0;border-right:1px solid var(--cd-line2);
+    background:#000;display:block;
+    margin:0;flex-shrink:0;
+  }
+  .drow .boss-thumbs img:last-child,
+  .drow .boss-thumbs .boss-thumb-ph:last-child{border-right:0;}
+  .drow .boss-thumbs .boss-thumb-ph{
+    color:var(--cd-mute);font-size:24px;font-family:'Inter';
+    display:flex;align-items:center;justify-content:center;
+  }
+  /* Atmospheric vignette + state tint on portraits */
+  .drow .boss-thumbs::after{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,0.65));
+  }
+  .drow.alive .boss-thumbs::after{
+    background:linear-gradient(180deg,rgba(62,224,127,0.06),transparent 30%),
+               linear-gradient(180deg,transparent 45%,rgba(8,40,18,0.7));
+  }
+  .drow.warn .boss-thumbs::after{
+    background:linear-gradient(180deg,rgba(255,138,58,0.10),transparent 30%),
+               linear-gradient(180deg,transparent 45%,rgba(60,20,8,0.7));
+  }
+  .drow.dc-held .boss-thumbs::after{
+    background:linear-gradient(180deg,rgba(77,208,225,0.06),transparent 30%),
+               linear-gradient(180deg,transparent 45%,rgba(0,0,0,0.65));
+  }
+  .drow .dinfo{
+    order:2;flex:1 1 auto;min-width:0;
+    align-self:center;padding:8px 0;
+  }
+  .drow .dc-pill{order:3;flex-shrink:0;align-self:center;margin-right:8px;}
+  .drow .dtimer{order:4;flex-shrink:0;align-self:center;margin-right:14px;}
+  .drow .drow-actions{
+    order:5;flex-shrink:0;align-self:center;
+    grid-column:auto !important;
+    display:flex !important;gap:5px !important;
+    border-top:0 !important;margin:0 !important;padding:0 !important;
+    width:auto !important;
+  }
+  /* Now show the actual boss subtitle (it was hidden as part of .boss-chips) */
+  .drow .boss-chips{display:none !important;}
+  .drow .dbosses-text{
+    font-size:11px;line-height:1.35;color:var(--cd-mute);font-style:italic;
+    overflow:hidden;padding-right:14px;
+  }
+  .drow .dbosses-text > div{
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .drow.alive .dbosses-text{color:#9ad8aa;}
+  .drow.warn .dbosses-text{color:#d4a070;}
+  .drow.dc-held .dbosses-text{color:#7dbeff;}
+
+  /* Kill button — primary, prominent, sized to the word "Killed" */
+  .drow .dbtn.kill{
+    padding:8px 16px !important;font-size:11px !important;
+    letter-spacing:0.16em !important;
+    height:34px;min-width:84px;
+    line-height:1;
+    display:inline-flex;align-items:center;justify-content:center;
+  }
+  /* Secondary actions hidden on wide — reach them via the boss modal
+     (click the boss portrait/name). Frees ~120px for district name. */
+  .drow .dbtn.guess,
+  .drow .dbtn.scout,
+  .drow .dbtn.rst{display:none !important;}
+  .drow .dinfo{cursor:pointer;}
+  .drow .dinfo:hover .dname{color:var(--cd-amber-hi) !important;text-decoration:underline;text-decoration-color:rgba(255,185,56,0.3);text-underline-offset:3px;}
+  .drow .dbtn.guess::before{content:'?';}
+  .drow .dbtn.scout::before{content:'\25C9';}
+  .drow .dbtn.rst::before{content:'\21BA';}
+  .drow .dbtn.guess::before,
+  .drow .dbtn.scout::before,
+  .drow .dbtn.rst::before{
+    font-size:15px;font-weight:600;font-family:'Inter',sans-serif;
+    display:flex;align-items:center;justify-content:center;
+    width:100%;height:100%;
+  }
+  .drow .dbtn.guess:hover,
+  .drow .dbtn.scout:hover,
+  .drow .dbtn.rst:hover{
+    color:var(--cd-amber-hi) !important;border-color:var(--cd-line3) !important;
+    background:rgba(240,160,32,0.06) !important;
+  }
+
+  /* Bigger district name, italic boss subtitle */
+  .dname{
+    font-size:18px !important;letter-spacing:0.14em !important;
+    margin-bottom:4px !important;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    padding-right:14px;
+    transition:color 0.15s;
+  }
+  .dbosses{
+    font-size:12px !important;line-height:1.3;
+    color:var(--cd-mute) !important;font-style:italic;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    padding-right:14px;
+  }
+  .drow.alive .dbosses{color:#9ad8aa !important;}
+  .dtimer{
+    min-width:110px !important;font-size:28px !important;
+    letter-spacing:0.04em !important;
+    text-align:right !important;
+  }
+  .drow.alive .dtimer{
+    font-size:13px !important;letter-spacing:0.22em !important;
+  }
+
+  /* ===== Action strip & reset live in the LEFT column (relocated by JS) =====
+     Show in left-col, hide if they wind up duplicated in right-col. */
+  .layout .left-col .map-section{flex-shrink:0;}
+  .layout .left-col .cd-insights{
+    margin:0 !important;
+    flex:0 0 auto;min-height:0;
+    display:flex !important;flex-direction:column;gap:8px;
+    background:linear-gradient(180deg,var(--cd-panel),var(--cd-bg2));
+    border:1px solid var(--cd-line);
+    padding:14px;
+  }
+  .layout .left-col .cd-insights .cd-i-hd{
+    font-family:'Inter',sans-serif;font-weight:600;
+    font-size:10px;letter-spacing:0.26em;color:var(--cd-amber-hi);
+    text-transform:uppercase;
+    border-bottom:1px solid var(--cd-line2);padding-bottom:8px;
+    display:flex;justify-content:space-between;align-items:baseline;
+  }
+  .layout .left-col .cd-insights .cd-i-hd .sub{
+    font-size:9px;letter-spacing:0.22em;color:var(--cd-mute);font-weight:500;
+  }
+  .layout .left-col .cd-insights .cd-i-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:6px;
+    flex:0 0 auto;
+  }
+  .layout .left-col .cd-insights .cd-i-stat{
+    background:var(--cd-bg2);border:1px solid var(--cd-line);
+    padding:10px 12px;display:flex;flex-direction:column;justify-content:center;gap:4px;
+  }
+  .layout .left-col .cd-insights .cd-i-k{
+    font-family:'Inter',sans-serif;font-weight:600;
+    font-size:9px;letter-spacing:0.22em;color:var(--cd-mute);text-transform:uppercase;
+  }
+  .layout .left-col .cd-insights .cd-i-v{
+    font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;
+    font-size:20px;font-weight:600;color:var(--cd-text);line-height:1;
+  }
+  .layout .left-col .cd-insights .cd-i-v.amber{color:var(--cd-amber-hi);}
+  .layout .left-col .cd-insights .cd-i-v.cyan{color:var(--cd-cyan-hi);}
+  .layout .left-col .cd-insights .cd-i-v.red{color:var(--cd-red);}
+  .layout .left-col .cd-insights .cd-i-v.green{color:var(--cd-green);}
+  .layout .left-col .cd-insights .cd-i-target{
+    background:var(--cd-bg2);border:1px solid var(--cd-line);padding:10px 12px;
+    display:flex;flex-direction:column;gap:6px;
+  }
+  .layout .left-col .cd-insights .cd-i-target-row{
+    display:flex;justify-content:space-between;align-items:baseline;
+  }
+  .layout .left-col .cd-insights .cd-i-target-bar{
+    height:6px;background:rgba(0,0,0,0.4);border:1px solid var(--cd-line2);overflow:hidden;
+  }
+  .layout .left-col .cd-insights .cd-i-target-fill{
+    height:100%;background:linear-gradient(90deg,var(--cd-amber-lo),var(--cd-amber-hi));
+    transition:width 0.4s ease;
+  }
+  .layout .left-col .cd-insights .cd-i-target-fill.done{
+    background:linear-gradient(90deg,#1e7830,var(--cd-green));
+  }
+
+  /* Action strip is now a FULL-WIDTH bottom bar spanning all 3 columns.
+     The relocate() JS appends action-strip to <body> in wide mode and
+     marks it with .cd-bottom-bar to claim the grid area. */
+  body > .action-strip.cd-bottom-bar{
+    grid-area:actions;
+    margin:0 !important;
+    display:grid !important;
+    grid-template-columns:repeat(5, 1fr) !important;
+    gap:6px !important;
+    align-self:stretch;
+  }
+  body > .action-strip.cd-bottom-bar > .qs-btn,
+  body > .action-strip.cd-bottom-bar > .reset-all{
+    width:100% !important;
+  }
+  /* The bottom-bar Reset All keeps the red treatment */
+  body > .action-strip.cd-bottom-bar > .reset-all{
+    background:rgba(255,77,77,0.08) !important;
+    border:1px solid rgba(255,77,77,0.35) !important;
+    color:rgba(255,138,138,0.85) !important;
+    font-family:'Inter',sans-serif !important;font-weight:600 !important;
+    font-size:10px !important;letter-spacing:0.14em !important;
+    padding:10px 8px !important;border-radius:0 !important;
+    text-transform:uppercase;white-space:nowrap;
+  }
+  body > .action-strip.cd-bottom-bar > .reset-all{
+    font-size:0 !important;
+  }
+  body > .action-strip.cd-bottom-bar > .reset-all::before{
+    content:'↺ Reset All';
+    font-size:10px;letter-spacing:0.14em;
+  }
+  body > .action-strip.cd-bottom-bar > .reset-all:hover{
+    background:rgba(255,77,77,0.18) !important;color:#ffb8b8 !important;
+    border-color:rgba(255,77,77,0.65) !important;
+  }
+  /* Hide whichever copy is still in a column */
+  .layout .left-col > .action-strip,
+  .layout .left-col > .reset-all,
+  .layout .right-col > .action-strip,
+  .layout .right-col > .reset-all{display:none !important;}
+
+  /* Tel Var: Hide preset shortcuts on wide (joke modes, not core), and
+     compact the formula-card to a single line so the panel fits w/o scroll. */
+  .telvar-panel .preset-grid,
+  .telvar-panel .preset-note,
+  .telvar-panel .preset-grid + .tv-lbl,
+  .telvar-panel .tv-lbl:first-of-type{display:none !important;}
+
+  .telvar-panel .formula-card{
+    padding:8px 10px !important;margin:0 !important;
+  }
+  .telvar-panel .formula-card-title{
+    font-size:9px !important;letter-spacing:0.18em !important;
+    margin-bottom:4px !important;color:var(--cd-mute) !important;
+  }
+  .telvar-panel .formula-row{
+    font-family:'JetBrains Mono',monospace !important;
+    font-size:10px !important;line-height:1.3;
+    padding:1px 0 !important;
+  }
+  .telvar-panel .formula-row .lbl{color:var(--cd-mute) !important;}
+  .telvar-panel .formula-row .val{
+    color:var(--cd-text) !important;font-family:'JetBrains Mono',monospace !important;
+    font-weight:500 !important;font-size:10px !important;
+  }
+  .telvar-panel .formula-row .val.dc{color:var(--cd-cyan-hi) !important;}
+  .telvar-panel .formula-result{
+    margin-top:4px !important;padding-top:4px !important;
+    border-top:1px solid var(--cd-line2) !important;
+  }
+  .telvar-panel .formula-result .lbl{
+    font-size:9px !important;letter-spacing:0.16em !important;color:var(--cd-mute) !important;
+  }
+  .telvar-panel .formula-result .res{
+    font-family:'JetBrains Mono',monospace !important;font-weight:600 !important;
+    font-size:18px !important;color:var(--cd-amber-hi) !important;
+    text-shadow:none !important;
+  }
+
+  /* Alliance buttons: compact icon row */
+  .telvar-panel .alliance-btn{
+    padding:6px !important;font-size:9px !important;letter-spacing:0.10em !important;
+  }
+  .telvar-panel .alliance-btn .alliance-img{width:24px !important;height:24px !important;}
+  .telvar-panel .alliance-btn .alliance-name{font-size:8px !important;}
+
+  /* Footer: thin */
+  .footer{font-size:9px !important;letter-spacing:0.22em !important;padding-top:8px !important;}
+  /* DC-held blue: SATURATED, not sky-pastel */
+  .drow.dc-held.alive::before{background:#1e88ff !important;box-shadow:0 0 12px rgba(30,136,255,0.5);}
+  .drow.dc-held.alive{border-color:rgba(30,136,255,0.55) !important;
+    background:linear-gradient(90deg,rgba(30,136,255,0.12),var(--cd-panel) 30%) !important;}
+  .drow.dc-held .dname{color:#5fa8ff !important;}
+  .drow.dc-held .boss-thumbs::after{
+    background:linear-gradient(180deg,rgba(30,136,255,0.10),transparent 30%),
+               linear-gradient(180deg,transparent 45%,rgba(0,15,40,0.7)) !important;
+  }
+  .dc-pill{
+    background:rgba(30,136,255,0.18) !important;
+    border:1px solid rgba(30,136,255,0.65) !important;
+    color:#7dbeff !important;
+  }
+  .dc-toggle.held{
+    background:rgba(30,136,255,0.22) !important;
+    border-color:rgba(30,136,255,0.65) !important;
+    color:#7dbeff !important;
+  }
+  body.alliance-dc .dc-toggle.held{
+    background:rgba(30,136,255,0.22) !important;
+    border-color:rgba(30,136,255,0.65) !important;
+    color:#7dbeff !important;
+  }
+  .alliance-btn.dc{
+    background:rgba(30,136,255,0.10) !important;
+    border:1px solid rgba(30,136,255,0.50) !important;
+    color:#7dbeff !important;
+  }
+  .alliance-btn.dc.sel{
+    background:rgba(30,136,255,0.22) !important;
+    box-shadow:0 0 0 2px rgba(30,136,255,0.30) !important;
+  }
+  .layout .left-col .action-strip .qs-btn.reset,
+  .layout .left-col .action-strip .reset-all{
+    background:rgba(255,77,77,0.08) !important;
+    border:1px solid rgba(255,77,77,0.35) !important;
+    color:rgba(255,138,138,0.85) !important;
+    font-family:'Inter',sans-serif !important;font-weight:600 !important;
+    font-size:10px !important;letter-spacing:0.14em !important;
+    padding:10px 8px !important;border-radius:0 !important;
+    text-transform:uppercase;width:auto !important;
+    white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis;
+    font-size:0 !important;
+  }
+  .layout .left-col .action-strip .qs-btn.reset::before,
+  .layout .left-col .action-strip .reset-all::before{
+    content:'↺ Reset All';
+    font-size:10px;letter-spacing:0.14em;
+  }
+  .layout .left-col .action-strip .qs-btn.reset:hover,
+  .layout .left-col .action-strip .reset-all:hover{
+    background:rgba(255,77,77,0.18) !important;color:#ffb8b8 !important;
+    border-color:rgba(255,77,77,0.65) !important;
+  }
+}
+
+/* Even more breathing room on very wide screens */
+@media (min-width:1560px){
+  body{max-width:1620px;grid-template-columns: 420px 1fr 420px !important;}
+  .map-wrap{max-width:420px !important;}
+  svg.map{height:420px !important;}
+}
+
+/* Hide all visual-theme switcher UI — Command Deck is the one design now */
+#themeBtn, .theme-palette,
+.help-sec:has(+ .theme-palette),
+h3.help-sec + .theme-palette{display:none !important;}
+/* Also hide the "Visual theme" heading immediately preceding the palette */
+.help-body h3.help-sec[data-theme-heading], .help-sec.is-theme{display:none !important;}
+
 </style>
 
 <div id="flashOverlay"></div>
@@ -1083,7 +2266,7 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
     <button class="help-close" onclick="closeHelp()" aria-label="Close">×</button>
     <img class="help-hero" src="assets/bag-of-telvar.png" alt="" aria-hidden="true">
     <div class="help-eyebrow">The Elder Scrolls Online</div>
-    <h2 id="helpTitle" class="help-title">Imperial City Tracker</h2>
+    <h2 id="helpTitle" class="help-title">Tel Var Cycle</h2>
     <p class="help-intro">A boss timer and Tel Var calculator built for console ESO players. PC has an in-game IC boss timer addon — console doesn't. Open this on your phone, tablet, or laptop next to your TV while you farm.</p>
 
     <div class="help-alliance-key">
@@ -1124,8 +2307,8 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
       <li><kbd>B</kbd> — Bank · <kbd>X</kbd> — Ganked · <kbd>U</kbd> — Undo</li>
     </ul>
 
-    <h3 class="help-sec">Visual theme</h3>
-    <div class="theme-palette" aria-label="Alternate visual themes">
+    <h3 class="help-sec is-theme" style="display:none">Visual theme</h3>
+    <div class="theme-palette" aria-label="Alternate visual themes" style="display:none">
       <button class="theme-chip active" id="themeNormal" onclick="setFantasyTheme('normal')">Normal</button>
       <button class="theme-chip whip" id="themeWhip" onclick="setFantasyTheme('whip')">Whip Tactician</button>
       <button class="theme-chip guar" id="themeGuar" onclick="setFantasyTheme('guar')">The Dutiful Guar</button>
@@ -1138,9 +2321,31 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
   </div>
 </div>
 
-<div class="header">
+<header class="cmd-topbar">
+  <div class="ctb-brand">
+    <img class="ctb-mark" src="assets/telvar.png" alt="" aria-hidden="true">
+    <div class="ctb-titleblock">
+      <div class="ctb-title">Tel Var Cycle</div>
+      <div class="ctb-sub">Imperial City · Farm Optimizer</div>
+    </div>
+  </div>
+  <div class="ctb-strip">
+    <div class="ctb-cell"><span class="ctb-k">Alliance</span><span class="ctb-pill" id="ctbAlliance">—</span></div>
+    <div class="ctb-cell"><span class="ctb-k">Per Kill</span><span class="ctb-v ctb-amber" id="ctbPerKill">—</span></div>
+    <div class="ctb-cell"><span class="ctb-k">Carrying</span><span class="ctb-v" id="ctbCarry">—</span></div>
+    <div class="ctb-cell"><span class="ctb-k">Banked</span><span class="ctb-v ctb-cyan" id="ctbBanked">—</span></div>
+    <div class="ctb-cell ctb-next" id="ctbNextCell" title="Next respawn">
+      <span class="ctb-k">Next</span>
+      <span class="ctb-next-name" id="ctbNextName">—</span>
+      <span class="ctb-next-time" id="ctbNextTime">—</span>
+    </div>
+    <div class="ctb-cell ctb-last"><span class="ctb-pill ctb-session" id="ctbLive">·STANDBY</span></div>
+  </div>
+</header>
+
+<div class="header" style="display:none">
   <div class="eyebrow">The Elder Scrolls Online</div>
-  <div class="title">Imperial City Tracker</div>
+  <div class="title">Tel Var Cycle</div>
   <div class="rule"></div>
 </div>
 
@@ -1220,10 +2425,10 @@ body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!imp
     <button class="qs-btn bank" onclick="bankTelVar()">🏦 Bank</button>
     <button class="qs-btn gank" onclick="gankedTelVar()">☠ Ganked</button>
     <button class="qs-btn undo" id="undoBtn" onclick="undoLastAction()">↶ Undo</button>
-    <button class="qs-btn sort" id="sortBtn" onclick="toggleSortByRespawn()">⇅ Sort</button>
+    <button class="qs-btn sort" id="sortBtn" onclick="toggleSortByRespawn()" title="Reorder districts so the soonest-respawning boss sits on top">⇅ Sort by Next Up</button>
   </div>
 
-  <button class="reset-all" onclick="resetAll()">↺ Reset All Timers</button>
+  <button class="reset-all" onclick="resetAll()" title="Clear all 6 boss respawn timers and mark every district as ALIVE. Does NOT affect your carrying/banked Tel Var, session timer, or settings.">↺ Reset All Bosses</button>
 
   </div><!-- /.right-col -->
 </div>
@@ -1361,7 +2566,7 @@ const C={
 };
 const ALLIANCE_HELD={
   ep:{dA:{f:'#3d0e10',s:'#8a1f20'},dD:{f:'#2e0c0e',s:'#6a181a'},dW:{f:'#3a1812',s:'#8a3024'}},
-  dc:{dA:{f:'#0c2644',s:'#174482'},dD:{f:'#0c1c34',s:'#1a3a6a'},dW:{f:'#182436',s:'#386088'}},
+  dc:{dA:{f:'#1e88ff',s:'#7dbeff'},dD:{f:'#1d5fb8',s:'#5fa8ff'},dW:{f:'#2a78d8',s:'#7dbeff'}},
   ad:{dA:{f:'#3d3200',s:'#c4a800'},dD:{f:'#2a2200',s:'#907800'},dW:{f:'#363000',s:'#a89000'}},
 };
 const ALLIANCE_TX={
@@ -2043,19 +3248,26 @@ function buildRows(){
   DISTRICTS.forEach((d,i)=>{
     const row=document.createElement('div');row.className='drow alive';row.id=`dr${i}`;
     const chips=d.bosses.map((boss,bi)=>bossChipHtml(boss,i,bi)).join('');
+    const bossesTitle=d.bosses.map(b=>`<div>${b}</div>`).join('');
+    const thumbs=d.bosses.map(b=>{
+      const src=BOSS_IMAGES[b];
+      return src?`<img src="${src}" alt="${b}" title="${b}">`:`<span class="boss-thumb-ph" title="${b}">?</span>`;
+    }).join('');
     row.innerHTML=`
       <div class="ddot alive" id="dd${i}"></div>
+      <div class="boss-thumbs">${thumbs}</div>
       <div class="dinfo">
         <div class="dname">${d.name}</div>
+        <div class="dbosses-text">${bossesTitle}</div>
         <div class="dbosses boss-chips">${chips}</div>
       </div>
       <span class="dc-pill" id="dp${i}" style="display:none" aria-label="Alliance bonus"><img src="${ALLIANCE_IMG_FULL[alliance]||ALLIANCE_IMG_FULL.dc}" alt=""></span>
       <div class="dtimer alive" id="dt${i}">ALIVE</div>
       <div class="drow-actions">
         <button class="dbtn kill" onclick="killBoss(${i})">Killed</button>
-        <button class="dbtn guess" onclick="guessTimer(${i})">Guess</button>
-        <button class="dbtn scout" onclick="seenAlive(${i})">Seen Alive</button>
-        <button class="dbtn rst" onclick="rstBoss(${i})">Reset</button>
+        <button class="dbtn guess" onclick="guessTimer(${i})" title="Guess timer">Guess</button>
+        <button class="dbtn scout" onclick="seenAlive(${i})" title="Seen Alive">Seen Alive</button>
+        <button class="dbtn rst" onclick="rstBoss(${i})" title="Reset">Reset</button>
       </div>`;
     wrap.appendChild(row);
   });
@@ -2431,6 +3643,103 @@ function handleTrackerShortcut(event) {
 
 document.addEventListener("keydown", handleTrackerShortcut);
 
+/* Command Deck: at wide widths, move the .action-strip and .reset-all from
+   the .right-col (under districts) into the .left-col (under the map). This
+   uses the empty space below the map and gives the districts column full
+   height for the 6 timer rows. */
+(function () {
+  function ensureInsights(leftCol) {
+    if (leftCol.querySelector('.cd-insights')) return leftCol.querySelector('.cd-insights');
+    const wrap = document.createElement('div');
+    wrap.className = 'cd-insights';
+    wrap.innerHTML = `
+      <div class="cd-i-hd">Session Insights <span class="sub" id="cdiSub">·STANDBY</span></div>
+      <div class="cd-i-grid">
+        <div class="cd-i-stat"><div class="cd-i-k">Boss Kills</div><div class="cd-i-v" id="cdiK">0</div></div>
+        <div class="cd-i-stat"><div class="cd-i-k">Per Hour</div><div class="cd-i-v amber" id="cdiH">—</div></div>
+        <div class="cd-i-stat"><div class="cd-i-k">Banked</div><div class="cd-i-v cyan" id="cdiB">0</div></div>
+        <div class="cd-i-stat"><div class="cd-i-k">Tel Var Lost</div><div class="cd-i-v red" id="cdiL">0</div></div>
+      </div>
+      <div class="cd-i-target">
+        <div class="cd-i-target-row">
+          <span class="cd-i-k">Session Target</span>
+          <span class="cd-i-v" id="cdiT" style="font-size:14px">—</span>
+        </div>
+        <div class="cd-i-target-bar"><div class="cd-i-target-fill" id="cdiTFill" style="width:0%"></div></div>
+        <div class="cd-i-target-row">
+          <span class="cd-i-k" id="cdiTText" style="font-size:9px;color:var(--cd-mute)">0 / 0</span>
+          <span class="cd-i-k" id="cdiTPct" style="font-size:9px;color:var(--cd-amber-hi)">0%</span>
+        </div>
+      </div>
+    `;
+    return wrap;
+  }
+  function syncInsights() {
+    const map = [
+      ['tvK','cdiK'], ['tvH','cdiH'], ['tvB','cdiB'], ['tvL','cdiL'], ['tvTGT','cdiT'],
+      ['tvTargetText','cdiTText'], ['tvTargetPct','cdiTPct'],
+    ];
+    for (const [src, dst] of map) {
+      const s = document.getElementById(src), d = document.getElementById(dst);
+      if (s && d && s.textContent !== d.textContent) d.textContent = s.textContent;
+    }
+    // Streak from localStorage (esoIcBestStreak)
+    try {
+      const best = localStorage.getItem('esoIcBestStreak');
+      const d = document.getElementById('cdiS');
+      if (d) d.textContent = best && best !== '0' ? best : '—';
+    } catch (e) {}
+    // Target progress bar fill
+    const srcFill = document.getElementById('tvTargetFill');
+    const dstFill = document.getElementById('cdiTFill');
+    if (srcFill && dstFill) {
+      const w = srcFill.style.width || '0%';
+      if (dstFill.style.width !== w) dstFill.style.width = w;
+      dstFill.className = 'cd-i-target-fill' + (srcFill.classList.contains('done') ? ' done' : '');
+    }
+    // Sub-label: LIVE if session running
+    const time = document.getElementById('tvTime');
+    const sub = document.getElementById('cdiSub');
+    if (sub && time) {
+      const t = (time.textContent || '00:00:00').trim();
+      const live = t && t !== '00:00:00';
+      sub.textContent = live ? ('· ' + t) : '·STANDBY';
+      sub.style.color = live ? 'var(--cd-green)' : 'var(--cd-mute)';
+    }
+  }
+  function relocate() {
+    const wide = window.matchMedia('(min-width: 1280px)').matches;
+    const action = document.querySelector('.action-strip');
+    const reset  = document.querySelector('.reset-all');
+    const leftCol  = document.querySelector('.layout .left-col');
+    const rightCol = document.querySelector('.layout .right-col');
+    if (!action || !reset || !leftCol || !rightCol) return;
+    if (wide) {
+      const ins = ensureInsights(leftCol);
+      const mapSection = leftCol.querySelector('.map-section');
+      if (ins.parentNode !== leftCol) leftCol.insertBefore(ins, mapSection ? mapSection.nextSibling : leftCol.firstChild);
+      // Action strip becomes a full-width bottom bar; Reset All slots in
+      // as the 5th button.
+      action.classList.add('cd-bottom-bar');
+      if (action.parentNode !== document.body) document.body.appendChild(action);
+      if (reset.parentNode !== action) action.appendChild(reset);
+      reset.classList.add('qs-btn','reset');
+      syncInsights();
+    } else {
+      const ins = leftCol.querySelector('.cd-insights');
+      if (ins) ins.remove();
+      action.classList.remove('cd-bottom-bar');
+      reset.classList.remove('qs-btn','reset');
+      if (action.parentNode !== rightCol) rightCol.appendChild(action);
+      if (reset.parentNode  !== rightCol) rightCol.appendChild(reset);
+    }
+  }
+  if (document.readyState !== 'loading') { relocate(); setInterval(syncInsights, 600); }
+  document.addEventListener('DOMContentLoaded', () => { relocate(); setInterval(syncInsights, 600); });
+  window.matchMedia('(min-width: 1280px)').addEventListener('change', relocate);
+})();
+
+
 /* v23 streakahStartupCheck */
 document.addEventListener("DOMContentLoaded", () => {
   setTimeout(() => {
@@ -2439,5 +3748,80 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }, 250);
 });
+
+/* Command Deck topbar — mirror live state into the brand bar.
+   Polls every 400ms; reads from existing IDs the app already maintains. */
+(function () {
+  const ALL = { ep: 'Ebonheart Pact', dc: 'Daggerfall Covenant', ad: 'Aldmeri Dominion' };
+  function pickAlliance() {
+    const sel = document.querySelector('.alliance-btn.sel');
+    if (!sel) return null;
+    if (sel.classList.contains('ep')) return 'ep';
+    if (sel.classList.contains('dc')) return 'dc';
+    if (sel.classList.contains('ad')) return 'ad';
+    return null;
+  }
+  function setText(id, val) {
+    const el = document.getElementById(id);
+    if (el && el.textContent !== val) el.textContent = val;
+  }
+  function poll() {
+    const tvPK = document.getElementById('tvPK');
+    const tvT  = document.getElementById('tvT');
+    const tvB  = document.getElementById('tvB');
+    const tvTime = document.getElementById('tvTime');
+    if (tvPK) setText('ctbPerKill', tvPK.textContent || '—');
+    if (tvT)  setText('ctbCarry',   tvT.textContent  || '—');
+    if (tvB)  setText('ctbBanked',  tvB.textContent  || '—');
+
+    const a = pickAlliance();
+    const pill = document.getElementById('ctbAlliance');
+    if (pill) {
+      pill.className = 'ctb-pill ' + (a || '');
+      pill.textContent = a ? ALL[a] : '—';
+    }
+
+    // Mirror the (now hidden) Next Respawn card into the topbar.
+    // The app's existing updater writes #nextUpName / #nextUpCountdown,
+    // and toggles .alive on .next-up — just read those.
+    const nextCell = document.getElementById('ctbNextCell');
+    const nuName = document.getElementById('nextUpName');
+    const nuTime = document.getElementById('nextUpCountdown');
+    const nuRoot = document.getElementById('nextUp');
+    if (nextCell && nuName && nuTime) {
+      setText('ctbNextName', nuName.textContent || '—');
+      setText('ctbNextTime', nuTime.textContent || '—');
+      // Derive state: alive, urgent (<15s), or default (orange).
+      let state = '';
+      if (nuRoot && nuRoot.classList.contains('alive')) {
+        state = 'alive';
+      } else {
+        const t = (nuTime.textContent || '').trim();
+        // urgent if format is 0:NN with NN <= 15
+        const m = t.match(/^0:(\d{2})$/);
+        if (m && parseInt(m[1], 10) <= 15) state = 'urgent';
+      }
+      nextCell.className = 'ctb-cell ctb-next ' + state;
+    }
+
+    const live = document.getElementById('ctbLive');
+    const t = tvTime ? tvTime.textContent : '00:00:00';
+    if (live) {
+      if (!t || t === '00:00:00') {
+        live.classList.remove('live');
+        live.classList.add('standby');
+        if (live.textContent !== '·STANDBY') live.textContent = '·STANDBY';
+      } else {
+        live.classList.add('live');
+        live.classList.remove('standby');
+        const want = 'SESSION ' + t;
+        if (live.textContent !== want) live.textContent = want;
+      }
+    }
+  }
+  document.addEventListener('DOMContentLoaded', () => { poll(); setInterval(poll, 400); });
+  // also kick once now in case DOMContentLoaded already fired
+  if (document.readyState !== 'loading') { poll(); setInterval(poll, 400); }
+})();
 
 </script>
