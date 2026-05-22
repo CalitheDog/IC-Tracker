@@ -39,7 +39,7 @@ No build step, no npm, no bundler.
 perKill = round(1327 × MULT[stI] × (1 + dcHeld.size × 0.33) / grSz)
 ```
 
-`BASE_TV = 1327`, `MULT = [1, 2, 3, 4]`, `RESPAWN = 900s`, `WARN_AT = 60s`.
+`BASE_TV = 1327`, `MULT = [1, 2, 3, 4]`, `RESPAWN = 900s`, `WARN_AT = 60s`. The `.drow.urgent` red-pulse state triggers when the remaining countdown is `<=15s` (hardcoded inline in the tick loop — no named constant).
 
 ## localStorage keys
 
@@ -81,7 +81,9 @@ Base CSS is a 2-column grid; the redesign overrides `.districts` to `display:fle
 
 ## OBS overlay mode
 
-`isObsMode()` checks `?obs=1` and adds `body.obs` early in `init()`. A single block of `body.obs ... { display: none !important; }` rules hides everything except `.next-up` and `.districts`, makes the background transparent, and compresses the layout to ~380px. The first-visit help modal is also suppressed in OBS mode.
+`isObsMode()` checks `?obs=1` and adds `body.obs` early in `init()`. A single block of `body.obs ... { display: none !important; }` rules makes the background transparent, compresses `.layout` to ~380px, and originally hid everything except `.next-up` and `.districts`. The first-visit help modal is also suppressed in OBS mode.
+
+**Drifted by the redesign:** the override block now force-hides `.next-up` globally (`.next-up{display:none !important}`), and `.cmd-topbar` was added to the markup but not added to the OBS hide-list. So in the current build OBS mode renders the new sticky topbar plus `.districts` — not the original "next-respawn card + districts" composition. Restoring the original behavior would mean re-enabling `.next-up` inside `body.obs` and adding `body.obs .cmd-topbar{display:none !important;}` to the OBS hide-list.
 
 ## PWA
 
@@ -91,6 +93,7 @@ Base CSS is a 2-column grid; the redesign overrides `.districts` to `display:fle
 
 - **`.unknown` timer state**: Rendering for purple/UNKNOWN exists, but no production code path sets `timers[i].unknown = true`. Don't promise this in user-facing copy.
 - **`#netSessionTv` / `#grossSessionTv` / `#effSessionTv` / `#sessionLog` / `#districtStatusSummary` / `#nextTargetTitle` / `#nextTargetReason` / `#killNextBtn` / `#projectedNote` / `#copyPill`**: hidden sentinel divs in `.right-col` only exist so legacy `updateCommandCenter()`-style code paths don't throw on `getElementById(...).textContent`. The functions writing to them are never rendered. If you remove either the elements or the functions, remove both together.
+- **Visual theme picker** (Normal / Whip Tactician / The Dutiful Guar / The Streakah): the buttons and `setFantasyTheme()` still work, but the redesign hides the UI entry points (`#themeBtn`, `.theme-palette`, and the `is-theme` help section) globally with `display:none !important`. Themes persisted to `localStorage` from earlier versions still apply on page load, but users can no longer change themes from the UI.
 
 ## What NOT to add
 
