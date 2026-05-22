@@ -57,19 +57,33 @@ perKill = round(1327 × MULT[stI] × (1 + dcHeld.size × 0.33) / grSz)
 
 ## Layout structure
 
-Three top-level blocks under `<body>` (other than the corner chrome buttons and overlays):
+The app is the original single-file markup with a **"Command Deck" redesign layered on top**: a CSS override block (CSS variables prefixed `--cd-`, mostly `!important` rules — the lower half of the `<style>`, starting around `===== body / background =====`) plus a JS IIFE that relocates DOM at wide widths (search `Command Deck:`). The base markup and CSS are still underneath — if a CSS rule isn't taking effect, an `!important` override further down the file is the usual reason.
 
-1. **`.layout`** — flex row at ≥980px (flex column on mobile).
-   - **`.left-col`** — fixed width, just the map.
-   - **`.right-col`** — flex:1; contains the JS sentinel divs (`display:none`), `.next-up` hero card, `.districts` grid, `.action-strip`, `.reset-all`.
-2. **`.telvar-details`** — full-width section *after* `.layout`. Its `.telvar-panel` body wraps two `.telvar-col` divs in a `1fr 1fr` grid at ≥980px, flex column on mobile. Columns are hand-balanced (alliance-controlled district toggles live in the right column to even the heights). The left column ends with a permanent `.formula-card` (rendered as a multi-row breakdown by `updateTV()`) — **don't re-wrap it in `<details>`/`<summary>`**; the user explicitly wanted the formula always visible.
-3. **`.footer`** + **`.credits`**.
+Top-level blocks under `<body>` (besides overlays and corner chrome buttons):
 
-There is **no** CSS Grid named-area layout anymore; do not reintroduce `grid-template-areas`.
+- **`.cmd-topbar`** — sticky header added by the redesign: brand plus alliance / per-kill / carrying / banked / next-respawn / session cells.
+- **`.layout`** — wraps **`.left-col`** (the map: `.map-section` → `.map-toolbar` + `.map-wrap` holding `svg#map`) and **`.right-col`** (hidden JS sentinel divs, the `.next-up` hero card, `.districts`, `.action-strip`, `.reset-all`).
+- **`.telvar-details`** — the Tel Var Estimator. `.telvar-cols` holds two `.telvar-col` divs; the left one ends with a permanent `.formula-card` (rendered as a multi-row breakdown by `updateTV()`) — **don't re-wrap it in `<details>`/`<summary>`**; the user explicitly wanted the formula always visible.
+- **`.footer`** + **`.credits`**.
+
+The original `.next-up` "Next Respawn" hero card is force-hidden (`.next-up{display:none !important}`); its role moved to the compact `.ctb-next` cell in the topbar.
+
+### Wide-screen layout (≥1280px)
+
+`body` becomes a CSS Grid with `grid-template-areas`:
+
+```
+topbar  topbar    topbar
+map     districts telvar
+actions actions   actions
+footer  footer    footer
+```
+
+`body > .layout` is set to `display:contents` so `.left-col`, `.right-col`, and `.telvar-details` drop straight into the `map` / `districts` / `telvar` areas. The Command Deck JS IIFE also builds a `.cd-insights` "Session Insights" panel into `.left-col` under the map (`syncInsights()` mirrors Tel Var panel stats into it every 600ms) and moves `.action-strip` + `.reset-all` onto `<body>` as `.cd-bottom-bar` for the `actions` area. Below 1280px all of this reverts and the base single-column flex `.layout` applies.
 
 ### `.districts` boss-card grid
 
-`display:grid; grid-template-columns:repeat(2,minmax(0,1fr));` at ≥480px, single column below. Each `.drow` is `display:flex; flex-wrap:wrap;` with its four action buttons wrapped in a `.drow-actions` child whose `width:100%` forces them onto a new visual row inside the card.
+Base CSS is a 2-column grid; the redesign overrides `.districts` to `display:flex; flex-direction:column` — a single-column strip of `.drow` rows, each with its action buttons in a `.drow-actions` child.
 
 ## Map SVG footgun
 
