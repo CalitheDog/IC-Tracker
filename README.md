@@ -11,7 +11,6 @@ Tracks boss respawn timers across all six districts and estimates Tel Var earned
 - **Tel Var estimator** — calculates per-kill Tel Var based on your stone multiplier, group size, and how many districts the enemy alliance controls. Tracks carrying, banked, and lost amounts.
 - **Alliance & district control** — select your alliance (EP / DC / AD) and toggle which districts the enemy holds to keep the formula accurate.
 - **Unknown timers** — if you find a dead boss you didn't kill, use Guess to estimate when it died, or Seen Alive to confirm it's up.
-- **Visual themes** — Normal, Whip Tactician, The Dutiful Guar, The Streakah.
 
 ## Running locally
 
@@ -32,7 +31,7 @@ No build step, no dependencies, no npm. It's a single HTML file.
 1. **Select your alliance** — tap EP, DC, or AD in the Tel Var panel.
 2. **Toggle DC-held districts** — tap each district your enemy alliance controls to apply the bonus.
 3. **Set your stone multiplier and group size** — matches what you're carrying in-game.
-4. *(Optional)* **Open Start Farming** inside the Tel Var panel to start the session timer.
+4. *(Optional)* **Tap Start Farming** in the Tel Var panel to start the session timer.
 5. **Kill a boss → tap Killed** on that district row. The 15-minute timer starts.
 6. **Bank regularly** — use the Bank button in the quick-action bar to bank your carried Tel Var before you get ganked.
 7. **Ganked** — if you die, tap Ganked. It removes 50% of your carried Tel Var.
