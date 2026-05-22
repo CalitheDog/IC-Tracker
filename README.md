@@ -1,8 +1,6 @@
 # ESO Imperial City Tracker
 
-A boss timer and Tel Var calculator for Elder Scrolls Online Imperial City, built for console players. PC players have an in-game addon that handles IC boss timers — console players don't have an equivalent. This is the second-screen alternative: runs in any browser, so you can open it on your phone, tablet, or laptop next to your TV while you farm.
-
-Tracks boss respawn timers across all six districts and estimates Tel Var earned per kill.
+A **Tel Var farm optimizer** for Elder Scrolls Online Imperial City, built for console players. Uses the 15-minute boss respawn cycle across all six districts to help you chain kills, time your runs, and squeeze the maximum Tel Var per hour. PC has an in-game boss-timer addon; console doesn't — this is the second-screen workaround you open on your phone, tablet, or laptop next to your TV while you farm.
 
 ## What it does
 
