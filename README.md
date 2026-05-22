@@ -7,9 +7,8 @@ Tracks boss respawn timers across all six districts and estimates Tel Var earned
 ## What it does
 
 - **Boss timers** — 15-minute respawn countdown for each district. Flashes and beeps when a boss is back up, warns 1 minute before respawn.
-- **Next Respawn** — prominent hero card showing the soonest-respawning district and a live countdown.
+- **Next Respawn** — the soonest-respawning district and a live countdown, always shown in the top status bar.
 - **Tel Var estimator** — calculates per-kill Tel Var based on your stone multiplier, group size, and how many districts the enemy alliance controls. Tracks carrying, banked, and lost amounts.
-- **Risk meter** — set a carrying limit; a pulsing warning fires when you exceed it so you know when to bank.
 - **Alliance & district control** — select your alliance (EP / DC / AD) and toggle which districts the enemy holds to keep the formula accurate.
 - **Unknown timers** — if you find a dead boss you didn't kill, use Guess to estimate when it died, or Seen Alive to confirm it's up.
 - **Visual themes** — Normal, Whip Tactician, The Dutiful Guar, The Streakah.
@@ -35,7 +34,7 @@ No build step, no dependencies, no npm. It's a single HTML file.
 3. **Set your stone multiplier and group size** — matches what you're carrying in-game.
 4. *(Optional)* **Open Start Farming** inside the Tel Var panel to start the session timer.
 5. **Kill a boss → tap Killed** on that district row. The 15-minute timer starts.
-6. **Bank when prompted** — use the Bank button in the quick-action bar (or when the risk warning fires).
+6. **Bank regularly** — use the Bank button in the quick-action bar to bank your carried Tel Var before you get ganked.
 7. **Ganked** — if you die, tap Ganked. It removes 50% of your carried Tel Var.
 8. **Undo** — reverses the last action if you mis-tap.
 
@@ -53,10 +52,6 @@ No build step, no dependencies, no npm. It's a single HTML file.
 - **Guess** — prompts for how many minutes ago you think the boss died. Builds a partial timer from that estimate.
 - **Seen Alive** — confirms the boss is currently up without adding Tel Var (scout check).
 - **Reset** — clears a timer and marks the boss as alive.
-
-### Risk meter
-
-Open the Tel Var panel → Risk Limit → enter a carrying amount → Set. When your carried Tel Var hits that number, a red warning banner pulses and the carrying stat turns red. Bank before you get ganked.
 
 ## Project structure
 
