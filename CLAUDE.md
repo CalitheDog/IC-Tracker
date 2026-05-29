@@ -104,8 +104,8 @@ Base CSS is a 2-column grid; the redesign overrides `.districts` to `display:fle
 
 ## Dead code worth knowing about
 
-- **`.unknown` timer state**: Rendering for purple/UNKNOWN exists, but no production code path sets `timers[i].unknown = true`. Don't promise this in user-facing copy.
-- **`#netSessionTv` / `#grossSessionTv` / `#effSessionTv` / `#sessionLog` / `#districtStatusSummary` / `#nextTargetTitle` / `#nextTargetReason` / `#killNextBtn` / `#projectedNote` / `#copyPill`**: hidden sentinel divs in `.right-col` only exist so legacy `updateCommandCenter()`-style code paths don't throw on `getElementById(...).textContent`. The functions writing to them are never rendered. If you remove either the elements or the functions, remove both together.
+- **`.unknown` timer state**: Rendering for purple/UNKNOWN exists, but no production code path sets `timers[i].unknown = true`. Don't promise this in user-facing copy. (The `.unknown` reading paths — `unknownDecayInfo`, `districtState`, `sliceC`, `getNextTarget`, `applyRespawnSort` — are kept because the test suite exercises them.)
+- **`getNextTarget()`** computes a next-target recommendation but the redesign no longer displays it (the old `updateCommandCenter` panel that rendered it was removed). It's retained because the test suite covers it and the logic could be re-surfaced. The `#sessionLog` sentinel is likewise written by the live `renderEventLog()`/`logEvent()` but not currently shown.
 - **Visual theme picker** (Normal / Whip Tactician / The Dutiful Guar / The Streakah): the buttons and `setFantasyTheme()` still work, but the redesign hides the UI entry points (`#themeBtn`, `.theme-palette`, and the `is-theme` help section) globally with `display:none !important`. Themes persisted to `localStorage` from earlier versions still apply on page load, but users can no longer change themes from the UI.
 
 ## What NOT to add
