@@ -1,4 +1,4 @@
-const CACHE = 'ic-tracker-v16';
+const CACHE = 'ic-tracker-v17';
 const ASSETS = [
   './',
   './index.html',
@@ -39,6 +39,8 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
   if (url.origin !== location.origin) return;
+  // Never cache the test harness — the suite must always run the latest code.
+  if (url.pathname.startsWith('/tests/')) return;
   e.respondWith(
     caches.match(e.request).then(cached => {
       const network = fetch(e.request).then(resp => {

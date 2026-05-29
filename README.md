@@ -36,7 +36,7 @@ npx playwright install --with-deps chromium
 npm test
 ```
 
-`npm test` spins up its own server and a headless browser, runs the suite, and exits non-zero on failure. GitHub Actions runs it automatically on every push and pull request.
+`npm test` spins up its own server and a headless browser, runs the suite, and exits non-zero on failure. GitHub Actions runs it automatically on every pull request and on pushes to `main`.
 
 ## How to use
 

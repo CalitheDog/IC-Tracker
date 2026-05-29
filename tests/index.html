@@ -33,6 +33,27 @@
 <script>
 const statusEl = document.getElementById('status');
 
+// The iframe loads the REAL app on this same origin, and the tests call
+// setAlliance() / setTelvarTarget() / setFantasyTheme() for real — which write
+// to localStorage. Snapshot the developer's storage now (synchronously, before
+// the iframe's init() reads it), clear it for a hermetic run, and restore it
+// when the suite finishes so running the tests never clobbers saved settings.
+const __lsSnapshot = (() => {
+  try {
+    const o = {};
+    for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); o[k] = localStorage.getItem(k); }
+    return o;
+  } catch (e) { return null; }
+})();
+try { localStorage.clear(); } catch (e) {}
+function restoreLocalStorage() {
+  if (!__lsSnapshot) return;
+  try {
+    localStorage.clear();
+    for (const k of Object.keys(__lsSnapshot)) localStorage.setItem(k, __lsSnapshot[k]);
+  } catch (e) {}
+}
+
 // The app ships a service worker (sw.js) that caches GET responses and serves
 // them stale-first. That must not pollute the test environment, or edits to
 // the suite won't be picked up. Tear down any SW + caches on load. Injected
@@ -152,6 +173,8 @@ frame.addEventListener('load', async () => {
     window.__testsDone = true;
     // eslint-disable-next-line no-console
     console.error(e);
+  } finally {
+    restoreLocalStorage();
   }
 });
 </script>

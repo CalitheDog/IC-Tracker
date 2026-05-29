@@ -10,7 +10,8 @@
  *    then a 1-6 key targets a district. Bare 1-6 kills. b banks, x ganks,
  *    u undoes.
  *  - Kill streak and full session save/restore were removed.
- *  - bankTelVar() also zeroes totalKills and does NOT push an undo snapshot.
+ *  - bankTelVar() also zeroes totalKills, and (like kills/ganks) pushes an undo
+ *    snapshot, so a bank can be undone.
  */
 const { describe, it, assert } = TestRunner;
 
@@ -263,6 +264,16 @@ describe('Undo System', () => {
     undoLastAction();
     assert.notOk(dcHeld.has(2));
   });
+  it('Undo reverts a bank', () => {
+    resetState();
+    currentTelVar = 800;
+    bankTelVar();
+    assert.equal(bankedTelVar, 800);
+    assert.equal(currentTelVar, 0);
+    undoLastAction();
+    assert.equal(bankedTelVar, 0);
+    assert.equal(currentTelVar, 800);
+  });
   it('Multiple undos unwind in stack order', () => {
     resetState();
     killBoss(0); killBoss(1);
@@ -330,7 +341,8 @@ describe('Alliance Selection', () => {
   it('setAlliance() updates the held-districts label', () => {
     resetState(); setAlliance('ad');
     const lbl = document.getElementById('dcLabel');
-    if (lbl) assert.includes(lbl.textContent, 'AD-held');
+    assert.ok(lbl, '#dcLabel should exist');
+    assert.includes(lbl.textContent, 'AD-held');
   });
   it('Alliance is persisted to localStorage', () => {
     resetState(); setAlliance('ad');
