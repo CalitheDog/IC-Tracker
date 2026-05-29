@@ -2999,7 +2999,10 @@ function updateNextUp(){
 function perKill(){return Math.round(BASE_TV*MULT[stI]*(1+dcHeld.size*0.33)/grSz);}
 
 function updateTV(){
-  const m=MULT[stI],b=1+dcHeld.size*0.33,raw=Math.round(BASE_TV*m*b),pk=Math.round(raw/grSz);
+  // Display the SAME value killBoss() credits: perKill() rounds once
+  // (round(BASE×m×b/grSz)). Computing it locally with a second round on the
+  // pre-divided subtotal made the shown "Per Kill" disagree with the credit by 1.
+  const m=MULT[stI],b=1+dcHeld.size*0.33,pk=perKill();
   const sessionTelVar=bankedTelVar+currentTelVar,elapsed=farmElapsed();
   const grpLabel=grSz===1?'÷ Solo':`÷ ${grSz}`;
   document.getElementById('formula').innerHTML=
@@ -3437,14 +3440,15 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeHelp();});
 
 function init(){
   if(isObsMode())document.body.classList.add('obs');
-  const savedAlliance=localStorage.getItem('ic-alliance');
+  let savedAlliance=null;
+  try{savedAlliance=localStorage.getItem('ic-alliance');}catch(e){}
   buildGear();buildMap();buildRows();
   try{JSON.parse(localStorage.getItem('ic-dcHeld')||'[]').forEach(i=>{if(i>=0&&i<DISTRICTS.length)dcHeld.add(i);});}catch(e){}
   DISTRICTS.forEach((_,i)=>refreshRow(i));
   setAlliance(savedAlliance&&ALLIANCES[savedAlliance]?savedAlliance:'dc');
   try{const t=parseInt(localStorage.getItem('ic-telvar-target')||'0');if(t>0)telvarTarget=t;}catch(e){}
   buildDCToggles();buildSkulls();updateTV();
-  if(!isObsMode()&&!localStorage.getItem('ic-help-seen')){openHelp();localStorage.setItem('ic-help-seen','1');}
+  try{if(!isObsMode()&&!localStorage.getItem('ic-help-seen')){openHelp();localStorage.setItem('ic-help-seen','1');}}catch(e){}
   tick();setInterval(tick,500);
 }
 init();
@@ -3734,8 +3738,10 @@ document.addEventListener("keydown", handleTrackerShortcut);
       if (reset.parentNode  !== rightCol) rightCol.appendChild(reset);
     }
   }
+  // Either/or: this script runs at readyState 'interactive', so without the
+  // else BOTH branches fired and started two syncInsights intervals.
   if (document.readyState !== 'loading') { relocate(); setInterval(syncInsights, 600); }
-  document.addEventListener('DOMContentLoaded', () => { relocate(); setInterval(syncInsights, 600); });
+  else document.addEventListener('DOMContentLoaded', () => { relocate(); setInterval(syncInsights, 600); });
   window.matchMedia('(min-width: 1280px)').addEventListener('change', relocate);
 })();
 
@@ -3819,9 +3825,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   }
-  document.addEventListener('DOMContentLoaded', () => { poll(); setInterval(poll, 400); });
-  // also kick once now in case DOMContentLoaded already fired
+  // Either/or — see the syncInsights IIFE above. Without the else this ran
+  // twice (script executes at readyState 'interactive'), doubling the poll loop.
   if (document.readyState !== 'loading') { poll(); setInterval(poll, 400); }
+  else document.addEventListener('DOMContentLoaded', () => { poll(); setInterval(poll, 400); });
 })();
 
 </script>
