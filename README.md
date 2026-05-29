@@ -20,7 +20,23 @@ python -m http.server 5173
 
 Then open `http://localhost:5173` in your browser.
 
-No build step, no dependencies, no npm. It's a single HTML file.
+No build step, no dependencies, no npm to **run** the app — it's a single HTML file. (npm is used only for the headless test runner; see Tests.)
+
+## Tests
+
+A browser test suite lives in `tests/` (109 tests covering the Tel Var formula, timers, presets, undo, alliance/district logic, and keyboard shortcuts).
+
+**In the browser:** with the server running, open `http://localhost:5173/tests/`. Green means everything passes. (Serve over HTTP, not `file://`.)
+
+**Headless / CI:**
+
+```bash
+npm install
+npx playwright install --with-deps chromium
+npm test
+```
+
+`npm test` spins up its own server and a headless browser, runs the suite, and exits non-zero on failure. GitHub Actions runs it automatically on every push and pull request.
 
 ## How to use
 
@@ -57,6 +73,9 @@ index.html        — the entire app (HTML + CSS + JS, single file)
 assets/           — boss portraits, alliance crests, icons, textures
 manifest.json     — PWA manifest
 sw.js             — service worker (offline caching)
+tests/            — browser test suite + headless CI runner
+package.json      — test tooling only (the app needs no npm)
+.github/          — CI workflow that runs the tests
 ```
 
 ## Districts and bosses
