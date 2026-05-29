@@ -132,9 +132,24 @@ frame.addEventListener('load', async () => {
     if (!win.TestRunner) throw new Error('TestRunner not found in app frame');
     const results = await win.TestRunner.run();
     render(results);
+    // Machine-readable summary for headless CI (tests/ci.mjs). Kept JSON-safe
+    // (no functions / Error objects) so it survives Playwright serialization.
+    window.__testResults = {
+      totalPassed: results.totalPassed,
+      totalFailed: results.totalFailed,
+      suites: results.suites.map(s => ({
+        name: s.name,
+        passed: s.passed,
+        total: s.tests.length,
+        failures: s.errors.map(e => ({ name: e.name, message: String((e.error && e.error.message) || e.error) })),
+      })),
+    };
+    window.__testsDone = true;
   } catch (e) {
     fail('Test harness error: ' + e.message +
       (location.protocol === 'file:' ? ' (are you serving over http? file:// blocks cross-frame access)' : ''));
+    window.__testError = e.message;
+    window.__testsDone = true;
     // eslint-disable-next-line no-console
     console.error(e);
   }

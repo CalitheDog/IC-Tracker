@@ -1,6 +1,10 @@
 # Local Claude Code configuration / worktree scratch
 .claude/
 
+# Node / test tooling
+node_modules/
+package-lock.json
+
 # OS junk
 .DS_Store
 Thumbs.db

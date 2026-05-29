@@ -11,11 +11,22 @@ python -m http.server 5173
 - App: `http://localhost:5173`
 - OBS overlay mode: `http://localhost:5173/?obs=1`
 
-No build step, no npm, no bundler.
+The **app** has no build step, no bundler, and no npm dependencies. The only `package.json` / npm usage in the repo is the headless **test** tooling (see Tests) — it is never required to run or ship the app.
 
 ## Architecture
 
 `index.html` is the entire app — all HTML, CSS, and JS inline. No modules, no separate source files.
+
+## Tests
+
+Browser test suite under `tests/` (109 tests / 18 suites). Because the app logic is inline in `index.html`, there's nothing to `import` — instead `tests/index.html` loads the **real app in a hidden iframe and injects the runner + tests into it**, so the tests share the app's global scope and call `fmt`, `killBoss`, `dcHeld`, etc. directly against the shipped code.
+
+- **Interactive:** `python -m http.server 5173`, then open `http://localhost:5173/tests/`. Must be served over HTTP (not `file://`) so the harness can reach into the iframe. The harness unregisters the service worker and clears the PWA caches on load, and cache-busts the injected scripts, so suite edits are never served stale.
+- **Headless / CI:** `npm install && npx playwright install --with-deps chromium && npm test`. `tests/ci.mjs` runs its own static server + headless Chromium, reads the machine-readable `window.__testResults`, and exits non-zero on failure. GitHub Actions (`.github/workflows/tests.yml`) runs this on every push to `main` and every PR.
+
+Files: `tests/runner.js` (dependency-free `describe`/`it`/`assert`), `tests/tests.js` (the suites), `tests/index.html` (harness), `tests/ci.mjs` (headless runner).
+
+When you add a feature or rename a function, update `tests/tests.js`. The suite was rebuilt for the current app, so it omits removed features (kill streak, full session save/restore) and uses the current prefixed keyboard bindings.
 
 ## Key globals (module-level, no framework)
 
@@ -43,7 +54,9 @@ perKill = round(1327 × MULT[stI] × (1 + dcHeld.size × 0.33) / grSz)
 
 ## localStorage keys
 
-`ic-alliance`, `ic-dcHeld`, `ic-telvar-target`, `ic-help-seen`, `esoIcSession`, `esoIcBestStreak`
+`ic-alliance`, `ic-dcHeld`, `ic-telvar-target`, `ic-help-seen`, `esoIcFantasyTheme`.
+
+`esoIcBestStreak` is **read** (in `syncInsights()`, into the `.cd-insights` panel) but never written — the kill-streak feature was removed in the redesign, so this is read-only legacy and effectively always shows `—`.
 
 ## Layout structure
 

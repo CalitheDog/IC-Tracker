@@ -1,0 +1,13 @@
+{
+  "name": "ic-tracker",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Dev/test tooling for the Imperial City Tracker. The app itself (index.html) has NO build step — this exists only to run the test suite headlessly.",
+  "scripts": {
+    "test": "node tests/ci.mjs",
+    "serve": "python -m http.server 5173"
+  },
+  "devDependencies": {
+    "playwright": "^1.48.0"
+  }
+}
