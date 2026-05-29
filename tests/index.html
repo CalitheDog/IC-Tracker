@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IC Tracker — Tests</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0a0a0a; color: #ccc; min-height: 100vh; font-family: monospace; }
+    #app-frame { position: absolute; width: 1px; height: 1px; left: -9999px; top: -9999px; border: 0; }
+    #status { padding: 20px; color: #888; }
+  </style>
+</head>
+<body>
+
+<!--
+  The whole app lives inline in ../index.html, so we can't load its logic via
+  <script src>. Instead we load the real app in a hidden iframe and inject the
+  runner + test files INTO that iframe. Classic scripts added to a document
+  share its global lexical environment, so the tests can reference the app's
+  top-level functions and state (fmt, DISTRICTS, dcHeld, ...) directly — the
+  same way the old tests/app.js split worked, just from the other direction.
+
+  Must be served over HTTP (same-origin) so the parent can reach into the
+  iframe. From the repo root:  python -m http.server 5173
+  then open http://localhost:5173/tests/
+-->
+<iframe id="app-frame" src="../index.html"></iframe>
+
+<div id="status">Loading app…</div>
+<div id="results"></div>
+
+<script>
+const statusEl = document.getElementById('status');
+
+// The app ships a service worker (sw.js) that caches GET responses and serves
+// them stale-first. That must not pollute the test environment, or edits to
+// the suite won't be picked up. Tear down any SW + caches on load. Injected
+// test scripts are also cache-busted (see injectScript) as a belt-and-braces.
+(async () => {
+  try {
+    if (navigator.serviceWorker) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
+    }
+    if (window.caches) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+  } catch (e) { /* best effort */ }
+})();
+
+function fail(msg) {
+  statusEl.textContent = msg;
+  statusEl.style.color = '#e03820';
+}
+
+function injectScript(win, url) {
+  return new Promise((resolve, reject) => {
+    const doc = win.document;
+    const s = doc.createElement('script');
+    // Absolute URL so it resolves against the tests/ dir, not the iframe's
+    // base (which is the repo root, since it loaded ../index.html). The
+    // cache-bust query defeats the app's service worker / browser cache so a
+    // reload always runs the latest test code.
+    const abs = new URL(url, window.location.href);
+    abs.searchParams.set('t', String(performance.now()));
+    s.src = abs.href;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error('Failed to load ' + url));
+    doc.head.appendChild(s);
+  });
+}
+
+// Wait until the app's globals exist (init has run). `fmt` is a function
+// declaration, so it lands on the iframe window once the app script executes.
+function waitForApp(win, timeoutMs = 8000) {
+  return new Promise((resolve, reject) => {
+    const start = performance.now();
+    (function poll() {
+      if (typeof win.fmt === 'function') return resolve();
+      if (performance.now() - start > timeoutMs)
+        return reject(new Error('App did not initialize within ' + timeoutMs + 'ms'));
+      requestAnimationFrame(poll);
+    })();
+  });
+}
+
+function render({ suites, totalPassed, totalFailed }) {
+  statusEl.style.display = 'none';
+  const el = document.getElementById('results');
+  const total = totalPassed + totalFailed;
+  const allGood = totalFailed === 0;
+
+  let html = `<div style="padding:20px;max-width:820px;margin:0 auto">`;
+  html += `<h1 style="color:${allGood ? '#58c070' : '#e03820'};margin-bottom:4px">
+    ${allGood ? 'ALL TESTS PASSED' : 'SOME TESTS FAILED'}
+  </h1>`;
+  html += `<p style="color:#888;margin-bottom:20px">${totalPassed}/${total} passed</p>`;
+
+  for (const suite of suites) {
+    const color = suite.failed ? '#e03820' : '#58c070';
+    html += `<div style="margin-bottom:16px;border-left:3px solid ${color};padding-left:12px">`;
+    html += `<h3 style="color:${color};margin:0 0 6px">${suite.name} (${suite.passed}/${suite.tests.length})</h3>`;
+    for (const test of suite.tests) {
+      const failed = suite.errors.find(e => e.name === test.name);
+      if (failed) {
+        html += `<div style="color:#e03820;margin:2px 0">  FAIL  ${test.name}</div>`;
+        html += `<div style="color:#a04030;margin:0 0 4px 40px;font-size:12px">${failed.error.message}</div>`;
+      } else {
+        html += `<div style="color:#58c070;margin:2px 0">  PASS  ${test.name}</div>`;
+      }
+    }
+    if (suite.errors.some(e => e.name === '(suite setup)')) {
+      const e = suite.errors.find(x => x.name === '(suite setup)');
+      html += `<div style="color:#a04030;margin:0 0 4px 40px;font-size:12px">setup threw: ${e.error.message}</div>`;
+    }
+    html += `</div>`;
+  }
+  html += `</div>`;
+  el.innerHTML = html;
+}
+
+const frame = document.getElementById('app-frame');
+frame.addEventListener('load', async () => {
+  const win = frame.contentWindow;
+  try {
+    await waitForApp(win);
+    statusEl.textContent = 'Running tests…';
+    await injectScript(win, 'runner.js');
+    await injectScript(win, 'tests.js');
+    if (!win.TestRunner) throw new Error('TestRunner not found in app frame');
+    const results = await win.TestRunner.run();
+    render(results);
+  } catch (e) {
+    fail('Test harness error: ' + e.message +
+      (location.protocol === 'file:' ? ' (are you serving over http? file:// blocks cross-frame access)' : ''));
+    // eslint-disable-next-line no-console
+    console.error(e);
+  }
+});
+</script>
+</body>
+</html>
