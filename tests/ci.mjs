@@ -13,7 +13,7 @@
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { dirname, join, normalize, resolve } from 'node:path';
+import { dirname, join, normalize, resolve, sep } from 'node:path';
 import { chromium } from 'playwright';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -42,9 +42,10 @@ const server = createServer(async (req, res) => {
   try {
     let urlPath = decodeURIComponent((req.url || '/').split('?')[0]);
     if (urlPath.endsWith('/')) urlPath += 'index.html';
-    // Resolve within ROOT, reject path traversal.
+    // Resolve within ROOT, reject path traversal. Compare against ROOT + sep
+    // so a sibling dir sharing ROOT as a string prefix can't slip through.
     const filePath = normalize(join(ROOT, urlPath));
-    if (!filePath.startsWith(ROOT)) {
+    if (filePath !== ROOT && !filePath.startsWith(ROOT + sep)) {
       res.writeHead(403).end('Forbidden');
       return;
     }
@@ -80,16 +81,26 @@ async function main() {
 
     if (out.error) {
       console.error(`\nHarness error: ${out.error}`);
+    } else if (!out.results) {
+      console.error('\nHarness finished but produced no results object.');
     } else {
       const { totalPassed, totalFailed, suites } = out.results;
+      let suiteFailures = 0;
       for (const s of suites) {
+        suiteFailures += s.failures.length;
         const mark = s.failures.length ? 'FAIL' : 'ok  ';
         console.log(`${mark} ${s.name} (${s.passed}/${s.total})`);
         for (const f of s.failures) console.log(`       ✗ ${f.name}\n         ${f.message}`);
       }
       const total = totalPassed + totalFailed;
-      console.log(`\n${totalFailed === 0 ? 'ALL TESTS PASSED' : 'SOME TESTS FAILED'} — ${totalPassed}/${total} passed`);
-      exitCode = totalFailed === 0 ? 0 : 1;
+      // Green ONLY if tests actually ran and nothing failed. suiteFailures
+      // also catches suite-setup errors (which land in failures[] but never
+      // increment totalFailed); total === 0 catches a suite that failed to
+      // register at all. Either must fail the build.
+      const ok = total > 0 && totalFailed === 0 && suiteFailures === 0;
+      console.log(`\n${ok ? 'ALL TESTS PASSED' : 'SOME TESTS FAILED'} — ${totalPassed}/${total} passed`);
+      if (total === 0) console.log('No tests ran — failing (did a suite fail to register?).');
+      exitCode = ok ? 0 : 1;
     }
   } finally {
     await browser.close();
