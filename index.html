@@ -42,6 +42,9 @@ body::before{content:'';position:absolute;inset:0;background:radial-gradient(ell
 
 #helpBtn{position:fixed;bottom:56px;right:20px;font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.12em;padding:7px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.2);color:#8a7040;border-radius:5px;cursor:pointer;z-index:100;text-transform:uppercase;transition:all 0.15s;}
 #helpBtn:hover{background:rgba(255,255,255,0.08);color:#c9a84c;}
+#notifyBtn{position:fixed;bottom:92px;right:20px;font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.12em;padding:7px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.2);color:#8a7040;border-radius:5px;cursor:pointer;z-index:100;text-transform:uppercase;transition:all 0.15s;}
+#notifyBtn:hover{background:rgba(255,255,255,0.08);color:#c9a84c;}
+#notifyBtn.on{color:#c9a84c;border-color:rgba(201,168,76,0.5);background:rgba(201,168,76,0.12);}
 
 .help-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
 .help-modal{position:relative;background:linear-gradient(180deg,rgba(28,20,9,0.98),rgba(9,7,4,0.98));border:1px solid rgba(201,168,76,0.35);border-radius:8px;padding:28px 26px 22px;max-width:520px;width:100%;max-height:88vh;overflow-y:auto;color:#c9b78a;box-shadow:0 0 60px rgba(201,168,76,0.18),0 0 0 1px rgba(201,168,76,0.08) inset;}
@@ -1024,6 +1027,7 @@ body.obs::before,body.obs::after{display:none!important;}
 body.obs .header,
 body.obs .cmd-topbar,
 body.obs #muteBtn,
+body.obs #notifyBtn,
 body.obs #helpBtn,
 body.obs #helpOverlay,
 body.obs .map-section,
@@ -2256,6 +2260,7 @@ html,body{max-width:100%;overflow-x:hidden;}
 /* Keep the bottom-right chrome clear of the iOS home-bar / notch. */
 #muteBtn{bottom:calc(20px + env(safe-area-inset-bottom))!important;right:calc(20px + env(safe-area-inset-right))!important;}
 #helpBtn{bottom:calc(56px + env(safe-area-inset-bottom))!important;right:calc(20px + env(safe-area-inset-right))!important;}
+#notifyBtn{bottom:calc(92px + env(safe-area-inset-bottom))!important;right:calc(20px + env(safe-area-inset-right))!important;}
 /* Mobile: legible text + comfortable (>=42px) touch targets. */
 @media (max-width:820px){
   .tv-adj-input{font-size:16px!important;}            /* stops iOS zoom-on-focus */
@@ -2263,7 +2268,7 @@ html,body{max-width:100%;overflow-x:hidden;}
   .alliance-name{font-size:11px!important;}
   .seg,.dc-toggle{min-height:42px!important;font-size:12px!important;}
   .drow-actions .dbtn{min-height:42px!important;font-size:11px!important;}
-  #muteBtn,#helpBtn{min-height:42px!important;min-width:42px!important;font-size:12px!important;}
+  #muteBtn,#helpBtn,#notifyBtn{min-height:42px!important;min-width:42px!important;font-size:12px!important;}
 }
 
 </style>
@@ -2296,6 +2301,7 @@ html,body{max-width:100%;overflow-x:hidden;}
 </div>
 
 <button id="muteBtn" onclick="toggleMute()">🔔 Sound On</button>
+<button id="notifyBtn" onclick="toggleNotify()" title="Desktop notifications for boss respawns">🖥 Notify Off</button>
 <button id="helpBtn" onclick="openHelp()" title="How to use">? Help</button>
 
 <div id="helpOverlay" class="help-overlay" onclick="maybeCloseHelp(event)" style="display:none">
@@ -2652,6 +2658,40 @@ function getA(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext
 function playSpawn(){if(muted)return;try{const c=getA();[523.25,659.25,783.99,1046.5].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;const t=c.currentTime+i*0.18;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.35,t+0.04);g.gain.exponentialRampToValueAtTime(0.001,t+1.1);o.start(t);o.stop(t+1.2);});}catch(e){}}
 function playWarn(){if(muted)return;try{const c=getA();[392,523.25].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='triangle';o.frequency.value=f;const t=c.currentTime+i*0.22;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.25,t+0.03);g.gain.exponentialRampToValueAtTime(0.001,t+0.7);o.start(t);o.stop(t+0.8);});}catch(e){}}
 function toggleMute(){muted=!muted;const b=document.getElementById('muteBtn');b.textContent=muted?'🔕 Muted':'🔔 Sound On';b.className=muted?'muted':'';}
+
+/* Desktop notifications — push the respawn/warning alert to the OS so it reaches
+   the player on another monitor/app while in-game. Separate from `muted` (which
+   is the in-app sound). Opt-in via the Notify button; persisted in `ic-notify`. */
+let notifyEnabled=false;
+function applyNotifyPref(on){
+  notifyEnabled=!!on;
+  const b=document.getElementById('notifyBtn');
+  if(b){b.textContent=notifyEnabled?'🖥 Notify On':'🖥 Notify Off';b.classList.toggle('on',notifyEnabled);}
+  try{localStorage.setItem('ic-notify',notifyEnabled?'1':'0');}catch(e){}
+}
+function toggleNotify(){
+  if(!('Notification' in window)){toast('Notifications not supported here','info');return;}
+  if(notifyEnabled){applyNotifyPref(false);toast('Desktop alerts off','info');return;}
+  if(Notification.permission==='granted'){applyNotifyPref(true);toast('Desktop alerts on','success');return;}
+  if(Notification.permission==='denied'){toast('Notifications are blocked in your browser settings','error');return;}
+  try{Notification.requestPermission().then(p=>{
+    if(p==='granted'){applyNotifyPref(true);toast('Desktop alerts on','success');}
+    else{applyNotifyPref(false);toast('Notification permission denied','info');}
+  }).catch(()=>{});}catch(e){}
+}
+function notify(name,type){
+  if(!notifyEnabled)return false;
+  if(!('Notification' in window)||Notification.permission!=='granted')return false;
+  if(document.hasFocus())return false;     // app is focused — the in-app alert suffices
+  try{
+    const cfg=type==='spawn'
+      ? {title:`⚔ ${name} boss is up`,body:'Respawned — go kill it.'}
+      : {title:`⚠ ${name} respawning`,body:'About 1 minute until respawn.'};
+    const n=new Notification(cfg.title,{body:cfg.body,tag:`ic-${name}`,renotify:true,icon:'assets/stone.png'});
+    n.onclick=()=>{try{window.focus();}catch(e){}n.close();};
+    return true;
+  }catch(e){return false;}
+}
 function flash(type){const el=document.getElementById('flashOverlay');el.className='';void el.offsetWidth;el.className=`flash-${type}`;}
 function toast(name,type='info'){
   const bn=document.getElementById('alertBanner'),t=document.createElement('div');
@@ -2884,6 +2924,7 @@ function windowAlert(name,type){
   flash(type==='spawn'?'green':'amber');
   toast(name,type);
   flashTitle(type,name);
+  notify(name,type);
   if(type==='spawn')playSpawn();
   else if(type==='warning')playWarn();
 }
@@ -3395,6 +3436,8 @@ function init(){
   try{const t=parseInt(localStorage.getItem('ic-telvar-target')||'0');if(t>0)telvarTarget=t;}catch(e){}
   buildDCToggles();buildSkulls();updateTV();
   try{if(!isObsMode()&&!localStorage.getItem('ic-help-seen')){openHelp();localStorage.setItem('ic-help-seen','1');}}catch(e){}
+  // Reflect a saved notify preference, but only if permission is still granted.
+  try{applyNotifyPref(localStorage.getItem('ic-notify')==='1'&&'Notification' in window&&Notification.permission==='granted');}catch(e){applyNotifyPref(false);}
   tick();setInterval(tick,500);
 }
 init();

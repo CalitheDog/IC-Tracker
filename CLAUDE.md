@@ -58,7 +58,9 @@ The 1-minute warning and the respawn alert are armed with **one-shot `setTimeout
 
 ## localStorage keys
 
-`ic-alliance`, `ic-dcHeld`, `ic-telvar-target`, `ic-help-seen`, `esoIcFantasyTheme`.
+`ic-alliance`, `ic-dcHeld`, `ic-telvar-target`, `ic-help-seen`, `ic-notify`, `esoIcFantasyTheme`.
+
+`ic-notify` is the desktop-notification opt-in (`'1'`/`'0'`). The `#notifyBtn` chrome button drives `toggleNotify()` (requests `Notification` permission on first enable) → `applyNotifyPref()` (sets `notifyEnabled`, button state, persists). `notify(name,type)` is called from `windowAlert()` so the respawn/warning reaches the OS; it no-ops unless enabled, permission-granted, and the app is **not** focused (`document.hasFocus()` false), so a player on another monitor gets the alert but the in-app toast isn't duplicated when they're looking at the app.
 
 `esoIcBestStreak` is **read** (in `syncInsights()`, into the `.cd-insights` panel) but never written — the kill-streak feature was removed in the redesign, so this is read-only legacy and effectively always shows `—`.
 

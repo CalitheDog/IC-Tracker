@@ -24,6 +24,7 @@ function resetState() {
   farmStart = null; farmEnd = null; farmRunning = false;
   activePreset = null; alliance = 'dc'; sortByRespawn = false; telvarTarget = 0;
   muted = true;
+  if (typeof notifyEnabled !== 'undefined') notifyEnabled = false;
   dcHeld.clear();
   actionStack = []; eventLog = []; lastNextTarget = null;
   shortcutPrefix = null;
@@ -709,6 +710,36 @@ describe('Respawn Alert Scheduling', () => {
     timers[0].running = true; timers[0].wasRunning = true; timers[0].end = Date.now() + 300000;
     fireSpawn(0);
     assert.ok(timers[0].running);
+  });
+});
+
+/* ═══════════════════════════════════════════ 19. DESKTOP NOTIFICATIONS ═══ */
+describe('Desktop Notifications', () => {
+  it('notify() is a no-op when notifications are disabled', () => {
+    notifyEnabled = false;
+    assert.equal(notify('Memorial', 'spawn'), false);
+  });
+  it('applyNotifyPref(true) enables and persists ic-notify=1', () => {
+    applyNotifyPref(true);
+    assert.ok(notifyEnabled);
+    assert.equal(localStorage.getItem('ic-notify'), '1');
+    applyNotifyPref(false); // restore
+  });
+  it('applyNotifyPref(false) disables and persists ic-notify=0', () => {
+    applyNotifyPref(true);
+    applyNotifyPref(false);
+    assert.notOk(notifyEnabled);
+    assert.equal(localStorage.getItem('ic-notify'), '0');
+  });
+  it('applyNotifyPref updates the Notify button label/state', () => {
+    applyNotifyPref(true);
+    const btn = document.getElementById('notifyBtn');
+    assert.ok(btn, '#notifyBtn should exist');
+    assert.includes(btn.textContent, 'Notify On');
+    assert.ok(btn.classList.contains('on'));
+    applyNotifyPref(false);
+    assert.includes(btn.textContent, 'Notify Off');
+    assert.notOk(btn.classList.contains('on'));
   });
 });
 
