@@ -827,6 +827,16 @@ describe('ESO Plus base toggle', () => {
   });
 });
 
+/* ═══════════════════════════════════════════ 23. HELP DISCOVERABILITY ═══ */
+describe('Help discoverability', () => {
+  it('Help modal surfaces the newer features', () => {
+    const t = document.getElementById('helpOverlay').textContent;
+    assert.includes(t, 'ESO Plus');
+    assert.includes(t, 'Notify');
+    assert.includes(t, 'district name');
+  });
+});
+
 /* ═══════════════════════════════════════════ CLEANUP ═══ */
 describe('Cleanup', () => {
   it('Reset state after all tests', () => {
