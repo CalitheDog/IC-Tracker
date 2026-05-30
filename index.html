@@ -326,6 +326,8 @@ body.alliance-ep .alliance-bonus{color:#ff7a68;}
 body.alliance-dc .alliance-bonus{color:#88ccff;}
 body.alliance-ad .alliance-bonus{color:#ffe84a;}
 .boss-modal-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.boss-modal-act{font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;padding:9px 14px;border-radius:6px;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.28);color:#c9a84c;transition:all 0.15s;}
+.boss-modal-act:hover{background:rgba(201,168,76,0.14);color:#e0c878;border-color:rgba(201,168,76,0.5);}
 .boss-modal-kill,.boss-modal-close-bottom{flex:1;min-width:130px;font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.1em;padding:9px 12px;border-radius:6px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;}
 .boss-modal-kill{background:rgba(160,35,15,0.28);border:1px solid rgba(180,55,25,0.55);color:#d06040;}
 .boss-modal-kill:hover{background:rgba(180,40,18,0.45);color:#f08060;}
@@ -1981,8 +1983,9 @@ body.alliance-ad .dc-toggle.held{
     line-height:1;
     display:inline-flex;align-items:center;justify-content:center;
   }
-  /* Secondary actions hidden on wide — reach them via the boss modal
-     (click the boss portrait/name). Frees ~120px for district name. */
+  /* On wide screens the secondary row actions are hidden to free ~120px for the
+     district name — they live in the boss modal instead (tap the boss
+     name/portrait/skull → Seen Alive / Guess / Reset). Shown inline on mobile. */
   .drow .dbtn.guess,
   .drow .dbtn.scout,
   .drow .dbtn.rst{display:none !important;}
@@ -2319,6 +2322,9 @@ html,body{max-width:100%;overflow-x:hidden;}
       <div class="boss-modal-meta" id="bossModalMeta"></div>
       <div class="boss-modal-actions">
         <button class="boss-modal-kill" id="bossModalKillBtn">☠ Mark Killed</button>
+        <button class="boss-modal-act" id="bossModalSeenBtn">◉ Seen Alive</button>
+        <button class="boss-modal-act" id="bossModalGuessBtn">? Guess</button>
+        <button class="boss-modal-act" id="bossModalResetBtn">↺ Reset</button>
         <button class="boss-modal-close-bottom" onclick="closeBossModal()">Close</button>
       </div>
     </div>
@@ -2346,7 +2352,7 @@ html,body{max-width:100%;overflow-x:hidden;}
     <h3 class="help-sec">How to use</h3>
     <ol class="help-list help-list-ol">
       <li>Tap your alliance (EP / DC / AD) in the Tel Var panel.</li>
-      <li>Tap each district held by the enemy alliance to apply the bonus.</li>
+      <li>Tap each district <b>your</b> alliance controls — that's what grants the +33%-each Tel Var bonus.</li>
       <li>Set your stone multiplier and group size to match in-game.</li>
       <li>Tap <b>Killed</b> on a district when its boss dies — the 15-minute timer starts.</li>
       <li>Use <b>Bank</b> when you stash Tel Var, or <b>Ganked</b> if you die (loses 50%).</li>
@@ -2364,7 +2370,7 @@ html,body{max-width:100%;overflow-x:hidden;}
     <ul class="help-list help-list-ul">
       <li><b>Guess</b> — find a dead boss? Estimate how many minutes ago it died.</li>
       <li><b>Seen Alive</b> — mark a boss up without claiming the kill.</li>
-      <li>Tap a <b>district name</b> or its <b>boss pictures</b> to see both bosses side by side.</li>
+      <li>Tap a <b>district name</b>, its <b>boss pictures</b>, or a map <b>skull</b> to open that district — boss portraits plus Killed / Seen Alive / Guess / Reset.</li>
     </ul>
 
     <h3 class="help-sec">Alerts &amp; extras</h3>
@@ -2872,6 +2878,9 @@ function openBossModal(di,bi){
   document.getElementById('bossModalTitle').textContent=bossNames.length>1?bossNames.join(' & '):bossNames[0];
   document.getElementById('bossModalMeta').innerHTML=`Status: ${districtStatusHtml(di)}<br>Estimated Tel Var if killed now: <span class="alive">${perKill().toLocaleString()}</span><br>${dcHeld.has(di)?'<span class="alliance-bonus">Alliance bonus</span> active for this district.':'No <span class="alliance-bonus">alliance bonus</span> on this district.'}`;
   document.getElementById('bossModalKillBtn').onclick=()=>{killBoss(di);closeBossModal();};
+  const sb=document.getElementById('bossModalSeenBtn');if(sb)sb.onclick=()=>{seenAlive(di);closeBossModal();};
+  const rb=document.getElementById('bossModalResetBtn');if(rb)rb.onclick=()=>{rstBoss(di);closeBossModal();};
+  const gb=document.getElementById('bossModalGuessBtn');if(gb)gb.onclick=()=>{closeBossModal();guessTimer(di);}; // close first — guessTimer uses a blocking prompt()
   bossOpener=document.activeElement;
   modal.classList.add('show');
   const kb=document.getElementById('bossModalKillBtn');if(kb)kb.focus();

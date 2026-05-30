@@ -870,6 +870,30 @@ describe('Map & modal accessibility', () => {
   });
 });
 
+/* ═══════════════════════════════════════════ 25. BOSS MODAL ACTIONS ═══ */
+describe('Boss modal secondary actions', () => {
+  it('the boss modal exposes Seen Alive / Guess / Reset', () => {
+    assert.ok(document.getElementById('bossModalSeenBtn'), 'Seen Alive button');
+    assert.ok(document.getElementById('bossModalGuessBtn'), 'Guess button');
+    assert.ok(document.getElementById('bossModalResetBtn'), 'Reset button');
+  });
+  it('Seen Alive from the modal scouts the district and closes it', () => {
+    resetState();
+    openBossModal(2);
+    document.getElementById('bossModalSeenBtn').click();
+    assert.equal(typeof timers[2].seenAt, 'number');
+    assert.notOk(document.getElementById('bossModal').classList.contains('show'));
+  });
+  it('Reset from the modal clears the timer and closes it', () => {
+    resetState();
+    killBoss(3);
+    openBossModal(3);
+    document.getElementById('bossModalResetBtn').click();
+    assert.notOk(timers[3].running);
+    assert.notOk(document.getElementById('bossModal').classList.contains('show'));
+  });
+});
+
 /* ═══════════════════════════════════════════ CLEANUP ═══ */
 describe('Cleanup', () => {
   it('Reset state after all tests', () => {

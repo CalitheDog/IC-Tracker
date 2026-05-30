@@ -4,11 +4,14 @@ A **Tel Var farm optimizer** for Elder Scrolls Online Imperial City, built for c
 
 ## What it does
 
-- **Boss timers** — 15-minute respawn countdown for each district. Flashes and beeps when a boss is back up, warns 1 minute before respawn.
-- **Next Respawn** — the soonest-respawning district and a live countdown, always shown in the top status bar.
-- **Tel Var estimator** — calculates per-kill Tel Var based on your stone multiplier, group size, and how many districts the enemy alliance controls. Tracks carrying, banked, and lost amounts.
-- **Alliance & district control** — select your alliance (EP / DC / AD) and toggle which districts the enemy holds to keep the formula accurate.
-- **Unknown timers** — if you find a dead boss you didn't kill, use Guess to estimate when it died, or Seen Alive to confirm it's up.
+- **Boss timers** — a 15-minute respawn countdown for each district. Flashes, chimes, and warns one minute before respawn; the map slice and the row pulse red in the final 15 seconds.
+- **Next Respawn** — the soonest-respawning district and a live countdown in the top status bar.
+- **Tel Var estimator** — per-kill Tel Var from your stone multiplier, group size, and how many districts your alliance controls, with an **ESO Plus** toggle for the base value. Tracks carried, banked, and lost amounts against a session target.
+- **Alliance & district control** — pick your alliance (EP / DC / AD) and toggle the districts **your** alliance holds — each one adds a +33% Tel Var bonus. Tap a district name, its boss pictures, or a map skull to open the boss card.
+- **Scouting** — found a dead boss you didn't kill? **Guess** when it died, **Seen Alive** to confirm it's up, or **Reset** a timer.
+- **Desktop alerts** — optional sound and browser **notifications** when a boss respawns, so the warning reaches you on another screen while you're in-game.
+- **Installable** — runs offline as a PWA, nudges you when a new version is available, and has an **OBS overlay mode** (`?obs=1`) for streamers.
+- **Keyboard & accessible** — full keyboard shortcuts, screen-reader labels, focus management, and reduced-motion support.
 
 ## Running locally
 
@@ -24,7 +27,7 @@ No build step, no dependencies, no npm to **run** the app — it's a single HTML
 
 ## Tests
 
-A browser test suite lives in `tests/` (109 tests covering the Tel Var formula, timers, presets, undo, alliance/district logic, and keyboard shortcuts).
+A browser test suite lives in `tests/` (130+ tests covering the Tel Var formula, timers, presets, undo, alliance/district logic, notifications, the ESO Plus toggle, accessibility, and keyboard shortcuts).
 
 **In the browser:** with the server running, open `http://localhost:5173/tests/`. Green means everything passes. (Serve over HTTP, not `file://`.)
 
@@ -43,7 +46,7 @@ npm test
 ### During a farming run
 
 1. **Select your alliance** — tap EP, DC, or AD in the Tel Var panel.
-2. **Toggle DC-held districts** — tap each district your enemy alliance controls to apply the bonus.
+2. **Toggle the districts your alliance controls** — tap each one (on the map or the district buttons) to apply its +33% Tel Var bonus.
 3. **Set your stone multiplier and group size** — matches what you're carrying in-game.
 4. *(Optional)* **Tap Start Farming** in the Tel Var panel to start the session timer.
 5. **Kill a boss → tap Killed** on that district row. The 15-minute timer starts.
@@ -65,6 +68,18 @@ npm test
 - **Guess** — prompts for how many minutes ago you think the boss died. Builds a partial timer from that estimate.
 - **Seen Alive** — confirms the boss is currently up without adding Tel Var (scout check).
 - **Reset** — clears a timer and marks the boss as alive.
+
+On phones these are buttons on each district row. On a wide screen they're tucked into the boss card to save space — tap the district name (or a map skull) to open it. The keyboard shortcuts (`S`/`G`/`R` then a number) work on any screen.
+
+### Keyboard shortcuts
+
+| Key | Action |
+|-----|--------|
+| `1`–`6` | Mark district 1–6 killed |
+| `S` then `1`–`6` | Seen Alive |
+| `G` then `1`–`6` | Guess timer |
+| `R` then `1`–`6` | Reset timer |
+| `B` / `X` / `U` | Bank / Ganked / Undo |
 
 ## Project structure
 
