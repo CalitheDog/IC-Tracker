@@ -837,6 +837,39 @@ describe('Help discoverability', () => {
   });
 });
 
+/* ═══════════════════════════════════════════ 24. MAP/MODAL A11Y ═══ */
+describe('Map & modal accessibility', () => {
+  it('map slices are keyboard-operable with aria-pressed', () => {
+    resetState();
+    DISTRICTS.forEach((_, i) => refreshSlice(i));
+    const sl = document.getElementById('sl0');
+    assert.ok(sl, 'slice sl0 exists');
+    assert.equal(sl.getAttribute('role'), 'button');
+    assert.equal(sl.getAttribute('tabindex'), '0');
+    assert.equal(sl.getAttribute('aria-pressed'), 'false');
+  });
+  it('toggling district control flips the slice aria-pressed', () => {
+    resetState();
+    toggleDC(0);
+    assert.equal(document.getElementById('sl0').getAttribute('aria-pressed'), 'true');
+    toggleDC(0);
+    assert.equal(document.getElementById('sl0').getAttribute('aria-pressed'), 'false');
+  });
+  it('map skull markers are keyboard-operable', () => {
+    const skull = document.querySelector('#skulls .skull-hit');
+    assert.ok(skull, 'a skull marker exists');
+    assert.equal(skull.getAttribute('role'), 'button');
+    assert.equal(skull.getAttribute('tabindex'), '0');
+  });
+  it('opening a modal moves focus into the dialog', () => {
+    closeHelp();
+    openHelp();
+    const card = document.querySelector('#helpOverlay .help-modal');
+    assert.ok(card.contains(document.activeElement), 'focus is inside the help dialog');
+    closeHelp();
+  });
+});
+
 /* ═══════════════════════════════════════════ CLEANUP ═══ */
 describe('Cleanup', () => {
   it('Reset state after all tests', () => {
