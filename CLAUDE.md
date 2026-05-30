@@ -75,6 +75,8 @@ Top-level blocks under `<body>` (besides overlays and corner chrome buttons):
 
 The original `.next-up` "Next Respawn" hero card is force-hidden (`.next-up{display:none !important}`); its role moved to the compact `.ctb-next` cell in the topbar.
 
+The **last** block in `<style>` (search `===== Accessibility & mobile`) is appended deliberately so it wins over the earlier `!important` overrides: it holds the `prefers-reduced-motion` reset, the global `:focus-visible` ring, `.sr-only` / `.skip-link`, the `@media (max-width:820px)` touch-target/font sizing (inputs forced to 16px to stop iOS zoom), and the `env(safe-area-inset-*)` insets for the corner chrome buttons. Put new accessibility/responsive rules here, not buried mid-file.
+
 ### Wide-screen layout (≥1280px)
 
 `body` becomes a CSS Grid with `grid-template-areas`:
