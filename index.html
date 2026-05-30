@@ -113,6 +113,12 @@ svg.map text{pointer-events:none;user-select:none;-webkit-user-select:none;}
 .sc.s-dead.s-held{opacity:0.80;}
 .sc.s-warn{opacity:0.75;}
 .sc.s-warn.s-held{opacity:0.90;}
+/* Final-15s urgency: the map slice pops bright + pulses, matching the red row.
+   (The pulse is auto-disabled by the prefers-reduced-motion block; the 0.95
+   opacity stays as a static cue.) */
+.sc.s-urgent{opacity:0.95;animation:scUrg 0.7s ease-in-out infinite;}
+.sc.s-urgent.s-held{opacity:1;}
+@keyframes scUrg{0%,100%{opacity:0.95;}50%{opacity:0.55;}}
 .sc.s-unknown{opacity:0.55;}
 .sc:hover{opacity:0.78;}
 .sc.s-held:hover{opacity:1;}
@@ -1016,6 +1022,7 @@ body.theme-streakah .boss-chip{
 body.obs{background:transparent!important;min-height:auto!important;padding:6px!important;align-items:flex-start!important;}
 body.obs::before,body.obs::after{display:none!important;}
 body.obs .header,
+body.obs .cmd-topbar,
 body.obs #muteBtn,
 body.obs #helpBtn,
 body.obs #helpOverlay,
@@ -1035,7 +1042,7 @@ body.obs .footer,
 body.obs .credits{display:none!important;}
 body.obs .layout{max-width:380px!important;padding:0!important;display:flex!important;flex-direction:column!important;gap:8px!important;grid-template-areas:none!important;}
 body.obs .panel,body.obs .drow,body.obs .next-up{background:rgba(8,5,2,0.78)!important;border-color:rgba(201,168,76,0.55)!important;}
-body.obs .next-up{padding:9px 12px!important;}
+body.obs .next-up{display:block!important;padding:9px 12px!important;}  /* re-show the hero card in OBS (it's globally hidden by .next-up{display:none}) */
 body.obs .next-up-label{font-size:0.55rem!important;letter-spacing:0.3em!important;margin-bottom:6px!important;}
 body.obs .next-up-content{gap:9px!important;}
 body.obs .next-up-portrait{width:54px!important;height:54px!important;}
@@ -2620,8 +2627,8 @@ function sliceC(i){const h=dcHeld.has(i),t=timers[i],HC=heldC();let rem=0,up=tru
 function textC(i){const h=dcHeld.has(i),t=timers[i],HT=heldTX();let rem=0,up=true,wn=false;if(t.unknown)return TX.warn;if(t.running&&t.end){rem=Math.max(0,(t.end-Date.now())/1000);up=rem<=0;wn=!up&&rem<=WARN_AT;}const urg=!up&&rem<15;if(up)return h?HT.dcA:TX.alive;if(urg)return TX.urgent;if(wn)return h?HT.dcW:TX.warn;return h?HT.dcD:TX.dead;}
 
 function districtCapturesLocked(){return activePreset==='streakah';}
-function sliceState(i){const t=timers[i];if(t.unknown)return 'unknown';if(t.running&&t.end){const rem=Math.max(0,(t.end-Date.now())/1000);if(rem<=0)return 'alive';return rem<=WARN_AT?'warn':'dead';}return 'alive';}
-function refreshSlice(i){const c=sliceC(i),p=document.getElementById(`sl${i}`);if(p){p.setAttribute('fill',c.f);p.setAttribute('stroke',c.s);const st=sliceState(i);const wantCls='s-'+st;if(!p.classList.contains(wantCls)){p.classList.remove('s-alive','s-dead','s-warn','s-unknown');p.classList.add(wantCls);}p.classList.toggle('s-held',dcHeld.has(i));p.classList.toggle('locked',districtCapturesLocked());}const t=document.getElementById(`st${i}`);if(t)t.setAttribute('fill',textC(i));const cr=document.getElementById(`crest${i}`);if(cr){if(dcHeld.has(i)){const src=ALLIANCE_IMG[alliance]||ALLIANCE_IMG.dc;cr.setAttributeNS('http://www.w3.org/1999/xlink','href',src);cr.setAttribute('href',src);cr.style.display='';}else{cr.style.display='none';}}}
+function sliceState(i){const t=timers[i];if(t.unknown)return 'unknown';if(t.running&&t.end){const rem=Math.max(0,(t.end-Date.now())/1000);if(rem<=0)return 'alive';if(rem<15)return 'urgent';return rem<=WARN_AT?'warn':'dead';}return 'alive';}
+function refreshSlice(i){const c=sliceC(i),p=document.getElementById(`sl${i}`);if(p){p.setAttribute('fill',c.f);p.setAttribute('stroke',c.s);const st=sliceState(i);const wantCls='s-'+st;if(!p.classList.contains(wantCls)){p.classList.remove('s-alive','s-dead','s-warn','s-urgent','s-unknown');p.classList.add(wantCls);}p.classList.toggle('s-held',dcHeld.has(i));p.classList.toggle('locked',districtCapturesLocked());}const t=document.getElementById(`st${i}`);if(t)t.setAttribute('fill',textC(i));const cr=document.getElementById(`crest${i}`);if(cr){if(dcHeld.has(i)){const src=ALLIANCE_IMG[alliance]||ALLIANCE_IMG.dc;cr.setAttributeNS('http://www.w3.org/1999/xlink','href',src);cr.setAttribute('href',src);cr.style.display='';}else{cr.style.display='none';}}}
 function refreshRow(i){const row=document.getElementById(`dr${i}`),pill=document.getElementById(`dp${i}`);if(!row)return;const h=dcHeld.has(i);if(pill)pill.style.display=h?'':'none';h?row.classList.add('dc-held'):row.classList.remove('dc-held');}
 
 function buildDCToggles(){
@@ -2957,6 +2964,7 @@ function updateNextUp(){
 
 function perKill(){return Math.round(BASE_TV*MULT[stI]*(1+dcHeld.size*0.33)/grSz);}
 
+let lastFormulaSig=null,lastSkullSig='';
 function updateTV(){
   // Display the SAME value killBoss() credits: perKill() rounds once
   // (round(BASE×m×b/grSz)). Computing it locally with a second round on the
@@ -2964,12 +2972,19 @@ function updateTV(){
   const m=MULT[stI],b=1+dcHeld.size*0.33,pk=perKill();
   const sessionTelVar=bankedTelVar+currentTelVar,elapsed=farmElapsed();
   const grpLabel=grSz===1?'÷ Solo':`÷ ${grSz}`;
-  document.getElementById('formula').innerHTML=
-    `<div class="formula-row"><span class="lbl">Base</span><span class="val">1,327</span></div>`+
-    `<div class="formula-row"><span class="lbl">× Stones mult</span><span class="val">×${m}</span></div>`+
-    `<div class="formula-row"><span class="lbl">× District bonus</span><span class="val dc">×${b.toFixed(2)} <em>(${dcHeld.size}/6)</em></span></div>`+
-    `<div class="formula-row"><span class="lbl">${grSz===1?'Group':'÷ Group'}</span><span class="val">${grpLabel}</span></div>`+
-    `<div class="formula-result"><span class="lbl">Per Kill</span><span class="res">${pk.toLocaleString()}</span></div>`;
+  // The formula card depends only on stones/group/districts — not the clock — so
+  // rebuild its innerHTML only when those change (skips a string build + parse on
+  // every 500ms tick). The numeric stat fields below are cheap and always update.
+  const fSig=`${stI}|${grSz}|${dcHeld.size}`;
+  if(fSig!==lastFormulaSig){
+    document.getElementById('formula').innerHTML=
+      `<div class="formula-row"><span class="lbl">Base</span><span class="val">1,327</span></div>`+
+      `<div class="formula-row"><span class="lbl">× Stones mult</span><span class="val">×${m}</span></div>`+
+      `<div class="formula-row"><span class="lbl">× District bonus</span><span class="val dc">×${b.toFixed(2)} <em>(${dcHeld.size}/6)</em></span></div>`+
+      `<div class="formula-row"><span class="lbl">${grSz===1?'Group':'÷ Group'}</span><span class="val">${grpLabel}</span></div>`+
+      `<div class="formula-result"><span class="lbl">Per Kill</span><span class="res">${pk.toLocaleString()}</span></div>`;
+    lastFormulaSig=fSig;
+  }
   document.getElementById('tvK').textContent=totalKills;
   document.getElementById('tvT').textContent=currentTelVar.toLocaleString();
   document.getElementById('tvB').textContent=bankedTelVar.toLocaleString();
@@ -3330,7 +3345,11 @@ function tick(){
     if(dot){dot.className='ddot '+districtStatusClass(state);}
     if(timer){timer.textContent=str;timer.className='dtimer '+(unknown?'unknown':up?'alive':urg?'urgent':wn?'warn':'dead');timer.title=title;}
   });
-  buildSkulls();
+  // Skull markers only change appearance when a district flips alive/dead/unknown,
+  // so rebuild them on a state change rather than every 500ms (each rebuild tears
+  // down and re-creates 7 SVG groups + their listeners).
+  const skullSig=skulls.map(s=>{const tm=timers[s.di];return tm.unknown?'u':(!tm.running||!tm.end||(tm.end-Date.now())<=0)?'a':'d';}).join('');
+  if(skullSig!==lastSkullSig){buildSkulls();lastSkullSig=skullSig;}
   updateTV();
   updateNextUp();
   if(sortByRespawn)applyRespawnSort();

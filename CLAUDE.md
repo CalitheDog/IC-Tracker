@@ -50,7 +50,7 @@ When you add a feature or rename a function, update `tests/tests.js`. The suite 
 perKill = round(1327 × MULT[stI] × (1 + dcHeld.size × 0.33) / grSz)
 ```
 
-`BASE_TV = 1327`, `MULT = [1, 2, 3, 4]`, `RESPAWN = 900s`, `WARN_AT = 60s`. The `.drow.urgent` red-pulse state triggers when the remaining countdown is `<=15s` (hardcoded inline in the tick loop — no named constant).
+`BASE_TV = 1327`, `MULT = [1, 2, 3, 4]`, `RESPAWN = 900s`, `WARN_AT = 60s`. The `.drow.urgent` red-pulse state triggers when the remaining countdown is `<15s` (hardcoded inline; no named constant). The map slice mirrors this via `sliceState()` returning `'urgent'` (CSS `.sc.s-urgent` pops bright + pulses).
 
 ## Respawn alerts
 
@@ -102,7 +102,7 @@ Base CSS is a 2-column grid; the redesign overrides `.districts` to `display:fle
 
 `isObsMode()` checks `?obs=1` and adds `body.obs` early in `init()`. A single block of `body.obs ... { display: none !important; }` rules makes the background transparent, compresses `.layout` to ~380px, and originally hid everything except `.next-up` and `.districts`. The first-visit help modal is also suppressed in OBS mode.
 
-**Drifted by the redesign:** the override block now force-hides `.next-up` globally (`.next-up{display:none !important}`), and `.cmd-topbar` was added to the markup but not added to the OBS hide-list. So in the current build OBS mode renders the new sticky topbar plus `.districts` — not the original "next-respawn card + districts" composition. Restoring the original behavior would mean re-enabling `.next-up` inside `body.obs` and adding `body.obs .cmd-topbar{display:none !important;}` to the OBS hide-list.
+OBS composition is the intended **next-respawn card + districts**: `body.obs .cmd-topbar` is in the hide-list, and `body.obs .next-up{display:block !important}` re-shows the hero card that's globally hidden by `.next-up{display:none !important}` (the `body.obs` selector wins on specificity). `updateNextUp()` keeps populating `.next-up` even though it's hidden outside OBS, so the card is live. If you add new top-level chrome, remember to add it to the `body.obs` hide-list.
 
 ## PWA
 
