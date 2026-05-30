@@ -94,7 +94,7 @@ footer  footer    footer
 
 ### `.districts` boss-card grid
 
-Base CSS is a 2-column grid; the redesign overrides `.districts` to `display:flex; flex-direction:column` — a single-column strip of `.drow` rows, each with its action buttons in a `.drow-actions` child.
+Base CSS is a 2-column grid; the redesign overrides `.districts` to `display:flex; flex-direction:column` — a single-column strip of `.drow` rows, each with its action buttons in a `.drow-actions` child. The `.dname` (keyboard-operable: `role="button"`/`tabindex`) and the `.boss-thumbs` both call `openBossModal(i)` to show that district's two boss portraits side by side — the same modal the map skulls open.
 
 ## Map SVG footgun
 

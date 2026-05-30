@@ -2259,6 +2259,10 @@ h3.help-sec + .theme-palette{display:none !important;}
 a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visible,.seg:focus-visible,.dc-toggle:focus-visible{outline:2px solid #ffd24a!important;outline-offset:2px!important;}
 /* Kill the translucent grey tap box on touch; :active/:focus give feedback. */
 *{-webkit-tap-highlight-color:transparent;}
+/* District name + boss thumbnails open the boss-portrait modal. */
+.dname{cursor:pointer;}
+.dname:hover{text-decoration:underline;text-underline-offset:3px;}
+.boss-thumbs{cursor:pointer;}
 /* Screen-reader-only utility + skip link. */
 .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 .skip-link{position:absolute;left:8px;top:-48px;z-index:100000;background:#1a1206;color:#ffd24a;border:1px solid #c9a84c;border-radius:6px;padding:8px 14px;font-family:'Cinzel',serif;font-size:14px;transition:top 0.15s;}
@@ -3262,9 +3266,9 @@ function buildRows(){
     }).join('');
     row.innerHTML=`
       <div class="ddot alive" id="dd${i}"></div>
-      <div class="boss-thumbs">${thumbs}</div>
+      <div class="boss-thumbs" title="View boss portraits" onclick="openBossModal(${i})">${thumbs}</div>
       <div class="dinfo">
-        <div class="dname">${d.name}</div>
+        <div class="dname" role="button" tabindex="0" title="View boss portraits" aria-label="${d.name} — view boss portraits" onclick="openBossModal(${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openBossModal(${i});}">${d.name}</div>
         <div class="dbosses-text">${bossesTitle}</div>
         <div class="dbosses boss-chips">${chips}</div>
       </div>
@@ -3786,10 +3790,10 @@ document.addEventListener("DOMContentLoaded", () => {
   function pickAlliance() {
     const sel = document.querySelector('.alliance-btn.sel');
     if (!sel) return null;
-    if (sel.classList.contains('ep')) return 'ep';
-    if (sel.classList.contains('dc')) return 'dc';
-    if (sel.classList.contains('ad')) return 'ad';
-    return null;
+    // Read data-al (the source of truth). The AD button's CSS class is "ald",
+    // so the old classList.contains('ad') check missed it and the topbar showed "—".
+    const a = sel.dataset.al;
+    return (a === 'ep' || a === 'dc' || a === 'ad') ? a : null;
   }
   function setText(id, val) {
     const el = document.getElementById(id);

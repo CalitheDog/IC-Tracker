@@ -758,6 +758,34 @@ describe('PWA Update Prompt', () => {
   });
 });
 
+/* ═══════════════════════════════════════════ 21. TOPBAR + BOSS MODAL ═══ */
+describe('Topbar alliance + boss modal', () => {
+  it('topbar reflects the AD alliance name (regression: showed "—")', async () => {
+    resetState();
+    setAlliance('ad');
+    const cell = document.getElementById('ctbAlliance');
+    const deadline = Date.now() + 2000; // poll() mirrors it on a 400ms interval
+    while (Date.now() < deadline && !/Aldmeri/i.test(cell.textContent || '')) {
+      await new Promise(r => setTimeout(r, 100));
+    }
+    assert.includes(cell.textContent, 'Aldmeri');
+    setAlliance('dc');
+  });
+  it('district name is wired to open the boss modal', () => {
+    const name = document.querySelector('#dr0 .dname');
+    assert.ok(name, '#dr0 .dname exists');
+    assert.equal(name.getAttribute('role'), 'button');
+    assert.includes(name.getAttribute('onclick') || '', 'openBossModal');
+  });
+  it('openBossModal(i) shows both district bosses side by side', () => {
+    closeBossModal();
+    openBossModal(0); // Memorial — two bosses
+    assert.ok(document.getElementById('bossModal').classList.contains('show'));
+    assert.equal(Number(document.getElementById('bossModalImages').dataset.count), 2);
+    closeBossModal();
+  });
+});
+
 /* ═══════════════════════════════════════════ CLEANUP ═══ */
 describe('Cleanup', () => {
   it('Reset state after all tests', () => {
