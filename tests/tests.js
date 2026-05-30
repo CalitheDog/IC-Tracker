@@ -25,6 +25,7 @@ function resetState() {
   activePreset = null; alliance = 'dc'; sortByRespawn = false; telvarTarget = 0;
   muted = true;
   if (typeof notifyEnabled !== 'undefined') notifyEnabled = false;
+  if (typeof esoPlus !== 'undefined') esoPlus = true; // default: ESO Plus on (base 1327)
   dcHeld.clear();
   actionStack = []; eventLog = []; lastNextTarget = null;
   shortcutPrefix = null;
@@ -783,6 +784,46 @@ describe('Topbar alliance + boss modal', () => {
     assert.ok(document.getElementById('bossModal').classList.contains('show'));
     assert.equal(Number(document.getElementById('bossModalImages').dataset.count), 2);
     closeBossModal();
+  });
+});
+
+/* ═══════════════════════════════════════════ 22. ESO PLUS TOGGLE ═══ */
+describe('ESO Plus base toggle', () => {
+  it('defaults to ESO Plus on (base 1327)', () => {
+    resetState();
+    assert.ok(esoPlus);
+    assert.equal(activeBaseTV(), 1327);
+    assert.equal(perKill(), 1327); // x1, solo, 0 districts
+  });
+  it('turning ESO Plus off uses the 1200 base', () => {
+    resetState();
+    applyEsoPlus(false);
+    assert.equal(activeBaseTV(), 1200);
+    assert.equal(perKill(), 1200); // x1, solo, 0 districts
+    applyEsoPlus(true);
+  });
+  it('the ESO Plus bonus scales with multiplier/group/districts', () => {
+    resetState();
+    stI = 3; grSz = 2; dcHeld.add(0); dcHeld.add(1); // x4, group 2, 2 districts
+    const withPlus = perKill();
+    applyEsoPlus(false);
+    const without = perKill();
+    applyEsoPlus(true);
+    assert.equal(withPlus, Math.round(1327 * 4 * 1.66 / 2));
+    assert.equal(without, Math.round(1200 * 4 * 1.66 / 2));
+    assert.greaterThan(withPlus, without);
+  });
+  it('applyEsoPlus persists the preference + updates the button', () => {
+    resetState();
+    applyEsoPlus(false);
+    assert.equal(localStorage.getItem('ic-eso-plus'), '0');
+    const btn = document.getElementById('esoPlusBtn');
+    assert.ok(btn, '#esoPlusBtn exists');
+    assert.notOk(btn.classList.contains('on'));
+    assert.equal(btn.getAttribute('aria-pressed'), 'false');
+    applyEsoPlus(true);
+    assert.equal(localStorage.getItem('ic-eso-plus'), '1');
+    assert.ok(btn.classList.contains('on'));
   });
 });
 

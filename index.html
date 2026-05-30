@@ -2263,6 +2263,14 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
 .dname{cursor:pointer;}
 .dname:hover{text-decoration:underline;text-underline-offset:3px;}
 .boss-thumbs{cursor:pointer;}
+/* ESO Plus base toggle — chalice icon; on = gold/full-colour, off = dim/grey. */
+.eso-plus-toggle{display:flex;align-items:center;gap:10px;width:100%;padding:7px 12px;border-radius:6px;cursor:pointer;font-family:'Cinzel',serif;text-align:left;background:rgba(255,255,255,0.03);border:1px solid rgba(201,168,76,0.18);color:#7a6a45;transition:all 0.15s;}
+.eso-plus-toggle .eso-plus-icon{width:26px;height:30px;object-fit:contain;flex-shrink:0;filter:grayscale(0.7) brightness(0.7);transition:filter 0.15s;}
+.eso-plus-toggle .eso-plus-text{font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;}
+.eso-plus-toggle .eso-plus-state{font-weight:700;margin-left:5px;}
+.eso-plus-toggle:hover{border-color:rgba(201,168,76,0.45);}
+.eso-plus-toggle.on{background:linear-gradient(180deg,rgba(201,168,76,0.18),rgba(120,95,30,0.10));border-color:rgba(201,168,76,0.55);color:#e0c878;}
+.eso-plus-toggle.on .eso-plus-icon{filter:none;}
 /* Screen-reader-only utility + skip link. */
 .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 .skip-link{position:absolute;left:8px;top:-48px;z-index:100000;background:#1a1206;color:#ffd24a;border:1px solid #c9a84c;border-radius:6px;padding:8px 14px;font-family:'Cinzel',serif;font-size:14px;transition:top 0.15s;}
@@ -2522,6 +2530,13 @@ html,body{max-width:100%;overflow-x:hidden;}
             <button class="seg" onclick="setGr(4)">4</button>
           </div>
         </div>
+        <div class="tv-row">
+          <div class="tv-lbl">Membership</div>
+          <button class="eso-plus-toggle on" id="esoPlusBtn" onclick="toggleEsoPlus()" aria-pressed="true" title="ESO Plus grants ~10% more Tel Var — turn off if you don't subscribe (base 1,327 → 1,200)">
+            <img class="eso-plus-icon" src="assets/eso-plus.webp" alt="" aria-hidden="true">
+            <span class="eso-plus-text">ESO Plus <span class="eso-plus-state">ON</span></span>
+          </button>
+        </div>
       </div>
       <div class="formula-card">
         <div class="formula-card-title">Per-kill formula</div>
@@ -2575,6 +2590,8 @@ html,body{max-width:100%;overflow-x:hidden;}
 
 <script>
 const BASE_TV=1327,MULT=[1,2,3,4],RESPAWN=900,WARN_AT=60;
+const BASE_TV_NOPLUS=1200; // base Patrolling-Horror drop WITHOUT the ESO Plus Tel Var bonus (1200 × ~1.10 ≈ 1327)
+let esoPlus=true;          // ESO Plus assumed on by default (most farmers run it); toggled in the estimator
 const CX=180,CY=180,OR=150,IR=68,SPAN=53,NR=10;
 
 const DISTRICTS=[
@@ -3020,7 +3037,16 @@ function updateNextUp(){
   }
 }
 
-function perKill(){return Math.round(BASE_TV*MULT[stI]*(1+dcHeld.size*0.33)/grSz);}
+function activeBaseTV(){return esoPlus?BASE_TV:BASE_TV_NOPLUS;}
+function perKill(){return Math.round(activeBaseTV()*MULT[stI]*(1+dcHeld.size*0.33)/grSz);}
+function applyEsoPlus(on){
+  esoPlus=!!on;
+  const b=document.getElementById('esoPlusBtn');
+  if(b){b.classList.toggle('on',esoPlus);b.setAttribute('aria-pressed',esoPlus?'true':'false');const s=b.querySelector('.eso-plus-state');if(s)s.textContent=esoPlus?'ON':'OFF';}
+  try{localStorage.setItem('ic-eso-plus',esoPlus?'1':'0');}catch(e){}
+  if(typeof updateTV==='function')updateTV();
+}
+function toggleEsoPlus(){applyEsoPlus(!esoPlus);}
 
 let lastFormulaSig=null,lastSkullSig='';
 function updateTV(){
@@ -3033,10 +3059,10 @@ function updateTV(){
   // The formula card depends only on stones/group/districts — not the clock — so
   // rebuild its innerHTML only when those change (skips a string build + parse on
   // every 500ms tick). The numeric stat fields below are cheap and always update.
-  const fSig=`${stI}|${grSz}|${dcHeld.size}`;
+  const fSig=`${stI}|${grSz}|${dcHeld.size}|${esoPlus}`;
   if(fSig!==lastFormulaSig){
     document.getElementById('formula').innerHTML=
-      `<div class="formula-row"><span class="lbl">Base</span><span class="val">1,327</span></div>`+
+      `<div class="formula-row"><span class="lbl">Base${esoPlus?' <em>+ESO Plus</em>':''}</span><span class="val">${activeBaseTV().toLocaleString()}</span></div>`+
       `<div class="formula-row"><span class="lbl">× Stones mult</span><span class="val">×${m}</span></div>`+
       `<div class="formula-row"><span class="lbl">× District bonus</span><span class="val dc">×${b.toFixed(2)} <em>(${dcHeld.size}/6)</em></span></div>`+
       `<div class="formula-row"><span class="lbl">${grSz===1?'Group':'÷ Group'}</span><span class="val">${grpLabel}</span></div>`+
@@ -3455,6 +3481,8 @@ function init(){
   try{if(!isObsMode()&&!localStorage.getItem('ic-help-seen')){openHelp();localStorage.setItem('ic-help-seen','1');}}catch(e){}
   // Reflect a saved notify preference, but only if permission is still granted.
   try{applyNotifyPref(localStorage.getItem('ic-notify')==='1'&&'Notification' in window&&Notification.permission==='granted');}catch(e){applyNotifyPref(false);}
+  // ESO Plus base toggle (defaults ON — only stored '0' turns it off).
+  try{applyEsoPlus(localStorage.getItem('ic-eso-plus')!=='0');}catch(e){applyEsoPlus(true);}
   tick();setInterval(tick,500);
 }
 init();

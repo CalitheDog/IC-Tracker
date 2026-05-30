@@ -1,4 +1,4 @@
-const CACHE = 'ic-tracker-v24';
+const CACHE = 'ic-tracker-v25';
 const ASSETS = [
   './',
   './index.html',
