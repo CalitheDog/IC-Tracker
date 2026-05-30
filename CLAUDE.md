@@ -108,7 +108,7 @@ OBS composition is the intended **next-respawn card + districts**: `body.obs .cm
 
 ## PWA
 
-`manifest.json`, `sw.js`, and the `assets/*.png` images make the app installable. The favicon / PWA icon is `assets/stone.png` (a Tel Var stone image); `assets/bag-of-telvar.png` is the help-modal hero. The service worker uses `CACHE = 'ic-tracker-vN'` — **bump the version** in `sw.js` when shipping CSS/HTML/asset changes you want users to pick up promptly. Installed-PWA users will otherwise serve from the cached version until they hard-refresh.
+`manifest.json`, `sw.js`, and the `assets/*.png` images make the app installable. The favicon / PWA icon is `assets/stone.png` (a Tel Var stone image); `assets/bag-of-telvar.png` is the help-modal hero. The service worker uses `CACHE = 'ic-tracker-vN'` — **bump the version** in `sw.js` when shipping CSS/HTML/asset changes you want users to pick up promptly. Installed-PWA users serve from the cached version until they reload, but they now get a nudge: the SW registration watches for an `updatefound` worker reaching `installed` while a controller already exists and calls `showUpdatePrompt()`, which slides in the `#updateBar` ("new version — Refresh"). `reloadForUpdate()` reloads; `dismissUpdate()` hides it. We never auto-reload (it would wipe the in-memory boss timers mid-session). A long-open session also polls `reg.update()` hourly, since a second-screen tab never navigates on its own. So bumping `CACHE` still matters, but stale users now see the prompt on their next load instead of silently lagging.
 
 ## Dead code worth knowing about
 
