@@ -45,6 +45,13 @@ body::before{content:'';position:absolute;inset:0;background:radial-gradient(ell
 #notifyBtn{position:fixed;bottom:92px;right:20px;font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.12em;padding:7px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.2);color:#8a7040;border-radius:5px;cursor:pointer;z-index:100;text-transform:uppercase;transition:all 0.15s;}
 #notifyBtn:hover{background:rgba(255,255,255,0.08);color:#c9a84c;}
 #notifyBtn.on{color:#c9a84c;border-color:rgba(201,168,76,0.5);background:rgba(201,168,76,0.12);}
+/* PWA "update available" prompt — slides in from the top; hidden (off-screen) until .show */
+.update-bar{position:fixed;left:50%;top:12px;transform:translateX(-50%) translateY(-160%);z-index:100001;display:flex;align-items:center;gap:12px;max-width:calc(100vw - 24px);background:#15100a;border:1px solid rgba(201,168,76,0.5);border-radius:8px;padding:9px 10px 9px 16px;box-shadow:0 12px 34px rgba(0,0,0,0.55);font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.03em;color:#e0c878;transition:transform 0.3s ease;}
+.update-bar.show{transform:translateX(-50%) translateY(0);}
+.update-bar-btn{font-family:'Cinzel',serif;font-size:0.64rem;letter-spacing:0.1em;text-transform:uppercase;padding:7px 14px;background:rgba(201,168,76,0.2);border:1px solid rgba(201,168,76,0.55);color:#ffd24a;border-radius:5px;cursor:pointer;white-space:nowrap;}
+.update-bar-btn:hover{background:rgba(201,168,76,0.32);}
+.update-bar-x{background:transparent;border:none;color:#8a7040;font-size:1.2rem;line-height:1;cursor:pointer;padding:0 4px;}
+.update-bar-x:hover{color:#c9a84c;}
 
 .help-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
 .help-modal{position:relative;background:linear-gradient(180deg,rgba(28,20,9,0.98),rgba(9,7,4,0.98));border:1px solid rgba(201,168,76,0.35);border-radius:8px;padding:28px 26px 22px;max-width:520px;width:100%;max-height:88vh;overflow-y:auto;color:#c9b78a;box-shadow:0 0 60px rgba(201,168,76,0.18),0 0 0 1px rgba(201,168,76,0.08) inset;}
@@ -1042,6 +1049,7 @@ body.obs .restore-bar,
 body.obs .streak-badge,
 body.obs #flashOverlay,
 body.obs #alertBanner,
+body.obs .update-bar,
 body.obs .footer,
 body.obs .credits{display:none!important;}
 body.obs .layout{max-width:380px!important;padding:0!important;display:flex!important;flex-direction:column!important;gap:8px!important;grid-template-areas:none!important;}
@@ -2277,6 +2285,11 @@ html,body{max-width:100%;overflow-x:hidden;}
 <h1 class="sr-only">Imperial City Tracker — Tel Var farm optimizer</h1>
 <div id="flashOverlay"></div>
 <div id="alertBanner" role="status" aria-live="assertive" aria-atomic="true"></div>
+<div id="updateBar" class="update-bar" role="status" aria-live="polite">
+  <span class="update-bar-text">A new version of the tracker is available.</span>
+  <button class="update-bar-btn" onclick="reloadForUpdate()">Refresh</button>
+  <button class="update-bar-x" onclick="dismissUpdate()" aria-label="Dismiss update notice">×</button>
+</div>
 <div id="skullTooltip" class="skull-tooltip"></div>
 
 <div id="streakahSplash" class="streakah-splash" aria-hidden="true">
@@ -3442,8 +3455,30 @@ function init(){
 }
 init();
 
+/* PWA update prompt: when a new service worker installs while an old one still
+   controls the page, surface a manual "Refresh" bar. We never auto-reload —
+   that would wipe the in-memory boss timers mid-session — so the player chooses
+   when (e.g. after banking). */
+function showUpdatePrompt(){const b=document.getElementById('updateBar');if(b)b.classList.add('show');}
+function dismissUpdate(){const b=document.getElementById('updateBar');if(b)b.classList.remove('show');}
+function reloadForUpdate(){location.reload();}
+
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{});});
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js').then(reg=>{
+      reg.addEventListener('updatefound',()=>{
+        const nw=reg.installing;
+        if(!nw)return;
+        nw.addEventListener('statechange',()=>{
+          // 'installed' + an existing controller === an update (not first install).
+          if(nw.state==='installed'&&navigator.serviceWorker.controller)showUpdatePrompt();
+        });
+      });
+      // Second-screen sessions stay open for hours without navigating, so the
+      // browser never re-checks sw.js on its own. Poll hourly.
+      setInterval(()=>{reg.update().catch(()=>{});},3600000);
+    }).catch(()=>{});
+  });
 }
 
 /* v20 alternate silly visual themes */

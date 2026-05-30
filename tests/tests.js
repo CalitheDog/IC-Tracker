@@ -743,6 +743,21 @@ describe('Desktop Notifications', () => {
   });
 });
 
+/* ═══════════════════════════════════════════ 20. UPDATE PROMPT ═══ */
+describe('PWA Update Prompt', () => {
+  it('showUpdatePrompt() reveals the update bar', () => {
+    const bar = document.getElementById('updateBar');
+    bar.classList.remove('show');
+    showUpdatePrompt();
+    assert.ok(bar.classList.contains('show'));
+  });
+  it('dismissUpdate() hides the update bar', () => {
+    showUpdatePrompt();
+    dismissUpdate();
+    assert.notOk(document.getElementById('updateBar').classList.contains('show'));
+  });
+});
+
 /* ═══════════════════════════════════════════ CLEANUP ═══ */
 describe('Cleanup', () => {
   it('Reset state after all tests', () => {
