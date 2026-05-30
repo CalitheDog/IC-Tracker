@@ -2676,7 +2676,7 @@ function textC(i){const h=dcHeld.has(i),t=timers[i],HT=heldTX();let rem=0,up=tru
 
 function districtCapturesLocked(){return activePreset==='streakah';}
 function sliceState(i){const t=timers[i];if(t.unknown)return 'unknown';if(t.running&&t.end){const rem=Math.max(0,(t.end-Date.now())/1000);if(rem<=0)return 'alive';if(rem<15)return 'urgent';return rem<=WARN_AT?'warn':'dead';}return 'alive';}
-function refreshSlice(i){const c=sliceC(i),p=document.getElementById(`sl${i}`);if(p){p.setAttribute('fill',c.f);p.setAttribute('stroke',c.s);const st=sliceState(i);const wantCls='s-'+st;if(!p.classList.contains(wantCls)){p.classList.remove('s-alive','s-dead','s-warn','s-urgent','s-unknown');p.classList.add(wantCls);}p.classList.toggle('s-held',dcHeld.has(i));p.classList.toggle('locked',districtCapturesLocked());}const t=document.getElementById(`st${i}`);if(t)t.setAttribute('fill',textC(i));const cr=document.getElementById(`crest${i}`);if(cr){if(dcHeld.has(i)){const src=ALLIANCE_IMG[alliance]||ALLIANCE_IMG.dc;cr.setAttributeNS('http://www.w3.org/1999/xlink','href',src);cr.setAttribute('href',src);cr.style.display='';}else{cr.style.display='none';}}}
+function refreshSlice(i){const c=sliceC(i),p=document.getElementById(`sl${i}`);if(p){p.setAttribute('fill',c.f);p.setAttribute('stroke',c.s);const st=sliceState(i);const wantCls='s-'+st;if(!p.classList.contains(wantCls)){p.classList.remove('s-alive','s-dead','s-warn','s-urgent','s-unknown');p.classList.add(wantCls);}p.classList.toggle('s-held',dcHeld.has(i));p.classList.toggle('locked',districtCapturesLocked());p.setAttribute('aria-pressed',dcHeld.has(i)?'true':'false');p.setAttribute('aria-disabled',districtCapturesLocked()?'true':'false');}const t=document.getElementById(`st${i}`);if(t)t.setAttribute('fill',textC(i));const cr=document.getElementById(`crest${i}`);if(cr){if(dcHeld.has(i)){const src=ALLIANCE_IMG[alliance]||ALLIANCE_IMG.dc;cr.setAttributeNS('http://www.w3.org/1999/xlink','href',src);cr.setAttribute('href',src);cr.style.display='';}else{cr.style.display='none';}}}
 function refreshRow(i){const row=document.getElementById(`dr${i}`),pill=document.getElementById(`dp${i}`);if(!row)return;const h=dcHeld.has(i);if(pill)pill.style.display=h?'':'none';h?row.classList.add('dc-held'):row.classList.remove('dc-held');}
 
 function buildDCToggles(){
@@ -2754,10 +2754,12 @@ function drawSkull(g,sk,idx){
   const tmr=timers[sk.di];const alive=!tmr.unknown&&(!tmr.running||!tmr.end||(tmr.end-Date.now())<=0);
   const sz=16;
   const grp=ns('g');grp.setAttribute('transform',`translate(${sk.x},${sk.y})`);grp.classList.add('skull-hit');
+  grp.setAttribute('tabindex','0');grp.setAttribute('role','button');grp.setAttribute('aria-label',`View ${sk.label}`);
   grp.addEventListener('mouseenter',(ev)=>showSkullTooltip(ev,sk));
   grp.addEventListener('mousemove',(ev)=>moveSkullTooltip(ev));
   grp.addEventListener('mouseleave',hideSkullTooltip);
   grp.addEventListener('click',()=>openBossModal(sk.di,typeof sk.bi==='number'?sk.bi:null));
+  grp.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openBossModal(sk.di,typeof sk.bi==='number'?sk.bi:null);}});
   const im=ns('image');
   im.setAttribute('x',-sz/2);im.setAttribute('y',-sz/2);
   im.setAttribute('width',sz);im.setAttribute('height',sz);
@@ -2816,7 +2818,7 @@ function buildMap(){
   const sG=document.getElementById('slices'),spG=document.getElementById('spokes'),nG=document.getElementById('nodes'),lG=document.getElementById('labels'),crG=document.getElementById('crests');
   DISTRICTS.forEach((d,i)=>{
     const ang=d.angle;
-    const path=ns('path');path.setAttribute('d',slP(ang,OR,IR,SPAN));path.setAttribute('fill',C.nA.f);path.setAttribute('stroke',C.nA.s);path.setAttribute('stroke-width','1.5');path.id=`sl${i}`;path.classList.add('sc');path.addEventListener('click',()=>toggleDC(i));sG.appendChild(path);
+    const path=ns('path');path.setAttribute('d',slP(ang,OR,IR,SPAN));path.setAttribute('fill',C.nA.f);path.setAttribute('stroke',C.nA.s);path.setAttribute('stroke-width','1.5');path.id=`sl${i}`;path.classList.add('sc');path.setAttribute('tabindex','0');path.setAttribute('role','button');path.setAttribute('aria-label',`${DISTRICTS[i].name} district — toggle alliance control`);path.setAttribute('aria-pressed',dcHeld.has(i)?'true':'false');path.addEventListener('click',()=>toggleDC(i));path.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleDC(i);}});sG.appendChild(path);
     if(crG){const sz=48,[cx,cy]=pol(ang,108);const cr=ns('image');cr.setAttribute('x',cx-sz/2);cr.setAttribute('y',cy-sz/2);cr.setAttribute('width',sz);cr.setAttribute('height',sz);cr.setAttribute('preserveAspectRatio','xMidYMid meet');cr.id=`crest${i}`;cr.style.display='none';cr.style.pointerEvents='none';cr.style.opacity='0.55';crG.appendChild(cr);}
     const sa=ang+30,[bx1,by1]=pol(sa,IR),[bx2,by2]=pol(sa,OR);
     const l1=ns('line');l1.setAttribute('x1',bx1);l1.setAttribute('y1',by1);l1.setAttribute('x2',bx2);l1.setAttribute('y2',by2);l1.setAttribute('stroke','#090805');l1.setAttribute('stroke-width','8');spG.appendChild(l1);
@@ -2870,12 +2872,15 @@ function openBossModal(di,bi){
   document.getElementById('bossModalTitle').textContent=bossNames.length>1?bossNames.join(' & '):bossNames[0];
   document.getElementById('bossModalMeta').innerHTML=`Status: ${districtStatusHtml(di)}<br>Estimated Tel Var if killed now: <span class="alive">${perKill().toLocaleString()}</span><br>${dcHeld.has(di)?'<span class="alliance-bonus">Alliance bonus</span> active for this district.':'No <span class="alliance-bonus">alliance bonus</span> on this district.'}`;
   document.getElementById('bossModalKillBtn').onclick=()=>{killBoss(di);closeBossModal();};
+  bossOpener=document.activeElement;
   modal.classList.add('show');
+  const kb=document.getElementById('bossModalKillBtn');if(kb)kb.focus();
 }
 
 function closeBossModal(){
   const modal=document.getElementById('bossModal');
   if(modal)modal.classList.remove('show');
+  if(bossOpener&&bossOpener.focus){bossOpener.focus();}bossOpener=null;
 }
 
 /* COMMAND CENTER FEATURE LOGIC */
@@ -3470,11 +3475,30 @@ document.addEventListener('visibilitychange',()=>{
 
 function isObsMode(){return new URLSearchParams(location.search).get('obs')==='1';}
 
-let helpOpener=null;
+let helpOpener=null,bossOpener=null;
 function openHelp(){const o=document.getElementById('helpOverlay');if(!o)return;helpOpener=document.activeElement;o.style.display='flex';const b=o.querySelector('.help-close');if(b)b.focus();}
 function closeHelp(){const o=document.getElementById('helpOverlay');if(o)o.style.display='none';if(helpOpener&&helpOpener.focus){helpOpener.focus();}helpOpener=null;}
 function maybeCloseHelp(e){if(e&&e.target===e.currentTarget)closeHelp();}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeHelp();const bm=document.getElementById('bossModal');if(bm&&bm.classList.contains('show'))closeBossModal();}});
+// Trap Tab within an open modal so focus can't leak to the page behind it.
+function currentModalCard(){
+  const h=document.getElementById('helpOverlay');
+  if(h&&h.style.display==='flex')return h.querySelector('.help-modal');
+  const b=document.getElementById('bossModal');
+  if(b&&b.classList.contains('show'))return b.querySelector('.boss-modal-card');
+  return null;
+}
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Tab')return;
+  const card=currentModalCard();
+  if(!card)return;
+  const f=[...card.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])')].filter(el=>!el.disabled&&el.offsetParent!==null);
+  if(!f.length)return;
+  const first=f[0],last=f[f.length-1];
+  if(!card.contains(document.activeElement)){e.preventDefault();first.focus();}
+  else if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+});
 
 function init(){
   if(isObsMode())document.body.classList.add('obs');
@@ -3635,6 +3659,10 @@ function handleTrackerShortcut(event) {
   }
   const helpOverlay = document.getElementById('helpOverlay');
   if (helpOverlay && helpOverlay.style.display === 'flex') {
+    return;
+  }
+  const bossModalEl = document.getElementById('bossModal');
+  if (bossModalEl && bossModalEl.classList.contains('show')) {
     return;
   }
 

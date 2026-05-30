@@ -102,6 +102,8 @@ Base CSS is a 2-column grid; the redesign overrides `.districts` to `display:fle
 
 `svg.map text { pointer-events: none; user-select: none; }` is intentional — without it, clicking a district label selects the word instead of toggling the slice underneath. If you touch map CSS, keep this rule.
 
+The map is keyboard-operable: each slice `<path>` and skull `<g>` is built in `buildMap`/`drawSkull` with `role="button"` + `tabindex="0"` + a keydown (Enter/Space) — slices toggle control (with `aria-pressed` kept in sync by `refreshSlice`), skulls open the boss modal. The Help and boss modals trap Tab (`currentModalCard()` + the Tab keydown handler), focus an element on open, and restore focus to the opener on close; `handleTrackerShortcut` bails while either modal is open. Keep these if you rebuild the map or modals.
+
 ## OBS overlay mode
 
 `isObsMode()` checks `?obs=1` and adds `body.obs` early in `init()`. A single block of `body.obs ... { display: none !important; }` rules makes the background transparent, compresses `.layout` to ~380px, and originally hid everything except `.next-up` and `.districts`. The first-visit help modal is also suppressed in OBS mode.
