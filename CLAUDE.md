@@ -96,7 +96,7 @@ footer  footer    footer
 
 ### `.districts` boss-card grid
 
-Base CSS is a 2-column grid; the redesign overrides `.districts` to `display:flex; flex-direction:column` — a single-column strip of `.drow` rows, each with its action buttons in a `.drow-actions` child. The `.dname` (keyboard-operable: `role="button"`/`tabindex`) and the `.boss-thumbs` both call `openBossModal(i)` to show that district's two boss portraits side by side — the same modal the map skulls open.
+Base CSS is a 2-column grid; the redesign overrides `.districts` to `display:flex; flex-direction:column` — a single-column strip of `.drow` rows, each with its action buttons in a `.drow-actions` child. The `.dname` (keyboard-operable: `role="button"`/`tabindex`) and the `.boss-thumbs` both call `openBossModal(i)` to show that district's two boss portraits side by side — the same modal the map skulls open. On wide screens the per-row **Guess / Seen Alive / Reset** buttons are hidden (`display:none`, ~line 1986) to save space; those actions live in the boss modal instead (`#bossModalSeenBtn` / `#bossModalGuessBtn` / `#bossModalResetBtn`, wired with the district closure in `openBossModal`). On mobile the row buttons show inline. Keyboard shortcuts (`S`/`G`/`R` + number) work at any width.
 
 ## Map SVG footgun
 
