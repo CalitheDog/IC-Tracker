@@ -26,6 +26,7 @@ function resetState() {
   muted = true;
   if (typeof notifyEnabled !== 'undefined') notifyEnabled = false;
   if (typeof esoPlus !== 'undefined') esoPlus = true; // default: ESO Plus on (base 1327)
+  if (typeof targetReached !== 'undefined') targetReached = false;
   dcHeld.clear();
   actionStack = []; eventLog = []; lastNextTarget = null;
   shortcutPrefix = null;
@@ -891,6 +892,39 @@ describe('Boss modal secondary actions', () => {
     document.getElementById('bossModalResetBtn').click();
     assert.notOk(timers[3].running);
     assert.notOk(document.getElementById('bossModal').classList.contains('show'));
+  });
+});
+
+/* ═══════════════════════════════════════════ 26. SESSION TARGET ALERT ═══ */
+describe('Session target reached', () => {
+  it('reaching the target sets the reached flag', () => {
+    resetState();
+    telvarTarget = 5000; currentTelVar = 6000; // net 6000 >= 5000
+    updateTV();
+    assert.ok(targetReached);
+  });
+  it('no target set is never marked reached', () => {
+    resetState();
+    telvarTarget = 0; currentTelVar = 99999;
+    updateTV();
+    assert.notOk(targetReached);
+  });
+  it('the flag clears when net drops back below target', () => {
+    resetState();
+    telvarTarget = 5000; currentTelVar = 6000; updateTV();
+    assert.ok(targetReached);
+    currentTelVar = 1000; updateTV(); // net below target
+    assert.notOk(targetReached);
+  });
+  it('re-fires only after net dips and crosses again', () => {
+    resetState();
+    telvarTarget = 5000; currentTelVar = 6000; updateTV();
+    currentTelVar = 7000; updateTV(); // still above — stays set
+    assert.ok(targetReached);
+    currentTelVar = 1000; updateTV(); // below — resets
+    assert.notOk(targetReached);
+    currentTelVar = 8000; updateTV(); // re-cross
+    assert.ok(targetReached);
   });
 });
 

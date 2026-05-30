@@ -2377,7 +2377,7 @@ html,body{max-width:100%;overflow-x:hidden;}
     <ul class="help-list help-list-ul">
       <li><b>🔔 Sound</b> / <b>🖥 Notify</b> (bottom-right) — a chime and/or desktop notifications when a boss respawns, so the alert reaches you on another screen while you're in-game.</li>
       <li><b>ESO Plus</b> toggle (in the estimator) — leave it on if you subscribe; turn it off and the per-kill base drops ~10% to match.</li>
-      <li><b>Set Tel Var</b> + <b>Session Target</b> — track progress toward a goal in the estimator.</li>
+      <li><b>Set Tel Var</b> + <b>Session Target</b> — track progress toward a goal; you'll get a chime (and a notification, if on) the moment you hit it.</li>
     </ul>
 
     <h3 class="help-sec">Keyboard shortcuts</h3>
@@ -2664,6 +2664,7 @@ const timers=DISTRICTS.map(()=>({end:null,running:false,wasRunning:false,warnFir
 const dcHeld=new Set();
 let muted=true,actx=null,stI=0,grSz=1,totalKills=0,currentTelVar=0,bankedTelVar=0,lostTelVar=0,farmStart=null,farmEnd=null,farmRunning=false,activePreset=null,sortByRespawn=false,telvarTarget=0;
 let alliance='dc';
+let targetReached=false; // true once net Tel Var crosses the session target (fires the goal alert once)
 const ALLIANCES={ep:{name:'Ebonheart Pact',short:'EP',color:'#e04a3a'},dc:{name:'Daggerfall Covenant',short:'DC',color:'#5aa0e8'},ad:{name:'Aldmeri Dominion',short:'AD',color:'#d4c030'}};
 const ALLIANCE_IMG={ep:'assets/alliance-ep-crest.png',dc:'assets/alliance-dc-crest.png',ad:'assets/alliance-ad-crest.png'};
 const ALLIANCE_IMG_FULL={ep:'assets/alliance-ep.png',dc:'assets/alliance-dc.png',ad:'assets/alliance-ad.jpg'};
@@ -2727,18 +2728,21 @@ function toggleNotify(){
     else{applyNotifyPref(false);toast('Notification permission denied','info');}
   }).catch(()=>{});}catch(e){}
 }
-function notify(name,type){
+function showNotification(title,body,tag){
   if(!notifyEnabled)return false;
   if(!('Notification' in window)||Notification.permission!=='granted')return false;
-  if(document.hasFocus())return false;     // app is focused — the in-app alert suffices
+  if(document.hasFocus())return false;     // app is focused — the in-app toast suffices
   try{
-    const cfg=type==='spawn'
-      ? {title:`⚔ ${name} boss is up`,body:'Respawned — go kill it.'}
-      : {title:`⚠ ${name} respawning`,body:'About 1 minute until respawn.'};
-    const n=new Notification(cfg.title,{body:cfg.body,tag:`ic-${name}`,renotify:true,icon:'assets/stone.png'});
+    const n=new Notification(title,{body,tag,renotify:true,icon:'assets/stone.png'});
     n.onclick=()=>{try{window.focus();}catch(e){}n.close();};
     return true;
   }catch(e){return false;}
+}
+function notify(name,type){
+  const cfg=type==='spawn'
+    ? {title:`⚔ ${name} boss is up`,body:'Respawned — go kill it.'}
+    : {title:`⚠ ${name} respawning`,body:'About 1 minute until respawn.'};
+  return showNotification(cfg.title,cfg.body,`ic-${name}`);
 }
 function flash(type){const el=document.getElementById('flashOverlay');el.className='';void el.offsetWidth;el.className=`flash-${type}`;}
 function toast(name,type='info'){
@@ -2748,6 +2752,7 @@ function toast(name,type='info'){
     warning:{icon:'⚠️',label:'Spawning in 1 Min',cls:'warning'},
     info:{icon:'ℹ️',label:'Notice',cls:'info'},
     success:{icon:'✓',label:'Updated',cls:'success'},
+    target:{icon:'🎯',label:'Goal Reached',cls:'success'},
     error:{icon:'⚠️',label:'Check Input',cls:'error'}
   }[type]||{icon:'ℹ️',label:'Notice',cls:'info'};
   t.className=`alert-toast ${config.cls}`;
@@ -3120,8 +3125,18 @@ function updateTV(){
       const fill=document.getElementById('tvTargetFill');
       fill.style.width=pct+'%';
       fill.classList.toggle('done',pct>=100);
+      // Celebrate crossing the goal — once, until net dips back below it.
+      if(net>=telvarTarget&&!targetReached){
+        targetReached=true;
+        toast(`Session target reached — ${telvarTarget.toLocaleString()} Tel Var!`,'target');
+        flash('green');
+        showNotification('🎯 Session target reached!',`You hit your ${telvarTarget.toLocaleString()} Tel Var goal.`,'ic-target');
+      }else if(net<telvarTarget){
+        targetReached=false;
+      }
     }else{
       tvTargetWrap.style.display='none';
+      targetReached=false;
     }
   }
   // The only live effect of the removed updateCommandCenter was toggling the
