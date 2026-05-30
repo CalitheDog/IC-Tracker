@@ -27,6 +27,7 @@ function resetState() {
   dcHeld.clear();
   actionStack = []; eventLog = []; lastNextTarget = null;
   shortcutPrefix = null;
+  if (typeof clearAlertTimers === 'function') DISTRICTS.forEach((_, i) => clearAlertTimers(i));
   DISTRICTS.forEach((_, i) => Object.assign(timers[i], {
     end: null, running: false, wasRunning: false, warnFired: false,
     unknown: false, unknownAt: null, seenAt: null,
@@ -652,6 +653,62 @@ describe('Keyboard Shortcuts', () => {
   it('Modified keys (ctrl+1) are ignored', () => {
     resetState(); press('1', { ctrlKey: true });
     assert.equal(totalKills, 0);
+  });
+});
+
+/* ═══════════════════════════════════════════ 18. RESPAWN ALERTS ═══ */
+describe('Respawn Alert Scheduling', () => {
+  it('killBoss() arms warn + spawn timeouts', () => {
+    resetState();
+    killBoss(0);
+    assert.ok(alertTimers[0].warn !== null, 'warn timeout armed');
+    assert.ok(alertTimers[0].spawn !== null, 'spawn timeout armed');
+  });
+  it('rstBoss() cancels scheduled alerts', () => {
+    resetState();
+    killBoss(0);
+    rstBoss(0);
+    assert.equal(alertTimers[0].warn, null);
+    assert.equal(alertTimers[0].spawn, null);
+  });
+  it('seenAlive() cancels scheduled alerts', () => {
+    resetState();
+    killBoss(0);
+    seenAlive(0);
+    assert.equal(alertTimers[0].spawn, null);
+  });
+  it('setTimerGuess() arms a spawn timeout for a running guess', () => {
+    resetState();
+    setTimerGuess(0, 7);
+    assert.ok(alertTimers[0].spawn !== null);
+  });
+  it('fireWarn() sets warnFired inside the window and is idempotent', () => {
+    resetState();
+    timers[0].running = true; timers[0].end = Date.now() + 30000;
+    fireWarn(0);
+    assert.ok(timers[0].warnFired);
+    fireWarn(0); // second call must be a no-op, not throw
+    assert.ok(timers[0].warnFired);
+  });
+  it('fireWarn() does nothing outside the warn window', () => {
+    resetState();
+    timers[0].running = true; timers[0].end = Date.now() + 500000;
+    fireWarn(0);
+    assert.notOk(timers[0].warnFired);
+  });
+  it('fireSpawn() flips a due timer to alive', () => {
+    resetState();
+    timers[0].running = true; timers[0].wasRunning = true; timers[0].end = Date.now() - 1000;
+    fireSpawn(0);
+    assert.notOk(timers[0].running);
+    assert.equal(timers[0].end, null);
+    assert.ok(districtState(0).up);
+  });
+  it('fireSpawn() ignores a timer that is not due yet', () => {
+    resetState();
+    timers[0].running = true; timers[0].wasRunning = true; timers[0].end = Date.now() + 300000;
+    fireSpawn(0);
+    assert.ok(timers[0].running);
   });
 });
 

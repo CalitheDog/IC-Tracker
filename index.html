@@ -2797,6 +2797,7 @@ function restoreSnapshot(s){
   document.querySelectorAll('#stonesEl .seg').forEach((b,j)=>b.classList.toggle('sel',j===stI));
   document.querySelectorAll('#groupEl .seg').forEach((b,j)=>b.classList.toggle('sel',j+1===grSz));
   DISTRICTS.forEach((_,i)=>{refreshSlice(i);refreshRow(i);});
+  DISTRICTS.forEach((_,i)=>scheduleAlerts(i));   // re-arm alerts for restored timers
   buildDCToggles();buildSkulls();renderEventLog();updateTV();
 }
 
@@ -2847,6 +2848,47 @@ function windowAlert(name,type){
   flashTitle(type,name);
   if(type==='spawn')playSpawn();
   else if(type==='warning')playWarn();
+}
+
+/* Reliable respawn alerts.
+   The 500ms tick() is the wrong thing to hang the 1-minute warning on: a
+   backgrounded/throttled tab can starve setInterval so badly that no tick lands
+   inside the 0<rem<=60s window, and the warning (the whole point of the app)
+   is silently skipped. Instead, arm a one-shot setTimeout for the warning and
+   the respawn the moment a timer is (re)set — a single far-future timeout still
+   fires near its target even under heavy throttling. tick() also calls these as
+   a fallback; the warnFired / wasRunning guards keep either path from
+   double-firing. Timeout handles live OUTSIDE the timer objects so they never
+   end up in snapshot()/restoreSnapshot(). */
+const alertTimers=DISTRICTS.map(()=>({warn:null,spawn:null}));
+function clearAlertTimers(i){const a=alertTimers[i];if(a.warn){clearTimeout(a.warn);a.warn=null;}if(a.spawn){clearTimeout(a.spawn);a.spawn=null;}}
+function fireWarn(i){
+  const t=timers[i];
+  if(!t.running||!t.end||t.unknown||t.warnFired)return;
+  const rem=(t.end-Date.now())/1000;
+  if(rem<=0||rem>WARN_AT+1)return;        // guard stale/early fires
+  t.warnFired=true;
+  windowAlert(DISTRICTS[i].name,'warning');
+  logEvent(`${DISTRICTS[i].name} respawns in 1 minute.`);
+}
+function fireSpawn(i){
+  const t=timers[i];
+  if(!t.running||!t.end||t.unknown)return;
+  if((t.end-Date.now())/1000>0)return;    // not due yet
+  t.running=false;t.end=null;t.wasRunning=false;t.warnFired=false;
+  clearAlertTimers(i);
+  windowAlert(DISTRICTS[i].name,'spawn');
+  logEvent(`${DISTRICTS[i].name} boss respawned.`);
+  const row=document.getElementById(`dr${i}`);if(row){row.classList.add('just-up');setTimeout(()=>row.classList.remove('just-up'),3600);}
+  refreshSlice(i);updateNextUp();
+}
+function scheduleAlerts(i){
+  clearAlertTimers(i);
+  const t=timers[i];
+  if(!t.running||!t.end||t.unknown)return;
+  const remMs=t.end-Date.now();
+  if(!t.warnFired)alertTimers[i].warn=setTimeout(()=>{alertTimers[i].warn=null;fireWarn(i);},Math.max(0,remMs-WARN_AT*1000));
+  alertTimers[i].spawn=setTimeout(()=>{alertTimers[i].spawn=null;fireSpawn(i);},Math.max(0,remMs));
 }
 
 function updateNextUp(){
@@ -3150,6 +3192,7 @@ function seenAlive(i){
     logEvent(`Scout check: ${DISTRICTS[i].name} (${bossNamesForDistrict(i)}) seen alive.`);
     toast(`${DISTRICTS[i].name} seen alive`,'success');
   }
+  scheduleAlerts(i);
   tick();
 }
 
@@ -3177,6 +3220,7 @@ function setTimerGuess(i,minsAgo){
     timers[i].end=Date.now()+(RESPAWN-elapsed)*1000;timers[i].running=true;timers[i].wasRunning=true;
     logEvent(`Timer guess: ${DISTRICTS[i].name} died about ${minsAgo} min ago. Estimated respawn in ${fmt(RESPAWN-elapsed)}.`);
   }
+  scheduleAlerts(i);
   tick();
 }
 
@@ -3186,6 +3230,7 @@ function killBoss(i){
   timers[i].end=Date.now()+RESPAWN*1000;timers[i].running=true;timers[i].wasRunning=true;timers[i].warnFired=false;timers[i].unknown=false;timers[i].unknownAt=null;timers[i].seenAt=null;
   totalKills++;currentTelVar+=gain;
   logEvent(`Killed ${DISTRICTS[i].name} boss (${bossNamesForDistrict(i)}) — +${gain.toLocaleString()} Tel Var.`);
+  scheduleAlerts(i);
   tick();
 }
 
@@ -3193,6 +3238,7 @@ function rstBoss(i){
   pushUndo('Reset boss timer');
   timers[i].end=null;timers[i].running=false;timers[i].wasRunning=false;timers[i].warnFired=false;timers[i].unknown=false;timers[i].unknownAt=null;timers[i].seenAt=null;
   logEvent(`Reset ${DISTRICTS[i].name} timer.`);
+  scheduleAlerts(i);
   tick();
 }
 
@@ -3200,6 +3246,7 @@ function resetAll(){
   pushUndo('Reset all timers');
   DISTRICTS.forEach((_,i)=>{timers[i].end=null;timers[i].running=false;timers[i].wasRunning=false;timers[i].warnFired=false;timers[i].unknown=false;timers[i].unknownAt=null;timers[i].seenAt=null;});
   logEvent('Reset all boss timers.');
+  DISTRICTS.forEach((_,i)=>scheduleAlerts(i));
   tick();
 }
 
@@ -3239,8 +3286,8 @@ function tick(){
     if(unknown){up=false;}
     else if(t.running&&t.end){
       rem=Math.max(0,(t.end-now)/1000);up=rem<=0;wn=!up&&rem<=WARN_AT;
-      if(wn&&!t.warnFired){t.warnFired=true;windowAlert(d.name,'warning');logEvent(`${d.name} respawns in 1 minute.`);}
-      if(up&&t.wasRunning){t.running=false;t.end=null;t.wasRunning=false;t.warnFired=false;windowAlert(d.name,'spawn');logEvent(`${d.name} boss respawned.`);const row=document.getElementById(`dr${i}`);if(row){row.classList.add('just-up');setTimeout(()=>row.classList.remove('just-up'),3600);}}
+      if(wn&&!t.warnFired)fireWarn(i);     // fallback; scheduleAlerts is primary
+      if(up&&t.wasRunning)fireSpawn(i);
     }
     const state=districtState(i),urg=!up&&!unknown&&rem<15;
     let str=up?'ALIVE':fmt(rem),title='';

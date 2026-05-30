@@ -52,6 +52,10 @@ perKill = round(1327 × MULT[stI] × (1 + dcHeld.size × 0.33) / grSz)
 
 `BASE_TV = 1327`, `MULT = [1, 2, 3, 4]`, `RESPAWN = 900s`, `WARN_AT = 60s`. The `.drow.urgent` red-pulse state triggers when the remaining countdown is `<=15s` (hardcoded inline in the tick loop — no named constant).
 
+## Respawn alerts
+
+The 1-minute warning and the respawn alert are armed with **one-shot `setTimeout`s** via `scheduleAlerts(i)`, called whenever a timer is set (`killBoss`, `setTimerGuess`, `seenAlive`, `rstBoss`, `resetAll`, `restoreSnapshot`). This is deliberate: a backgrounded/throttled tab starves the 500ms `tick()` so badly it can skip the warn window entirely. `tick()` still calls `fireWarn(i)`/`fireSpawn(i)` as a fallback; both are idempotent (guarded by `warnFired` / `wasRunning`), so the scheduled and polled paths never double-fire. Timeout handles live in the module-level `alertTimers[]` (NOT on the timer objects, so they stay out of `snapshot()`).
+
 ## localStorage keys
 
 `ic-alliance`, `ic-dcHeld`, `ic-telvar-target`, `ic-help-seen`, `esoIcFantasyTheme`.
