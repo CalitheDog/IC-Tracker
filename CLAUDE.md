@@ -47,8 +47,10 @@ When you add a feature or rename a function, update `tests/tests.js`. The suite 
 ## Tel Var formula
 
 ```
-perKill = round(1327 × MULT[stI] × (1 + dcHeld.size × 0.33) / grSz)
+perKill = round(activeBaseTV() × MULT[stI] × (1 + dcHeld.size × 0.33) / grSz)
 ```
+
+`activeBaseTV()` returns `BASE_TV` (1327) when `esoPlus` is true, else `BASE_TV_NOPLUS` (1200). The verified in-game base Patrolling-Horror drop is ~1200; `1327 ≈ 1200 × 1.10` is the **ESO Plus** ~10% Tel Var bonus, so the app assumes ESO Plus by default. The estimator's `#esoPlusBtn` (chalice icon, `assets/eso-plus.webp`) toggles it via `toggleEsoPlus()`/`applyEsoPlus()`, persisting `ic-eso-plus` ('1'/'0'). The toggle is part of `updateTV()`'s formula dirty-check signature, and the formula card's Base row shows the active value (with a "+ESO Plus" hint when on). The other constants (×2/×3/×4 stones tiers, +33%/district to +198%, ÷ group size, 15-min respawn) are all confirmed accurate.
 
 `BASE_TV = 1327`, `MULT = [1, 2, 3, 4]`, `RESPAWN = 900s`, `WARN_AT = 60s`. The `.drow.urgent` red-pulse state triggers when the remaining countdown is `<15s` (hardcoded inline; no named constant). The map slice mirrors this via `sliceState()` returning `'urgent'` (CSS `.sc.s-urgent` pops bright + pulses).
 
@@ -58,7 +60,7 @@ The 1-minute warning and the respawn alert are armed with **one-shot `setTimeout
 
 ## localStorage keys
 
-`ic-alliance`, `ic-dcHeld`, `ic-telvar-target`, `ic-help-seen`, `ic-notify`, `esoIcFantasyTheme`.
+`ic-alliance`, `ic-dcHeld`, `ic-telvar-target`, `ic-help-seen`, `ic-notify`, `ic-eso-plus`, `esoIcFantasyTheme`.
 
 `ic-notify` is the desktop-notification opt-in (`'1'`/`'0'`). The `#notifyBtn` chrome button drives `toggleNotify()` (requests `Notification` permission on first enable) → `applyNotifyPref()` (sets `notifyEnabled`, button state, persists). `notify(name,type)` is called from `windowAlert()` so the respawn/warning reaches the OS; it no-ops unless enabled, permission-granted, and the app is **not** focused (`document.hasFocus()` false), so a player on another monitor gets the alert but the in-app toast isn't duplicated when they're looking at the app.
 
