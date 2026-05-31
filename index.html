@@ -2115,6 +2115,17 @@ html,body{max-width:100%;overflow-x:hidden;}
   #muteBtn,#helpBtn,#notifyBtn{min-height:42px!important;min-width:42px!important;font-size:12px!important;}
 }
 
+@media (max-width:600px){
+  /* Mobile fix: the desktop .drow grid (auto minmax(280px,max-content) auto 1fr)
+     forces a 280px name column plus a trailing blank track. On a phone those
+     tracks overflow the overflow:hidden row, pushing the countdown timer — and
+     the last action button — off the right edge (invisible). Collapse to
+     ddot | name(flex) | timer so the timer always stays visible; because the
+     grid then matches the row width, the full-width actions row (grid-column
+     1/-1) also shrinks, letting its flex:1 buttons fit instead of clipping. */
+  .drow{grid-template-columns:auto 1fr auto !important;}
+}
+
 </style>
 
 <a class="skip-link" href="#districts">Skip to boss timers</a>
