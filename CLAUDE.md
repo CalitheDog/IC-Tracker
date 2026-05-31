@@ -60,7 +60,9 @@ The 1-minute warning and the respawn alert are armed with **one-shot `setTimeout
 
 ## localStorage keys
 
-`ic-alliance`, `ic-dcHeld`, `ic-telvar-target`, `ic-help-seen`, `ic-notify`, `ic-eso-plus`, `esoIcFantasyTheme`.
+`ic-alliance`, `ic-dcHeld`, `ic-telvar-target`, `ic-help-seen`, `ic-notify`, `ic-eso-plus`, `ic-timers`, `esoIcFantasyTheme`.
+
+`ic-timers` is the **refresh-recovery** snapshot of the boss timers. `saveTimers()` serializes the `timers[]` array (no alert-timeout handles) on every mutation — it's called at the top of `scheduleAlerts()` (which all set/reset paths route through) plus in `fireWarn()`/`fireSpawn()` for the warn/respawn transitions. `restoreTimers()` runs in `init()` (after the map/rows/alliance are built) and re-hydrates only timers that are still `running` with `end` in the **future**; an already-elapsed timer is dropped (left ALIVE) so a reload doesn't fire "boss is up" for every district. Because `end` is absolute epoch ms, restored countdowns stay accurate across the reload. This is deliberately **timers-only** — Tel Var/session economy state is NOT persisted, to keep it a crash-safety net rather than a full save/restore feature.
 
 `ic-notify` is the desktop-notification opt-in (`'1'`/`'0'`). The `#notifyBtn` chrome button drives `toggleNotify()` (requests `Notification` permission on first enable) → `applyNotifyPref()` (sets `notifyEnabled`, button state, persists). `notify(name,type)` is called from `windowAlert()` so the respawn/warning reaches the OS; it no-ops unless enabled, permission-granted, and the app is **not** focused (`document.hasFocus()` false), so a player on another monitor gets the alert but the in-app toast isn't duplicated when they're looking at the app.
 

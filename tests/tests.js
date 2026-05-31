@@ -928,6 +928,70 @@ describe('Session target reached', () => {
   });
 });
 
+/* ═══════════════════════════════════════════ TIMER PERSISTENCE ═══ */
+describe('Timer persistence', () => {
+  it('saveTimers() writes a running countdown to localStorage', () => {
+    resetState();
+    localStorage.removeItem('ic-timers');
+    const end = Date.now() + 600000; // 10 min out
+    Object.assign(timers[2], { running: true, end });
+    saveTimers();
+    const saved = JSON.parse(localStorage.getItem('ic-timers'));
+    assert.ok(Array.isArray(saved));
+    assert.equal(saved.length, DISTRICTS.length);
+    assert.ok(saved[2].running);
+    assert.equal(saved[2].end, end);
+  });
+
+  it('restoreTimers() restores a future-dated countdown', () => {
+    resetState();
+    const end = Date.now() + 500000;
+    localStorage.setItem('ic-timers', JSON.stringify(
+      DISTRICTS.map((_, i) => i === 3
+        ? { end, running: true, wasRunning: false, warnFired: false, unknown: false, unknownAt: null }
+        : { end: null, running: false, wasRunning: false, warnFired: false, unknown: false, unknownAt: null })));
+    DISTRICTS.forEach((_, i) => Object.assign(timers[i], { end: null, running: false }));
+    restoreTimers();
+    assert.ok(timers[3].running);
+    assert.equal(timers[3].end, end);
+  });
+
+  it('restoreTimers() drops an already-expired timer (stays ALIVE)', () => {
+    resetState();
+    const end = Date.now() - 1000; // already past
+    localStorage.setItem('ic-timers', JSON.stringify(
+      DISTRICTS.map((_, i) => i === 1
+        ? { end, running: true, wasRunning: false, warnFired: true, unknown: false, unknownAt: null }
+        : { end: null, running: false, wasRunning: false, warnFired: false, unknown: false, unknownAt: null })));
+    DISTRICTS.forEach((_, i) => Object.assign(timers[i], { end: null, running: false }));
+    restoreTimers();
+    assert.notOk(timers[1].running);
+    assert.equal(timers[1].end, null);
+  });
+
+  it('restoreTimers() ignores malformed data', () => {
+    resetState();
+    localStorage.setItem('ic-timers', 'not json{');
+    restoreTimers(); // must not throw
+    assert.notOk(timers[0].running);
+    localStorage.setItem('ic-timers', JSON.stringify({ not: 'an array' }));
+    restoreTimers();
+    assert.notOk(timers[0].running);
+  });
+
+  it('saveTimers() persists a cleared timer after respawn', () => {
+    resetState();
+    Object.assign(timers[0], { running: true, end: Date.now() + 1000 });
+    saveTimers();
+    Object.assign(timers[0], { running: false, end: null });
+    saveTimers();
+    const saved = JSON.parse(localStorage.getItem('ic-timers'));
+    assert.notOk(saved[0].running);
+    assert.equal(saved[0].end, null);
+    localStorage.removeItem('ic-timers');
+  });
+});
+
 /* ═══════════════════════════════════════════ CLEANUP ═══ */
 describe('Cleanup', () => {
   it('Reset state after all tests', () => {

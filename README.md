@@ -10,6 +10,7 @@ A **Tel Var farm optimizer** for Elder Scrolls Online Imperial City, built for c
 - **Alliance & district control** — pick your alliance (EP / DC / AD) and toggle the districts **your** alliance holds — each one adds a +33% Tel Var bonus. Tap a district name, its boss pictures, or a map skull to open the boss card.
 - **Scouting** — found a dead boss you didn't kill? **Guess** when it died, **Seen Alive** to confirm it's up, or **Reset** a timer.
 - **Desktop alerts** — optional sound and browser **notifications** when a boss respawns, so the warning reaches you on another screen while you're in-game.
+- **Refresh-safe** — running boss timers survive an accidental reload or browser crash mid-farm; the countdowns pick up right where they left off.
 - **Installable** — runs offline as a PWA, nudges you when a new version is available, and has an **OBS overlay mode** (`?obs=1`) for streamers.
 - **Keyboard & accessible** — full keyboard shortcuts, screen-reader labels, focus management, and reduced-motion support.
 
