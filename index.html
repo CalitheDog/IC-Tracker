@@ -3008,6 +3008,7 @@ function fireWarn(i){
   const rem=(t.end-Date.now())/1000;
   if(rem<=0||rem>WARN_AT+1)return;        // guard stale/early fires
   t.warnFired=true;
+  saveTimers();           // persist the warnFired flip so a reload doesn't re-warn
   windowAlert(DISTRICTS[i].name,'warning');
   logEvent(`${DISTRICTS[i].name} respawns in 1 minute.`);
 }
@@ -3016,13 +3017,41 @@ function fireSpawn(i){
   if(!t.running||!t.end||t.unknown)return;
   if((t.end-Date.now())/1000>0)return;    // not due yet
   t.running=false;t.end=null;t.wasRunning=false;t.warnFired=false;
-  clearAlertTimers(i);
+  clearAlertTimers(i);saveTimers();   // persist the respawn (timer now clear/alive)
   windowAlert(DISTRICTS[i].name,'spawn');
   logEvent(`${DISTRICTS[i].name} boss respawned.`);
   const row=document.getElementById(`dr${i}`);if(row){row.classList.add('just-up');setTimeout(()=>row.classList.remove('just-up'),3600);}
   refreshSlice(i);updateNextUp();
 }
+/* Crash/refresh recovery: persist the boss timers so an accidental reload
+   mid-farm doesn't wipe the one thing you can't reconstruct — when each boss
+   died. timer.end is an absolute epoch ms, so a restored countdown stays
+   accurate across the reload. Only the timer array is saved (NOT Tel Var /
+   session state) — kept deliberately narrow so this stays a refresh-safety net,
+   not a full save/restore feature. Alert-timeout handles are excluded (they're
+   re-armed on restore). */
+function saveTimers(){
+  try{localStorage.setItem('ic-timers',JSON.stringify(timers.map(t=>({
+    end:t.end,running:t.running,wasRunning:t.wasRunning,warnFired:t.warnFired,unknown:t.unknown,unknownAt:t.unknownAt
+  }))));}catch(e){}
+}
+function restoreTimers(){
+  let saved=null;
+  try{saved=JSON.parse(localStorage.getItem('ic-timers')||'null');}catch(e){return;}
+  if(!Array.isArray(saved))return;
+  const now=Date.now();
+  saved.forEach((s,i)=>{
+    if(!s||i>=timers.length)return;
+    // Only restore a live countdown still in the future. A timer that elapsed
+    // while the tab was closed stays at the default ALIVE state — restoring an
+    // expired one would spam "boss is up" alerts for every district on load.
+    if(s.running&&!s.unknown&&typeof s.end==='number'&&s.end>now){
+      Object.assign(timers[i],s);
+    }
+  });
+}
 function scheduleAlerts(i){
+  saveTimers();           // persist on every timer set/reset (called from all mutation paths)
   clearAlertTimers(i);
   const t=timers[i];
   if(!t.running||!t.end||t.unknown)return;
@@ -3539,6 +3568,11 @@ function init(){
   try{applyNotifyPref(localStorage.getItem('ic-notify')==='1'&&'Notification' in window&&Notification.permission==='granted');}catch(e){applyNotifyPref(false);}
   // ESO Plus base toggle (defaults ON — only stored '0' turns it off).
   try{applyEsoPlus(localStorage.getItem('ic-eso-plus')!=='0');}catch(e){applyEsoPlus(true);}
+  // Refresh-recovery: restore any boss timers still counting down, then re-paint
+  // and re-arm their alerts. Must run after the map/rows/alliance are built.
+  restoreTimers();
+  DISTRICTS.forEach((_,i)=>{refreshSlice(i);refreshRow(i);scheduleAlerts(i);});
+  updateNextUp();updateTV();
   tick();setInterval(tick,500);
 }
 init();
