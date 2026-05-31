@@ -1573,7 +1573,7 @@ body.alliance-ad .dc-toggle.held{
 @media (min-width:1280px){
   html, body{height:100%;}
   body{
-    display:grid !important;
+    display:grid;
     grid-template-columns: minmax(360px, 400px) 1fr minmax(360px, 400px);
     grid-template-rows: auto 1fr auto auto;
     grid-template-areas:
@@ -1582,7 +1582,7 @@ body.alliance-ad .dc-toggle.held{
       "actions actions   actions"
       "footer  footer    footer";
     column-gap:18px;row-gap:10px;
-    padding:0 24px 8px !important;
+    padding:0 24px 8px;
     max-width:1560px;
     margin:0 auto;
     height:100vh;
@@ -1594,7 +1594,7 @@ body.alliance-ad .dc-toggle.held{
     margin:0 -24px 0;
     width:calc(100% + 48px);
   }
-  body > .layout{display:contents !important;padding:0 !important;}
+  body > .layout{display:contents;padding:0;}
   .layout .left-col{
     grid-area:map;width:100%;
     align-self:stretch;
@@ -1615,7 +1615,7 @@ body.alliance-ad .dc-toggle.held{
   .layout .right-col::-webkit-scrollbar-thumb{background:var(--cd-line2);}
   body > .telvar-details{
     grid-area:telvar;
-    padding:0 !important;max-width:none !important;margin:0 !important;
+    padding:0;max-width:none;margin:0;
     align-self:start;
     min-height:0;
     max-height:100%;
@@ -1625,12 +1625,12 @@ body.alliance-ad .dc-toggle.held{
   }
   body > .telvar-details::-webkit-scrollbar{width:5px;}
   body > .telvar-details::-webkit-scrollbar-thumb{background:var(--cd-line2);}
-  body > .footer{grid-area:footer;align-self:start;margin-top:4px !important;padding-top:6px !important;}
-  body > .credits{display:none !important;}
+  body > .footer{grid-area:footer;align-self:start;margin-top:4px;padding-top:6px !important;}
+  body > .credits{display:none;}
 
   /* Map shrinks to fit the column. Keep the SVG viewBox uniform so the
      circular backdrop the SVG draws stays centered no matter the column. */
-  .map-section{align-items:center !important;}
+  .map-section{align-items:center;}
   .map-wrap{
     width:380px !important;max-width:100% !important;height:380px !important;
     aspect-ratio:1/1;align-self:center;
@@ -1643,29 +1643,29 @@ body.alliance-ad .dc-toggle.held{
 
   /* Tel Var panel: single column, dense */
   .telvar-panel{padding:14px 14px !important;position:sticky;top:64px;}
-  .panel-hd{font-size:10px !important;letter-spacing:0.26em !important;padding-bottom:8px !important;margin-bottom:8px !important;}
+  .panel-hd{font-size:10px !important;letter-spacing:0.26em !important;padding-bottom:8px !important;margin-bottom:8px;}
   .telvar-cols{
-    display:flex !important;flex-direction:column !important;
-    grid-template-columns:none !important;gap:12px !important;align-items:stretch !important;
+    display:flex;flex-direction:column;
+    grid-template-columns:none;gap:12px;align-items:stretch;
   }
-  .telvar-col{gap:8px !important;}
+  .telvar-col{gap:8px;}
   .telvar-col > .tv-lbl{font-size:9px !important;margin-bottom:4px !important;}
 
   /* Presets: 3 in a row, tighter */
-  .preset-grid{grid-template-columns:repeat(3,1fr) !important;gap:4px !important;margin-bottom:6px !important;}
+  .preset-grid{grid-template-columns:repeat(3,1fr);gap:4px !important;margin-bottom:6px;}
   .preset-btn{font-size:9px !important;padding:6px 4px !important;}
-  .preset-icon{width:14px !important;height:14px !important;}
+  .preset-icon{width:14px;height:14px;}
 
   /* Alliance: tighter */
-  .alliance-grid{gap:4px !important;margin-bottom:8px !important;}
+  .alliance-grid{gap:4px !important;margin-bottom:8px;}
   .alliance-btn{font-size:10px !important;padding:7px 4px !important;letter-spacing:0.14em !important;}
 
   /* Stones + Group: tighter */
-  .tv-grid{gap:6px !important;margin-bottom:6px !important;}
+  .tv-grid{gap:6px;margin-bottom:6px;}
   .seg{font-size:10px !important;padding:5px 8px !important;}
 
   /* Held districts: 3-wide grid stays, tighter */
-  .dc-grid{gap:3px !important;margin-bottom:6px !important;}
+  .dc-grid{gap:3px !important;margin-bottom:6px;}
   .dc-toggle{font-size:9px !important;padding:5px 3px !important;letter-spacing:0.10em !important;}
 
   /* Formula: smaller */
@@ -1673,12 +1673,12 @@ body.alliance-ad .dc-toggle.held{
   .formula .res{font-size:13px !important;}
 
   /* Stats: 2-wide grid (was 3+), only unique-to-panel ones visible */
-  .tv-stats{grid-template-columns:1fr 1fr !important;gap:4px !important;}
+  .tv-stats{grid-template-columns:1fr 1fr;gap:4px !important;}
   .tv-stat{padding:7px 5px !important;}
   .tv-sv{font-size:14px !important;}
   .tv-sv-row .tv-sv{font-size:13px !important;}
-  .tv-sv-icon{width:11px !important;height:11px !important;}
-  .tv-sl{font-size:8px !important;letter-spacing:0.16em !important;margin-top:2px !important;}
+  .tv-sv-icon{width:11px;height:11px;}
+  .tv-sl{font-size:8px !important;letter-spacing:0.16em !important;margin-top:2px;}
 
   /* Hide the 4 stats already pinned to the topbar */
   .telvar-details .tv-stat:has(#tvT),
@@ -1687,19 +1687,19 @@ body.alliance-ad .dc-toggle.held{
   .telvar-details .tv-stat:has(#tvTime){display:none !important;}
 
   /* Tel Var target bar */
-  .tv-target-wrap{margin:5px 0 !important;}
+  .tv-target-wrap{margin:5px 0;}
   .tv-target-bar{height:6px !important;}
   .tv-target-bar-label{font-size:9px !important;}
 
   /* Action buttons in panel */
-  .tv-action{font-size:9px !important;padding:7px 6px !important;min-width:0 !important;flex:1 1 0 !important;letter-spacing:0.14em !important;}
-  .tv-actions{gap:4px !important;margin-top:4px !important;}
+  .tv-action{font-size:9px !important;padding:7px 6px !important;min-width:0;flex:1 1 0;letter-spacing:0.14em !important;}
+  .tv-actions{gap:4px !important;margin-top:4px;}
 
   /* Adjust inputs row */
   
-  .tv-adj-input{font-size:11px !important;padding:5px 8px !important;}
-  .tv-adj-btn{font-size:9px !important;padding:5px 9px !important;letter-spacing:0.1em !important;}
-  .tv-adj-item-label{font-size:9px !important;letter-spacing:0.14em !important;}
+  .tv-adj-input{font-size:11px !important;padding:5px 8px;}
+  .tv-adj-btn{font-size:9px;padding:5px 9px !important;letter-spacing:0.1em;}
+  .tv-adj-item-label{font-size:9px;letter-spacing:0.14em;}
 
   /* Action strip below districts: still 4 across, slimmer */
   .action-strip{gap:5px !important;}
@@ -1714,11 +1714,11 @@ body.alliance-ad .dc-toggle.held{
   }
   /* Districts container: rows are fixed-height, gap between (no flex:1 stretch) */
   .districts{
-    flex:0 0 auto !important;
+    flex:0 0 auto;
     display:flex !important;flex-direction:column !important;
     gap:8px !important;
   }
-  .districts .drow{flex:0 0 110px !important;}
+  .districts .drow{flex:0 0 110px;}
 
   .drow{
     display:grid !important;
@@ -1726,7 +1726,7 @@ body.alliance-ad .dc-toggle.held{
     align-items:stretch !important;
     gap:0 !important;
     padding:0 14px 0 0 !important;
-    flex-wrap:nowrap !important;
+    flex-wrap:nowrap;
     overflow:hidden;
     min-height:0;
     height:110px;
@@ -1778,13 +1778,13 @@ body.alliance-ad .dc-toggle.held{
   .drow .dtimer{order:4;flex-shrink:0;align-self:center;margin-right:14px;}
   .drow .drow-actions{
     order:5;flex-shrink:0;align-self:center;
-    grid-column:auto !important;
-    display:flex !important;gap:5px !important;
-    border-top:0 !important;margin:0 !important;padding:0 !important;
-    width:auto !important;
+    grid-column:auto;
+    display:flex;gap:5px;
+    border-top:0;margin:0;padding:0;
+    width:auto;
   }
   /* Now show the actual boss subtitle (it was hidden as part of .boss-chips) */
-  .drow .boss-chips{display:none !important;}
+  .drow .boss-chips{display:none;}
   .drow .dbosses-text{
     font-size:11px;line-height:1.35;color:var(--cd-mute);font-style:italic;
     overflow:hidden;padding-right:14px;
@@ -1809,7 +1809,7 @@ body.alliance-ad .dc-toggle.held{
      name/portrait/skull → Seen Alive / Guess / Reset). Shown inline on mobile. */
   .drow .dbtn.guess,
   .drow .dbtn.scout,
-  .drow .dbtn.rst{display:none !important;}
+  .drow .dbtn.rst{display:none;}
   .drow .dinfo{cursor:pointer;}
   .drow .dinfo:hover .dname{color:var(--cd-amber-hi) !important;text-decoration:underline;text-decoration-color:rgba(255,185,56,0.3);text-underline-offset:3px;}
   .drow .dbtn.guess::before{content:'?';}
@@ -1857,9 +1857,9 @@ body.alliance-ad .dc-toggle.held{
      Show in left-col, hide if they wind up duplicated in right-col. */
   .layout .left-col .map-section{flex-shrink:0;}
   .layout .left-col .cd-insights{
-    margin:0 !important;
+    margin:0;
     flex:0 0 auto;min-height:0;
-    display:flex !important;flex-direction:column;gap:8px;
+    display:flex;flex-direction:column;gap:8px;
     background:linear-gradient(180deg,var(--cd-panel),var(--cd-bg2));
     border:1px solid var(--cd-line);
     padding:14px;
@@ -1917,7 +1917,7 @@ body.alliance-ad .dc-toggle.held{
      marks it with .cd-bottom-bar to claim the grid area. */
   body > .action-strip.cd-bottom-bar{
     grid-area:actions;
-    margin:0 !important;
+    margin:0;
     display:grid !important;
     grid-template-columns:repeat(5, 1fr) !important;
     gap:6px !important;
@@ -1925,7 +1925,7 @@ body.alliance-ad .dc-toggle.held{
   }
   body > .action-strip.cd-bottom-bar > .qs-btn,
   body > .action-strip.cd-bottom-bar > .reset-all{
-    width:100% !important;
+    width:100%;
   }
   /* The bottom-bar Reset All keeps the red treatment */
   body > .action-strip.cd-bottom-bar > .reset-all{
@@ -1959,48 +1959,48 @@ body.alliance-ad .dc-toggle.held{
   .telvar-panel .preset-grid,
   .telvar-panel .preset-note,
   .telvar-panel .preset-grid + .tv-lbl,
-  .telvar-panel .tv-lbl:first-of-type{display:none !important;}
+  .telvar-panel .tv-lbl:first-of-type{display:none;}
 
   .telvar-panel .formula-card{
-    padding:8px 10px !important;margin:0 !important;
+    padding:8px 10px;margin:0;
   }
   .telvar-panel .formula-card-title{
-    font-size:9px !important;letter-spacing:0.18em !important;
-    margin-bottom:4px !important;color:var(--cd-mute) !important;
+    font-size:9px;letter-spacing:0.18em;
+    margin-bottom:4px;color:var(--cd-mute);
   }
   .telvar-panel .formula-row{
-    font-family:'JetBrains Mono',monospace !important;
-    font-size:10px !important;line-height:1.3;
-    padding:1px 0 !important;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;line-height:1.3;
+    padding:1px 0;
   }
-  .telvar-panel .formula-row .lbl{color:var(--cd-mute) !important;}
+  .telvar-panel .formula-row .lbl{color:var(--cd-mute);}
   .telvar-panel .formula-row .val{
-    color:var(--cd-text) !important;font-family:'JetBrains Mono',monospace !important;
-    font-weight:500 !important;font-size:10px !important;
+    color:var(--cd-text) !important;font-family:'JetBrains Mono',monospace;
+    font-weight:500;font-size:10px;
   }
   .telvar-panel .formula-row .val.dc{color:var(--cd-cyan-hi) !important;}
   .telvar-panel .formula-result{
-    margin-top:4px !important;padding-top:4px !important;
-    border-top:1px solid var(--cd-line2) !important;
+    margin-top:4px;padding-top:4px;
+    border-top:1px solid var(--cd-line2);
   }
   .telvar-panel .formula-result .lbl{
-    font-size:9px !important;letter-spacing:0.16em !important;color:var(--cd-mute) !important;
+    font-size:9px;letter-spacing:0.16em;color:var(--cd-mute);
   }
   .telvar-panel .formula-result .res{
-    font-family:'JetBrains Mono',monospace !important;font-weight:600 !important;
-    font-size:18px !important;color:var(--cd-amber-hi) !important;
-    text-shadow:none !important;
+    font-family:'JetBrains Mono',monospace;font-weight:600;
+    font-size:18px;color:var(--cd-amber-hi);
+    text-shadow:none;
   }
 
   /* Alliance buttons: compact icon row */
   .telvar-panel .alliance-btn{
     padding:6px !important;font-size:9px !important;letter-spacing:0.10em !important;
   }
-  .telvar-panel .alliance-btn .alliance-img{width:24px !important;height:24px !important;}
+  .telvar-panel .alliance-btn .alliance-img{width:24px;height:24px;}
   .telvar-panel .alliance-btn .alliance-name{font-size:8px !important;}
 
   /* Footer: thin */
-  .footer{font-size:9px !important;letter-spacing:0.22em !important;padding-top:8px !important;}
+  .footer{font-size:9px;letter-spacing:0.22em;padding-top:8px !important;}
   /* DC-held blue: SATURATED, not sky-pastel */
   .drow.dc-held.alive::before{background:#1e88ff !important;box-shadow:0 0 12px rgba(30,136,255,0.5);}
   .drow.dc-held.alive{border-color:rgba(30,136,255,0.55) !important;
