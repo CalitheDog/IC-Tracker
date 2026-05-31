@@ -923,10 +923,14 @@ body.obs .next-up-timer{font-size:1.25rem!important;}
 body.obs .next-up-tv{font-size:0.6rem!important;}
 body.obs .next-up-tv img{width:0.75rem!important;height:0.75rem!important;}
 body.obs .districts{gap:4px!important;}
-body.obs .drow{padding:6px 10px!important;display:grid!important;grid-template-columns:auto 1fr auto!important;gap:8px!important;align-items:center!important;}
+body.obs .drow{padding:6px 10px!important;display:grid!important;grid-template-columns:auto auto minmax(0,1fr)!important;gap:8px!important;align-items:center!important;}
 body.obs .dinfo .dbosses,body.obs .dc-pill,body.obs .dbtn{display:none!important;}
 body.obs .ddot{width:9px!important;height:9px!important;}
 body.obs .dname{font-size:0.85rem!important;}
+/* Shrink the boss portraits in the compact OBS rows so the district name
+   column (the grid's flexible track) has room to show the full name instead
+   of clipping to "M…". */
+body.obs .boss-thumbs img,body.obs .boss-thumbs .boss-thumb-ph{width:72px!important;height:72px!important;}
 body.obs .dtimer{font-size:1rem!important;padding:0!important;min-width:auto!important;}
 
 /* =====================================================================
