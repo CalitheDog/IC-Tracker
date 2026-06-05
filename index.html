@@ -2753,7 +2753,7 @@ function snapshot(label){
     timers:timers.map(t=>({...t})),
     dcHeld:[...dcHeld],
     stI,grSz,totalKills,currentTelVar,bankedTelVar,lostTelVar,
-    farmStart,farmEnd,farmRunning,activePreset,
+    farmStart,farmEnd,farmRunning,activePreset,targetReached,
     eventLog:eventLog.map(e=>({...e}))
   };
 }
@@ -2765,14 +2765,19 @@ function pushUndo(label){
 
 function restoreSnapshot(s){
   timers.forEach((t,i)=>Object.assign(t,s.timers[i]));
+  // Same warn-window guard as restoreTimers(): an undone timer already inside
+  // the final minute must not replay the "1 minute" warning when alerts re-arm.
+  const wnow=Date.now();
+  timers.forEach(t=>{if(t.running&&t.end&&!t.unknown&&t.end-wnow<=WARN_AT*1000)t.warnFired=true;});
   dcHeld.clear();s.dcHeld.forEach(i=>dcHeld.add(i));
   stI=s.stI;grSz=s.grSz;totalKills=s.totalKills;currentTelVar=s.currentTelVar;
   bankedTelVar=s.bankedTelVar;lostTelVar=s.lostTelVar;farmStart=s.farmStart;farmEnd=s.farmEnd;
-  farmRunning=s.farmRunning;activePreset=s.activePreset;eventLog=s.eventLog.map(e=>({...e}));
+  farmRunning=s.farmRunning;activePreset=s.activePreset;targetReached=!!s.targetReached;eventLog=s.eventLog.map(e=>({...e}));
   document.querySelectorAll('#stonesEl .seg').forEach((b,j)=>b.classList.toggle('sel',j===stI));
   document.querySelectorAll('#groupEl .seg').forEach((b,j)=>b.classList.toggle('sel',j+1===grSz));
   DISTRICTS.forEach((_,i)=>{refreshSlice(i);refreshRow(i);});
-  DISTRICTS.forEach((_,i)=>scheduleAlerts(i));   // re-arm alerts for restored timers
+  DISTRICTS.forEach((_,i)=>scheduleAlerts(i,true));   // re-arm alerts for restored timers
+  saveTimers();                                       // persist once after the batch re-arm
   buildDCToggles();buildSkulls();renderEventLog();updateTV();
 }
 
@@ -2873,7 +2878,8 @@ function saveTimers(){
 }
 function restoreTimers(){
   let saved=null;
-  try{saved=JSON.parse(localStorage.getItem('ic-timers')||'null');}catch(e){return;}
+  try{saved=JSON.parse(localStorage.getItem('ic-timers')||'null');}
+  catch(e){if(typeof console!=='undefined')console.warn('IC Tracker: timer crash-recovery unavailable (localStorage blocked).');return;}
   if(!Array.isArray(saved))return;
   const now=Date.now();
   saved.forEach((s,i)=>{
@@ -2883,11 +2889,17 @@ function restoreTimers(){
     // expired one would spam "boss is up" alerts for every district on load.
     if(s.running&&!s.unknown&&typeof s.end==='number'&&s.end>now){
       Object.assign(timers[i],s);
+      // If we reopened already inside the 1-minute warn window, treat the
+      // warning as spent. Otherwise scheduleAlerts arms it at delay 0 and fires
+      // it instantly on load with misleading "about 1 minute" copy (and it'd
+      // replay on every reload, and survive an undo that reset warnFired). The
+      // respawn alert still fires naturally when the timer reaches 0.
+      if(s.end-now<=WARN_AT*1000)timers[i].warnFired=true;
     }
   });
 }
-function scheduleAlerts(i){
-  saveTimers();           // persist on every timer set/reset (called from all mutation paths)
+function scheduleAlerts(i,defer){
+  if(!defer)saveTimers();   // persist on every set/reset; batch callers pass defer and call saveTimers() once
   clearAlertTimers(i);
   const t=timers[i];
   if(!t.running||!t.end||t.unknown)return;
@@ -3127,6 +3139,9 @@ function setTelvarTarget(){
   const n=parseInt(raw,10);
   telvarTarget=(raw===''||!n||n<=0)?0:n;
   input.value='';
+  // Don't celebrate a target the player sets at or below what they've already
+  // banked — flag it already-reached so only a genuine forward crossing fires.
+  targetReached=telvarTarget>0&&(bankedTelVar+currentTelVar)>=telvarTarget;
   try{localStorage.setItem('ic-telvar-target',telvarTarget);}catch(e){}
   updateTV();
 }
@@ -3278,7 +3293,7 @@ function resetAll(){
   pushUndo('Reset all timers');
   DISTRICTS.forEach((_,i)=>{timers[i].end=null;timers[i].running=false;timers[i].wasRunning=false;timers[i].warnFired=false;timers[i].unknown=false;timers[i].unknownAt=null;timers[i].seenAt=null;});
   logEvent('Reset all boss timers.');
-  DISTRICTS.forEach((_,i)=>scheduleAlerts(i));
+  DISTRICTS.forEach((_,i)=>scheduleAlerts(i,true));saveTimers();
   tick();
 }
 
@@ -3407,7 +3422,8 @@ function init(){
   // Refresh-recovery: restore any boss timers still counting down, then re-paint
   // and re-arm their alerts. Must run after the map/rows/alliance are built.
   restoreTimers();
-  DISTRICTS.forEach((_,i)=>{refreshSlice(i);refreshRow(i);scheduleAlerts(i);});
+  DISTRICTS.forEach((_,i)=>{refreshSlice(i);refreshRow(i);scheduleAlerts(i,true);});
+  saveTimers();
   updateNextUp();updateTV();
   tick();setInterval(tick,500);
 }

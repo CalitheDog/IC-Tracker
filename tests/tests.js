@@ -926,6 +926,36 @@ describe('Session target reached', () => {
     currentTelVar = 8000; updateTV(); // re-cross
     assert.ok(targetReached);
   });
+  it('setting a target at/below current net flags reached WITHOUT firing a toast', () => {
+    resetState();
+    currentTelVar = 6000;
+    const banner = document.getElementById('alertBanner');
+    while (banner.firstChild) banner.removeChild(banner.firstChild);
+    document.getElementById('tvTargetInput').value = '5000';
+    setTelvarTarget();
+    assert.equal(telvarTarget, 5000);
+    assert.ok(targetReached);                                       // flagged already-reached
+    assert.equal(banner.querySelectorAll('.alert-toast').length, 0); // but NO celebration toast (distinguishes the fix)
+  });
+  it('setting a target above current net leaves it unreached', () => {
+    resetState();
+    currentTelVar = 1000;
+    document.getElementById('tvTargetInput').value = '5000';
+    setTelvarTarget();
+    assert.notOk(targetReached);
+  });
+  it('snapshot captures targetReached and undo does not re-fire the goal toast', () => {
+    resetState();
+    telvarTarget = 5000; currentTelVar = 6000; targetReached = true;
+    const snap = snapshot('t');
+    assert.ok(snap.targetReached);            // captured in snapshot (fails if field omitted)
+    targetReached = false;                    // simulate the post-action cleared flag
+    const banner = document.getElementById('alertBanner');
+    while (banner.firstChild) banner.removeChild(banner.firstChild);
+    restoreSnapshot(snap);
+    assert.ok(targetReached);                                        // restored
+    assert.equal(banner.querySelectorAll('.alert-toast').length, 0); // undo must NOT re-fire the celebration (distinguishes the fix)
+  });
 });
 
 /* ═══════════════════════════════════════════ TIMER PERSISTENCE ═══ */
@@ -989,6 +1019,43 @@ describe('Timer persistence', () => {
     assert.notOk(saved[0].running);
     assert.equal(saved[0].end, null);
     localStorage.removeItem('ic-timers');
+  });
+
+  it('restoreTimers() marks a timer inside the warn window as warnFired (no replay on reload)', () => {
+    resetState();
+    const end = Date.now() + 30000; // 30s left — inside the 60s warn window
+    localStorage.setItem('ic-timers', JSON.stringify(DISTRICTS.map((_, i) => i === 2
+      ? { end, running: true, wasRunning: false, warnFired: false, unknown: false, unknownAt: null }
+      : { end: null, running: false, wasRunning: false, warnFired: false, unknown: false, unknownAt: null })));
+    DISTRICTS.forEach((_, i) => Object.assign(timers[i], { end: null, running: false, warnFired: false }));
+    restoreTimers();
+    assert.ok(timers[2].running);
+    assert.ok(timers[2].warnFired); // suppressed → scheduleAlerts won't re-fire the 1-min warning
+    localStorage.removeItem('ic-timers');
+  });
+
+  it('restoreTimers() leaves warnFired false for a timer well outside the warn window', () => {
+    resetState();
+    const end = Date.now() + 600000; // 10 min — the warning should still fire later
+    localStorage.setItem('ic-timers', JSON.stringify(DISTRICTS.map((_, i) => i === 0
+      ? { end, running: true, wasRunning: false, warnFired: false, unknown: false, unknownAt: null }
+      : { end: null, running: false, wasRunning: false, warnFired: false, unknown: false, unknownAt: null })));
+    DISTRICTS.forEach((_, i) => Object.assign(timers[i], { end: null, running: false, warnFired: false }));
+    restoreTimers();
+    assert.ok(timers[0].running);
+    assert.notOk(timers[0].warnFired);
+    localStorage.removeItem('ic-timers');
+  });
+
+  it('restoreSnapshot() suppresses the warn for an undone timer inside the warn window', () => {
+    resetState();
+    const end = Date.now() + 25000; // 25s left — inside the warn window
+    const snap = snapshot('t');
+    snap.timers[1] = { end, running: true, wasRunning: true, warnFired: false, unknown: false, unknownAt: null };
+    Object.assign(timers[1], { end, running: true, warnFired: false });
+    restoreSnapshot(snap);
+    assert.ok(timers[1].running);
+    assert.ok(timers[1].warnFired); // suppressed so undo doesn't replay the misleading 1-min warning
   });
 });
 
